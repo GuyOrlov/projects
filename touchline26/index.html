@@ -283,7 +283,7 @@ function advanceOtherLeague(full=false){
  while(alt.round<target){const games=alt.fixtures[alt.round].map(([h,a])=>({...simulate(h,a),round:alt.round+1}));games.forEach(m=>applyToTable(alt.table,m));alt.results.push(...games);alt.round++}
 }
 function leagueSnapshot(div){return div===state.division?{division:state.division,table:state.table,fixtures:state.fixtures,results:state.results,round:state.round}:state.otherLeague}
-function playoffTie(a,b,legs=1){let ag=0,bg=0;for(let i=0;i<legs;i++){const r=simulate(i%2===0?a:b,i%2===0?b:a);if(i%2===0){ag+=r.hg;bg+=r.ag}else{ag+=r.ag;bg+=r.hg}}return {a,b,ag,bg,winner:ag===bg?(Math.random()<.5?a:b):ag>bg?a:b,penalties:ag===bg}}
+function playoffTie(a,b,legs=1){let ag=0,bg=0;for(let i=0;i<legs;i++){const atHome=i%2===0&&(legs===1||legs===2?legs===1:true);const r=simulate(atHome?a:b,atHome?b:a);if(atHome){ag+=r.hg;bg+=r.ag}else{ag+=r.ag;bg+=r.hg}}return {a,b,ag,bg,winner:ag===bg?(Math.random()<.5?a:b):ag>bg?a:b,penalties:ag===bg}}
 function completePromotion(){
  if(state.seasonReview?.year===state.year)return state.seasonReview;
  advanceOtherLeague(true);
@@ -291,7 +291,8 @@ function completePromotion(){
  if(pl.length!==20||ch.length!==24||pl.some(t=>t.p!==38)||ch.some(t=>t.p!==46))throw Error('Both leagues must finish');
  const relegated=pl.slice(-3).map(t=>t.id),automatic=ch.slice(0,2).map(t=>t.id);
  const e1=playoffTie(ch[4].id,ch[7].id),e2=playoffTie(ch[5].id,ch[6].id);
- const semis=[playoffTie(ch[2].id,e2.winner,2),playoffTie(ch[3].id,e1.winner,2)],final=playoffTie(semis[0].winner,semis[1].winner);
+ const rankA=ch.findIndex(x=>x.id===e1.winner),rankB=ch.findIndex(x=>x.id===e2.winner),lowest=rankA>rankB?e1.winner:e2.winner,highest=rankA>rankB?e2.winner:e1.winner;
+ const semis=[playoffTie(ch[2].id,lowest,2),playoffTie(ch[3].id,highest,2)],final=playoffTie(semis[0].winner,semis[1].winner);
  const promoted=[...automatic,final.winner],premier=[...state.members.premier.filter(id=>!relegated.includes(id)),...promoted],championship=[...state.members.championship.filter(id=>!promoted.includes(id)),...relegated];
  if(premier.length!==20||championship.length!==24||new Set([...premier,...championship]).size!==44)throw Error('Invalid league membership');
  state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[e1,e2],semis,final},oldDivision:state.division,newDivision:premier.includes(state.clubId)?'premier':'championship'};
