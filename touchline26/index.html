@@ -738,7 +738,7 @@ function lmaInit(s){
 }
 function lmaForecast(s=state){
  const st=s.finance.stadium,club=CLUBS[s.clubId],form=s.table?.find(x=>x.id===s.clubId),pace=form?.p?form.pts/form.p:1.3;
- const raw=Math.round(st.capacity*clamp(.64+(club.power-70)*.008+(pace-1.2)*.07+(st.facilities-1)*.025+(28-st.ticket)*.013+(s.board?.confidence-70)*.0016,.25,1.15));
+ const raw=Math.round(st.capacity*clamp(.64+(club.power-70)*.008+(pace-1.2)*.07+(st.facilities-1)*.025+(28-st.ticket)*.013+(s.board?.confidence-70)*.0016+((s.experience?.fans??65)-65)*.0025,.25,1.15));
  const attendance=clamp(raw,Math.min(3500,st.capacity),st.capacity);
  return {attendance,capacity:st.capacity,occupation:Math.round(attendance/st.capacity*100),gate:round2(attendance*st.ticket/1e6)};
 }
@@ -802,7 +802,21 @@ function lmaSkillsUI(){
 /* Matchday experience: fictional stories, personal objectives and club records. */
 const XP_TALKS={calm:'Keep your shape and trust the plan.',inspire:'Show them what this club means!',demand:'Demand a response and press from the first whistle.'};
 const XP_DERBIES=[['Aston Villa','Birmingham City'],['Aston Villa','West Bromwich Albion'],['Manchester City','Manchester United'],['Liverpool','Everton'],['Arsenal','Tottenham Hotspur'],['Chelsea','Fulham'],['Newcastle United','Sunderland'],['Blackburn Rovers','Burnley'],['Wolverhampton Wanderers','West Bromwich Albion'],['Derby County','Nottingham Forest'],['Southampton','Portsmouth'],['Cardiff City','Swansea City']];
-let xpHighlightIndex=0,xpHighlightFrame=0;
+let xpHighlightIndex=0,xpHighlightFrame=0,xpHighlightTimer=null;
+function xpStopPlayback(){if(xpHighlightTimer!==null){clearInterval(xpHighlightTimer);xpHighlightTimer=null}}
+function xpPlayback(){
+ if(xpHighlightTimer!==null){xpStopPlayback();render();return}
+ if(tab!=='match'||!state.lastMatch?.detail?.highlights?.length)return;
+ xpHighlightTimer=setInterval(()=>{
+  if(tab!=='match'||state.activeMatch){xpStopPlayback();return}
+  const hs=state.lastMatch?.detail?.highlights||[],frames=hs[xpHighlightIndex]?.frames||[];
+  if(xpHighlightFrame<frames.length-1)xpHighlightFrame++;
+  else if(xpHighlightIndex<hs.length-1){xpHighlightIndex++;xpHighlightFrame=0}
+  else {xpStopPlayback();render();return}
+  render();
+ },650);
+ render();
+}
 function xpInit(s){
  const old=s.experience||{};
  s.experience=Object.assign({fans:65,talk:null,season:{year:s.year,wins:0,cleanSheets:0,youth:0,freeSignings:0,completed:[]},requests:[],moments:[],history:[],records:{biggestMargin:0,biggest:null},lastReaction:null},old);
@@ -880,6 +894,7 @@ function xpReaction(m){
  x.fans=clamp(x.fans+delta*(derby?2:1)+(state.finance.stadium.ticket>55?-2:state.finance.stadium.ticket<=25?1:0)+(cup&&us>them?3:0),10,100);
  const text=us>them?derby?'Supporters celebrate a derby victory.':'Supporters praise the victory.':us===them?'Supporters see the draw as a mixed result.':derby?'Supporters are disappointed by the derby defeat.':'Supporters want a response after defeat.';
  x.lastReaction={year:state.year,round:state.round,score:us+'–'+them,text,fan:x.fans};
+ if(derby||cup&&us>them)p3Inbox('Supporters',text+' Current supporter happiness: '+x.fans+'/100.');
  if(m.competition==='league'){
   const q=x.season;q.wins+=Number(us>them);q.cleanSheets+=Number(them===0);
  }
@@ -898,6 +913,7 @@ function xpCheckChallenges(){
   if(q[key]>=goal&&!q.completed.includes(key)){q.completed.push(key);state.cash=round2(state.cash+prize);state.career.reputation=clamp(state.career.reputation+2,1,100);p3Inbox('Challenge','Season challenge completed: '+label+'. Board bonus '+price(prize)+'.')}
  }
 }
+function xpSupporterPanel(){const x=state.experience;return '<section class="panel"><div class="panel-head"><h2>Supporters</h2><span class="pill">'+x.fans+'/100</span></div><p class="p3-note">'+goalEsc(x.lastReaction?.text||'Play a club match to receive supporter reactions.')+' Ticket prices, recent results and rivalries affect supporter happiness and home attendance.</p></section>'}
 function xpSeasonPanel(){
  const q=state.experience.season,goals=[['wins',8,'Win 8 league matches'],['cleanSheets',5,'Keep 5 league clean sheets'],['youth',1,'Promote 1 academy player']];
  return '<section class="panel"><h2>🏅 Season challenges</h2><p class="p3-note">Optional objectives with simulated board bonuses. Your progress persists between sessions.</p>'+
@@ -1576,6 +1592,7 @@ function logMatch(m,msg,kind='event'){m.comments.unshift({minute:gameMinute(m),t
 function availableBench(m){return state.squad.filter(p=>!m.onPitch.includes(p.id)&&!m.used.includes(p.id)&&!p.injury&&!p.suspension&&!m.red.includes(p.id))}
 function liveStatus(m){if(m.minute>=90)return 'Full time';if(m.paused)return 'Paused';if(m.minute>=45&&!m.halftimeDone)return 'Half-time';return 'Live · '+m.speed}
 function kickoff(){
+ xpStopPlayback();
  if(state&&state.lma&&state.lma.nextDelegatedRound!==state.round&&!state.activeMatch&&Object.values(state.lma.delegation).some(Boolean))lmaDelegate();
  if(!state||(state.round>=state.fixtures.length&&!state.cup?.pending))return;
  if(state.activeMatch){tab='match';render();return}
@@ -1625,7 +1642,7 @@ function matchSub(outId,inId){const m=state?.activeMatch;if(!m||m.subs.length>=5
 }
 function finishLiveMatch(){
  const m=state?.activeMatch;if(!m||m.minute<90)return;
- stopMatchTimer();if(!m.highlights?.length)xpCaptureHighlight(m,'overview',m.possessionSide,'Match summary',0);
+ xpStopPlayback();stopMatchTimer();if(!m.highlights?.length)xpCaptureHighlight(m,'overview',m.possessionSide,'Match summary',0);
  const games=state.fixtures[state.round];const score=currentScore(m);
  if(m.competition!=='cup'){const results=games.map(([h,a])=>(h===m.home&&a===m.away)?{home:h,away:a,hg:score[0],ag:score[1],round:m.round}:simulate(h,a));results.forEach(applyResult);state.results.push(...results)}
  const own=m.goals.us,opp=m.goals.them;
@@ -1675,7 +1692,7 @@ function xpHighlightPanel(){
  '<div class="xp-highlight-list">'+events.map((x,n)=>'<button class="xp-highlight '+(i===n?'selected':'')+'" data-action="xp-highlight" data-id="'+n+'"><span>'+x.minute+'′ · '+goalEsc(x.label)+'</span><small>'+goalEsc(x.side==='us'?'Your club':'Opposition')+'</small></button>').join('')+'</div>'+
  '<div class="live-pitch p4-replay" aria-label="2D recorded match highlight"><div class="live-markings"><div class="live-centre"></div><div class="live-circle"></div><div class="live-area top"></div><div class="live-area bottom"></div></div>'+dots+'<div class="live-ball" style="left:'+frame.ball.x+'%;top:'+frame.ball.y+'%"></div></div>'+
  '<p class="p3-note">'+goalEsc(ev.label)+' · Frame '+(clamp(xpHighlightFrame,0,frames.length-1)+1)+'/'+frames.length+'</p>'+
- '<div class="buttonrow"><button class="btn secondary" data-action="xp-highlight-step" data-id="-1" '+(xpHighlightFrame<=0?'disabled':'')+'>← Previous</button><button class="btn secondary" data-action="xp-highlight-step" data-id="1" '+(xpHighlightFrame>=frames.length-1?'disabled':'')+'>Next →</button></div></section>';
+ '<div class="buttonrow"><button class="btn" data-action="xp-highlight-play">'+(xpHighlightTimer!==null?'⏸ Pause highlights':'▶ Play highlights')+'</button><button class="btn secondary" data-action="xp-highlight-step" data-id="-1" '+(xpHighlightFrame<=0?'disabled':'')+'>← Previous</button><button class="btn secondary" data-action="xp-highlight-step" data-id="1" '+(xpHighlightFrame>=frames.length-1?'disabled':'')+'>Next →</button></div></section>';
 }
 function xpPostMatchPanel(){
  const last=state.lastMatch,x=state.experience;
@@ -1756,7 +1773,7 @@ function renderSplash(){
 function resultBox(){if(!state.lastMatch)return '';const m=state.lastMatch;const mine=state.clubId;const scored=m.home===mine?m.hg:m.ag,conceded=m.home===mine?m.ag:m.hg;return '<section class="match-result"><div class="eyebrow">'+(m.competition==='cup'?'TOUCHLINE NATIONAL CUP':'YOUR LAST MATCH · ROUND '+m.round)+'</div><div class="large">'+m.hg+' — '+m.ag+'</div><strong>'+CLUBS[m.home].name+' vs '+CLUBS[m.away].name+'</strong><p>'+(scored>conceded?'Three points in the bag!':scored===conceded?'The points are shared.':'A tough result. Time to regroup.')+' · Possession '+m.possession+'%</p></section>'}
 function nextFixture(){return state.round<state.fixtures.length?state.fixtures[state.round].find(([h,a])=>h===state.clubId||a===state.clubId):null}
 function home(){const c=CLUBS[state.clubId],f=nextFixture();let next=f?f[0]===state.clubId?f[1]:f[0]:null;let content='<section class="hero"><div class="eyebrow accent">MANAGER DASHBOARD</div><h1>'+c.name+'</h1><p>'+(state.round<state.fixtures.length?'League round '+(state.round+1)+' of '+activeLeagueLength()+' · '+(f[0]===state.clubId?'Home':'Away')+' against '+CLUBS[next].name:'Season complete · Review the final standings or start another season.')+'</p></section><div class="stats"><div class="stat"><small>LEAGUE POSITION</small><strong>'+rank()+'<span class="muted" style="font-size:12px"> / '+state.table.length+'</span></strong></div><div class="stat"><small>TRANSFER BUDGET</small><strong style="font-size:19px">'+price(state.cash)+'</strong></div><div class="stat"><small>POINTS</small><strong>'+leagueTableRow(state.clubId).pts+'</strong></div></div>';
-content+=xpPreMatch()+xpRequestsPanel()+xpSeasonPanel();
+content+=xpPreMatch()+xpRequestsPanel()+xpSupporterPanel()+xpSeasonPanel();
 if(state.round>=state.fixtures.length){const winner=sorted()[0];content+='<section class="season-end"><div class="eyebrow">FULL-TIME · FINAL TABLE</div><h2>'+(winner.id===state.clubId?'🏆 Champions!':'🏆 '+CLUBS[winner.id].name+' win the title')+'</h2><p>You finished '+rank()+' of '+state.table.length+' with '+leagueTableRow(state.clubId).pts+' points. Bottom three clubs are marked in the league table. Your managerial career continues in the correct division next season.</p><button class="btn" data-action="new-season">Start '+(state.year+1)+'/'+String(state.year+2).slice(-2)+' season →</button></section>'}
 if(state.seasonReview?.year===state.year)content+=promotionPanel();
 if(state.cup?.pending){const tie=state.cup.pending;content+='<section class="panel p3-cup"><h2>🏆 Cup tie ready</h2><p class="p3-note">'+CLUBS[tie.home].name+' vs '+CLUBS[tie.away].name+'. Complete the cup tie before the next league match.</p><button class="btn full" data-action="play">⚽ Play National Cup tie →</button><button class="btn secondary full spaced" data-action="instant-match">⏭ Instant cup result →</button></section>'}
@@ -1805,6 +1822,7 @@ function workspaceAside(){
  '<section class="panel"><div class="eyebrow accent">LATEST NEWS</div>'+(state.news.slice(0,3).map(x=>'<div class="context-news">'+goalEsc(x)+'</div>').join('')||'<p class="p3-note">No updates yet.</p>')+'<button class="btn ghost full sm spaced" data-action="tab" data-id="career">Open inbox →</button></section>';
 }
 function render(){
+ if(tab!=='match'||state?.activeMatch)xpStopPlayback();
  if(!state){renderSplash();return}
  const items=[['home','⌂','Home'],['match','◉','Match Centre'],['pitch','▤','Tactics Pitch'],['squad','♟','Squad'],['transfers','⇄','Transfers'],['youth','★','Academy'],['finances','£','Finances'],['league','▥','League'],['cup','🏆','Cups'],['staff','⚙','Staff'],['career','▣','Career & Saves'],['history','★','Club History'],['international','🌍','International'],['calendar','▦','Calendar'],['depth','◇','Depth Chart'],['statistics','▥','Statistics'],['comparison','⇆','Compare'],['settings','⚙','Settings']];
  const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI,history:xpHistoryUI,international:internationalUI,calendar:calendarUI,depth:squadDepthUI,statistics:playerLeadersUI,comparison:comparisonUI,settings:settingsUI,profile:playerProfileUI,'scout-detail':()=>p6ScoutUI(state.market.find(p=>p.id===scoutDetailId))};
@@ -1826,6 +1844,7 @@ function match(){kickoff()}
 /* Instant club match: uses the same spatial pass, dribble, shooting and goal data as live mode. */
 function lmaInstantMatch(){
  if(!state||state.jobSearch?.status==='seeking')return;
+ xpStopPlayback();
  if(!state.activeMatch){if(state.lma.nextDelegatedRound!==state.round&&Object.values(state.lma.delegation).some(Boolean))lmaDelegate();kickoff()}
  const m=state.activeMatch;if(!m)return;stopMatchTimer();m.paused=false;m.instant=true;subOpen=false;
  for(let minute=m.minute+1;minute<=90;minute++){
@@ -1848,8 +1867,9 @@ function newSeason(){if(state.round<state.fixtures.length||state.jobSearch?.stat
 function onAction(action,id){
  if(action==='splash-league'&&!state){if(ALL_DIVISIONS.includes(id)){splashLeague=id;renderSplash()}return}
  if(state?.activeMatch&&['specialist-hire','badge-course','free-sign','loan-back','assistant-report','nation-apply','nation-select','nation-play','nation-cup','nation-qual','nation-qual-final','nation-resign','job-interview','club-resign','hire-staff','save-restore','switch-club','offer','submit-offer','scout','promote-youth','academy-invest','scout-invest','renew','shortlist'].includes(action)){flash='Finish the live match before managing the club.';render();return}
- if(action==='xp-highlight'){xpHighlightIndex=Number(id)||0;xpHighlightFrame=0;render();return}
- if(action==='xp-highlight-step'){const all=state.lastMatch?.detail?.highlights||[],frames=all[clamp(xpHighlightIndex,0,all.length-1)]?.frames||[];xpHighlightFrame=clamp(xpHighlightFrame+Number(id),0,Math.max(0,frames.length-1));render();return}
+ if(action==='xp-highlight-play'){xpPlayback();return}
+ if(action==='xp-highlight'){xpStopPlayback();xpHighlightIndex=Number(id)||0;xpHighlightFrame=0;render();return}
+ if(action==='xp-highlight-step'){xpStopPlayback();const all=state.lastMatch?.detail?.highlights||[],frames=all[clamp(xpHighlightIndex,0,all.length-1)]?.frames||[];xpHighlightFrame=clamp(xpHighlightFrame+Number(id),0,Math.max(0,frames.length-1));render();return}
  if(action==='xp-talk'){xpSetTalk(id);return}
  if(action==='xp-request'){xpRequestAction(id);return}
  if(action==='xp-advice'){xpApplyAdvice(id);return}
