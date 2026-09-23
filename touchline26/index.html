@@ -1225,7 +1225,10 @@ function finishLiveMatch(){
  if(m.competition==='cup'){p3CompleteCupMatch(m,score);state.activeMatch=null;autoLineup();tab='cup';flash='Cup full-time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short;save();render();return}
  const summary=own>opp?'Win':own===opp?'Draw':'Defeat';
  state.news.unshift(summary+' '+own+'–'+opp+' against '+CLUBS[m.opp].name+'. Your position: '+rank()+' of '+state.table.length+'.');state.news=state.news.slice(0,7);
- state.round++;state.trained=false;state.market=createMarket(CLUBS[state.clubId].power).map(p=>{p.season=state.year;return p});state.shortlist=[];p5MarketRound();p5InternationalRound();
+ state.round++;state.trained=false;
+ // Preserve scouting and shortlists across matchweeks; restock the fictional transfer market periodically.
+ if(state.round%4===0||state.market.length<4){const incoming=createMarket(CLUBS[state.clubId].power).slice(0,3).map(p=>{p.season=state.year;return p});state.market=[...state.market,...incoming].slice(-12)}
+ p5MarketRound();state.shortlist=state.shortlist.filter(id=>state.market.some(p=>p.id===id));p5InternationalRound();
  state.activeMatch=null;advanceOtherLeague();p3BoardRound();p3AdvanceCup();if(state.round===state.fixtures.length){p3FinishSeason();completePromotion()}autoLineup();tab='match';flash='Full time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short+' · See the match analysis.';
  save();render();
 }
