@@ -193,6 +193,8 @@ body,button,select,input{font-family:"Nunito Sans","Segoe UI",system-ui,-apple-s
 @media(max-width:1100px){.xp-talks{grid-template-columns:1fr}}
 
 .xp-highlight-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0}.xp-highlight{display:flex;justify-content:space-between;align-items:center;text-align:left;gap:6px;background:#183638;border:1px solid #52695a;color:#fff;border-radius:9px;padding:10px;font-size:12px;cursor:pointer}.xp-highlight.selected{border:2px solid #dceea5;background:#294a3d}.xp-highlight small{color:#b8cfbd}.xp-story{background:#1d403b;border-left:3px solid #dce9ab;border-radius:7px;padding:10px;color:#f3fff4;font-size:13px}@media(max-width:1100px){.xp-highlight-list{grid-template-columns:1fr}}
+/* News readability on desktop/tablet, without changing the wide workspace layout. */
+.xp-news{padding:12px 0;border-bottom:1px solid #355851}.xp-news:last-child{border-bottom:0}.xp-news small{display:block;color:#bacfc3;font-size:12px}.xp-news strong{display:block;color:#ffe293;font-size:15px;margin-top:5px}.xp-news p{margin:5px 0 0;color:#e5f2e9;font-size:13px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -341,12 +343,11 @@ function completePromotion(){
  const pl=orderTable(leagueSnapshot('premier').table),ch=orderTable(leagueSnapshot('championship').table);
  if(pl.length!==20||ch.length!==24||pl.some(t=>t.p!==38)||ch.some(t=>t.p!==46))throw Error('Both leagues must finish');
  const relegated=pl.slice(-3).map(t=>t.id),automatic=ch.slice(0,2).map(t=>t.id);
- const e1=playoffTie(ch[4].id,ch[7].id),e2=playoffTie(ch[5].id,ch[6].id);
- const rankA=ch.findIndex(x=>x.id===e1.winner),rankB=ch.findIndex(x=>x.id===e2.winner),lowest=rankA>rankB?e1.winner:e2.winner,highest=rankA>rankB?e2.winner:e1.winner;
- const semis=[playoffTie(ch[2].id,lowest,2),playoffTie(ch[3].id,highest,2)],final=playoffTie(semis[0].winner,semis[1].winner);
+  // Championship play-offs: positions 3–6 contest two-legged semi-finals, then a final.
+  const semis=[playoffTie(ch[2].id,ch[5].id,2),playoffTie(ch[3].id,ch[4].id,2)],final=playoffTie(semis[0].winner,semis[1].winner);
  const promoted=[...automatic,final.winner],premier=[...state.members.premier.filter(id=>!relegated.includes(id)),...promoted],championship=[...state.members.championship.filter(id=>!promoted.includes(id)),...relegated];
  if(premier.length!==20||championship.length!==24||new Set([...premier,...championship]).size!==44)throw Error('Invalid league membership');
- state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[e1,e2],semis,final},oldDivision:state.division,newDivision:WORLD_IDS[state.division]?state.division:premier.includes(state.clubId)?'premier':'championship'};
+ state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[],semis,final},oldDivision:state.division,newDivision:WORLD_IDS[state.division]?state.division:premier.includes(state.clubId)?'premier':'championship'};
  state.nextMembers={premier,championship};p3Inbox('Leagues',relegated.map(id=>CLUBS[id].name).join(', ')+' relegated; '+promoted.map(id=>CLUBS[id].name).join(', ')+' promoted.');
  if(state.seasonReview.oldDivision!==state.seasonReview.newDivision)p3Inbox('Career','Your club will play in the '+DIV_LABEL[state.seasonReview.newDivision]+' next season!');
  return state.seasonReview;
@@ -361,7 +362,7 @@ function promotionPanel(){
  '<p class="p3-note"><b>Relegated:</b> '+goalEsc(names(r.relegated))+'</p>'+
  '<p class="p3-note">Your division next season: <b>'+DIV_LABEL[r.newDivision]+'</b>.</p>';
  if(r.playoffs){h+='<div class="divider"></div><h2>Championship play-off results</h2>';
- h+=r.playoffs.eliminators.map((t,i)=>tie('Eliminator '+(i+1),t)).join('');
+  h+=(r.playoffs.eliminators||[]).map((t,i)=>tie('Eliminator '+(i+1),t)).join('');
  h+=r.playoffs.semis.map((t,i)=>tie('Semi-final '+(i+1)+' (aggregate)',t)).join('');
  h+=tie('Final',r.playoffs.final)+'<p class="p3-note">Play-offs are simulated automatically; drawn ties use simulated penalty shoot-outs.</p>'}
  return h+'</section>';
@@ -516,7 +517,8 @@ function submitOffer(){
  state.cash=round2(state.cash-fee);state.squad.push(signed);xpPersona(signed);
  state.market=state.market.filter(p=>p.id!==v.id);autoLineup();
  offerFeedback='';negotiation=null;flash=signed.name+(loan?' arrives on a season-long loan for ':' signed for ')+price(fee)+' · '+currencyK(wage)+'.';
- state.news.unshift('Transfer agreed: '+signed.name+(loan?' (loan).':'.'));
+  state.news.unshift('Transfer agreed: '+signed.name+(loan?' (loan).':'.'));
+  xpRecordTransfer(loan?'Loan signing':'Signing',signed.name,signed.name+(loan?' joins on a season-long loan for ':' signs a '+years+'-year contract for ')+price(fee)+'. Weekly wage: '+currencyK(wage)+'.');
  save();render();
 }
 function promoteYouth(id){const p=state.youth.find(x=>x.id===id);if(!p)return;
@@ -821,7 +823,8 @@ function xpInit(s){
  const old=s.experience||{};
  s.experience=Object.assign({fans:65,talk:null,season:{year:s.year,wins:0,cleanSheets:0,youth:0,freeSignings:0,completed:[]},requests:[],moments:[],history:[],records:{biggestMargin:0,biggest:null},lastReaction:null},old);
  const x=s.experience;
- x.fans=clamp(Number(x.fans)||65,10,100);
+  x.fans=clamp(Number(x.fans)||65,10,100);
+  s.transferStories=Array.isArray(s.transferStories)?s.transferStories.slice(0,40):[];
  if(!Array.isArray(x.requests))x.requests=[];
  if(!Array.isArray(x.moments))x.moments=[];
  if(!Array.isArray(x.history))x.history=[];
@@ -1020,12 +1023,13 @@ function p6RivalMarket(){
  const s=state;
  for(const duel of s.transferDuels.filter(x=>!x.closed&&x.expires<=s.round)){
   const p=s.market.find(x=>x.id===duel.id);duel.closed=true;
-  if(p){s.market=s.market.filter(x=>x.id!==p.id);s.shortlist=s.shortlist.filter(id=>id!==p.id);s.aiMarket.push({round:s.round,player:p.name,club:CLUBS[duel.club].name,fee:duel.fee});p3Inbox('Transfers',CLUBS[duel.club].name+' signed '+p.name+' for a simulated '+price(duel.fee)+'.')}
+  if(p){s.market=s.market.filter(x=>x.id!==p.id);s.shortlist=s.shortlist.filter(id=>id!==p.id);s.aiMarket.push({round:s.round,player:p.name,club:CLUBS[duel.club].name,fee:duel.fee});p3Inbox('Transfers',CLUBS[duel.club].name+' signed '+p.name+' for a simulated '+price(duel.fee)+'.');xpRecordTransfer('Rival signing',p.name,CLUBS[duel.club].name+' complete their simulated '+price(duel.fee)+' move for '+p.name+'.')}
  }
  if(s.round%4!==0||s.round>=s.fixtures.length||!s.market.length)return;
  const candidates=s.market.filter(p=>!s.transferDuels.some(d=>d.id===p.id&&!d.closed));if(!candidates.length)return;
  const p=candidates[p6Hash(s.round+'-'+s.year)%candidates.length],duel=p6RivalBid(p);s.transferDuels.push(duel);s.transferDuels=s.transferDuels.slice(-30);
- p3Inbox('Transfers',CLUBS[duel.club].name+' bid '+price(duel.fee)+' for '+p.name+'. Competing bid expires after week '+duel.expires+'.');
+  p3Inbox('Transfers',CLUBS[duel.club].name+' bid '+price(duel.fee)+' for '+p.name+'. Competing bid expires after week '+duel.expires+'.');
+  xpRecordTransfer('Competing bid',p.name,CLUBS[duel.club].name+' submit a '+price(duel.fee)+' offer. Respond before round '+duel.expires+'.');
 }
 function p6ContractReview(){
  const c=state.managerContract;if(!c||c.reviewYear===state.year)return;c.reviewYear=state.year;
@@ -1040,14 +1044,14 @@ function p6ContractReview(){
  }
 }
 
-function p5MarketRound(){const x=state;if(!x||x.activeMatch)return;p6RivalMarket();if(x.round%8===0&&x.freeAgents.length){const p=x.freeAgents[n(0,x.freeAgents.length-1)];x.freeAgents=x.freeAgents.filter(y=>y.id!==p.id);p3Inbox('Transfers',p.name+' left the free-agent market.')}}
+function p5MarketRound(){const x=state;if(!x||x.activeMatch)return;p6RivalMarket();if(x.round%8===0&&x.freeAgents.length){const p=x.freeAgents[n(0,x.freeAgents.length-1)];x.freeAgents=x.freeAgents.filter(y=>y.id!==p.id);p3Inbox('Transfers',p.name+' left the free-agent market.');xpRecordTransfer('Market update',p.name,p.name+' is no longer available as a free agent.')}}
 
 function p5SignFree(id){
  if(state.activeMatch||state.round>=state.fixtures.length)return;
  const p=state.freeAgents.find(p=>p.id===id);if(!p)return;
  if(state.squad.length>=30||freeWages()<p.wage){flash='Squad capacity or wage ceiling prevents this signing.';render();return}
  const signing={...p,freeAgent:false,contract:2,fee:0};statsOf(signing);xpPersona(signing);state.squad.push(signing);state.experience.season.freeSignings++;state.freeAgents=state.freeAgents.filter(x=>x.id!==id);
- state.roles[p.id]=P5_ROLES[p.pos][0][0];p3Inbox('Transfers','Free agent '+p.name+' signed on a two-year deal.');autoLineup();flash='Free agent signed: '+p.name+'.';save();render();
+  state.roles[p.id]=P5_ROLES[p.pos][0][0];xpRecordTransfer('Free agent',p.name,p.name+' agrees a two-year contract worth '+currencyK(p.wage)+' per week.');p3Inbox('Transfers','Free agent '+p.name+' signed on a two-year deal.');autoLineup();flash='Free agent signed: '+p.name+'.';save();render();
 }
 function p5LoanBack(id){
  if(state.activeMatch||state.round>=state.fixtures.length||state.futureSignings.some(x=>x.id===id))return;
@@ -1055,11 +1059,11 @@ function p5LoanBack(id){
  const fee=round2(p.fee*1.15);
  if(state.cash<fee||state.squad.length+state.futureSignings.length>=30){flash='Not enough funds or room to arrange a loan-back.';render();return}
  state.cash=round2(state.cash-fee);state.market=state.market.filter(x=>x.id!==id);state.futureSignings.push({...p,fee,contract:3,loanBack:true});
- p3Inbox('Transfers',p.name+' purchased for '+price(fee)+' and left at his former club until next season.');flash='Loan-back deal agreed.';save();render();
+  xpRecordTransfer('Loan-back',p.name,p.name+' signs for '+price(fee)+' and remains at his former club until next season.');p3Inbox('Transfers',p.name+' purchased for '+price(fee)+' and left at his former club until next season.');flash='Loan-back deal agreed.';save();render();
 }
 function p5NextSeason(){
  const waiting=[];let arrivals=0;
- for(const p of state.futureSignings){if(state.squad.length>=30){waiting.push(p);continue}p.loanBack=false;statsOf(p);state.squad.push(p);state.roles[p.id]=P5_ROLES[p.pos][0][0];arrivals++}
+ for(const p of state.futureSignings){if(state.squad.length>=30){waiting.push(p);continue}p.loanBack=false;statsOf(p);state.squad.push(p);state.roles[p.id]=P5_ROLES[p.pos][0][0];arrivals++;xpPersona(p);xpRecordTransfer('Arrival',p.name,p.name+' joins the first-team squad following the agreed loan-back.')}
  if(arrivals)p3Inbox('Transfers',arrivals+' loan-back signing(s) joined your first team.');
  if(waiting.length)p3Inbox('Transfers',waiting.length+' loan-back signings await a free squad space.');
  state.futureSignings=waiting;state.freeAgents=p5FreeAgents(state.year,CLUBS[state.clubId].power);state.aiMarket=[];state.assistant.lastRound=-1;
@@ -1358,7 +1362,7 @@ function driftLiveActors(m){
   if(!anchor)continue;
   let target={x:anchor.x,y:anchor.y};
   if(ours){const p=state.squad.find(x=>x.id===idx),role=p?p5Role(p):'';if(side===m.possessionSide){if(['poacher','pressing','winger','fullback'].includes(role))target.y-=role==='poacher'?8:5;if(role==='target')target.y-=3;if(role==='playmaker')target.x+=(50-target.x)*.26}else if(role==='ball-winner'){target.y-=3}if(role==='sweeper')target.y-=3}
-  if(!ours){const style=m.aiStyle||opponentStyle(m.opp);if(style==='high press')target.y-=6;if(style==='low block')target.y+=6;if(style==='possession')target.x+=(idx%2?4:-4);if(m.aiApproach==='attacking')target.y-=5;if(m.aiApproach==='defensive')target.y+=5}
+  if(!ours){const style=m.aiStyle||opponentStyle(m.opp);if(style==='high press')target.y+=6;if(style==='low block')target.y-=6;if(style==='possession')target.x+=(idx%2?4:-4);if(m.aiApproach==='attacking')target.y+=5;if(m.aiApproach==='defensive')target.y-=5}
   if(side===m.possessionSide){
    const isGK=ours?state.squad.find(p=>p.id===idx)?.pos==='GK':idx===0;
    if(!isGK)target.y+=(ours?-6:6);
@@ -1391,7 +1395,12 @@ function receiverFor(m,source,side){
    if(state.instructions.focus==='flanks')weight+=Math.abs(dest.x-50)*.45-6;
    if(source.startsWith('u:')&&state.squad.find(p=>p.id===source.slice(2))?.pos==='GK')weight+=state.instructions.distribution==='short'?10-d*.6:state.instructions.distribution==='long'?d*.4-7:0;
   }
-  if(d>41)weight-=(d-41)*2.3;
+   if(d>41)weight-=(d-41)*2.3;
+   // Prefer reachable passing lanes and avoid marking pressure when selecting a receiver.
+   const defending=side==='us'?'them':'us',lane=p6PassLane(m,defending,src,dest);
+   if(lane)weight-=Math.max(0,15-lane.gap)*1.4;
+   const marker=closestInterceptor(m,defending,dest);
+   if(marker)weight-=Math.max(0,14-liveDistance(m.actors[marker],dest))*.75;
   if(key==='o:0'||(side==='us'&&state.squad.find(p=>p.id===key.slice(2))?.pos==='GK'))weight-=13;
   return {key,weight};
  }).sort((a,b)=>b.weight-a.weight);
@@ -1467,7 +1476,7 @@ function p5Dribble(m){
  const steal=gap<10&&Math.random()<clamp(.37-(rating-70)*.009,.17,.51);
  if(steal){m.carrier=marker;m.ball={...m.actors[marker]};m.possessionSide=other;m.lastPass=null;m.stats[other].tackles++;m.actionText=livePlayerName(m,marker)+' wins the ball from '+livePlayerName(m,key);logMatch(m,m.actionText,'tackle');return}
  const run=liveClamp({x:player.x+n(-4,4),y:clamp(player.y+dir*n(2,5),9,91)});
- m.actors[key]=run;m.ball={...run};m.lastPass=null;m.actionText=livePlayerName(m,key)+' drives forward with the ball';
+  m.actors[key]=run;m.ball={...run};if(m.lastPass?.to!==key||!m.lastPass.completed)m.lastPass=null;m.actionText=livePlayerName(m,key)+' drives forward with the ball';
  replayCapture(m);
 }
 function p5Keepers(m,side,on,chance){
@@ -1654,7 +1663,7 @@ function finishLiveMatch(){
  for(const id of m.hurt){let p=state.squad.find(x=>x.id===id);if(p)p.injury=Math.max(1,n(1,3)-(state.staff.medical>=4?1:0))}
  for(const id of m.red){let p=state.squad.find(x=>x.id===id);if(p)p.suspension=1}
  financialRound(m.ourHome);youthDevelopment();xpReaction(m);state.lastMatch.reaction=state.experience.lastReaction;
- if(m.competition==='cup'){p3CompleteCupMatch(m,score);state.activeMatch=null;autoLineup();tab='cup';flash='Cup full-time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short;save();render();return}
+ if(m.competition==='cup'){p3CompleteCupMatch(m,score);state.activeMatch=null;autoLineup();tab='match';flash='Cup full-time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short;save();render();return}
  const summary=own>opp?'Win':own===opp?'Draw':'Defeat';
  state.news.unshift(summary+' '+own+'–'+opp+' against '+CLUBS[m.opp].name+'. Your position: '+rank()+' of '+state.table.length+'.');state.news=state.news.slice(0,7);
  state.round++;state.trained=false;state.lma.nextDelegatedRound=-1;xpResolveRequests();if(state.round<state.fixtures.length)xpPlayerRequest();
@@ -1700,6 +1709,17 @@ function xpPostMatchPanel(){
  '<p class="p3-note">'+goalEsc(last.reaction?.text||'Fan reactions begin with new matches.')+'</p>'+
  (last.detail?.tacticalNotes?.length?'<h3>Tactical lessons</h3>'+last.detail.tacticalNotes.slice(0,4).map(n=>'<div class="p4-comment"><b>'+n.minute+'′</b><span>'+goalEsc(n.text)+'</span></div>').join(''):'')+
  '<button class="btn secondary spaced" data-action="tab" data-id="history">View club history →</button></section>';
+}
+function xpRecordTransfer(kind,player,text){
+  // Every report is an in-game simulation, never an actual club transaction.
+  state.transferStories=Array.isArray(state.transferStories)?state.transferStories:[];
+  state.transferStories.unshift({kind,player:String(player||'').slice(0,80),text:String(text||'').slice(0,350),year:state.year,round:state.round});
+  state.transferStories=state.transferStories.slice(0,40);
+}
+function xpTransferNewsPanel(){
+  const stories=state.transferStories||[];
+  return '<section class="panel"><div class="panel-head"><h2>📰 Transfer news</h2><span class="pill">SIMULATED</span></div><p class="p3-note">Your signings, competing bids and market moves appear here and persist in your career save.</p>'+
+  (stories.length?stories.slice(0,9).map(s=>'<div class="xp-news"><small>'+goalEsc(s.year)+' · Round '+goalEsc(s.round)+' · '+goalEsc(s.kind)+'</small><strong>'+goalEsc(s.player)+'</strong><p>'+goalEsc(s.text)+'</p></div>').join(''):'<p class="empty">No transfer stories yet. Scout a target or play a matchweek.</p>')+'</section>';
 }
 function xpTransferStory(p){
  const phrases=['wants regular first-team minutes','values a long contract','prefers an ambitious club','wants a competitive wage','is attracted by promotion prospects'];
@@ -1798,7 +1818,7 @@ function pitchView(){
 function transfers(){
  let html='<section class="hero"><div class="eyebrow accent">TRANSFER CENTRE</div><h1>Transfers & scouting</h1><p>Negotiate contracts, scout potential and arrange loans. Transfer market players and figures are game-generated.</p></section>'+
  '<section class="panel"><div class="money-grid"><div class="money-card"><small>Available transfer funds</small><strong>'+price(state.cash)+'</strong></div><div class="money-card"><small>Wage headroom</small><strong>'+currencyK(freeWages())+'</strong></div></div></section>'+
- negotiateUI()+'<section class="panel"><div class="panel-head"><h2>Scout reports</h2><span class="pill">'+state.scouting.reports+' COMPLETE</span></div><div class="controls"><label>Filter position<select data-scout-filter>'+[['all','All positions'],['GK','Goalkeepers'],['DEF','Defenders'],['MID','Midfielders'],['FWD','Forwards']].map(([v,label])=>'<option value="'+v+'"'+(scoutFilter===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label><label>Transfer availability<div class="season" style="border-radius:10px;padding:12px">'+state.market.length+' targets</div></label></div><p class="note-line">Scout reports cost £0.2m each. Potential ratings are hidden until scouted.</p></section>'+
+  negotiateUI()+xpTransferNewsPanel()+'<section class="panel"><div class="panel-head"><h2>Scout reports</h2><span class="pill">'+state.scouting.reports+' COMPLETE</span></div><div class="controls"><label>Filter position<select data-scout-filter>'+[['all','All positions'],['GK','Goalkeepers'],['DEF','Defenders'],['MID','Midfielders'],['FWD','Forwards']].map(([v,label])=>'<option value="'+v+'"'+(scoutFilter===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label><label>Transfer availability<div class="season" style="border-radius:10px;padding:12px">'+state.market.length+' targets</div></label></div><p class="note-line">Scout reports cost £0.2m each. Potential ratings are hidden until scouted.</p></section>'+
  '<section class="panel"><h2>Transfer targets</h2><div class="market">'+state.market.filter(p=>scoutFilter==='all'||p.pos===scoutFilter).map(p=>'<div class="market-card"><span class="position">'+p.pos+'</span><strong>'+p.name+'</strong><div class="note-line">Age '+p.age+' · '+p.nationality+' · Rating <b class="accent">'+p.rating+'</b> · Potential '+(p.scouted?p.potential:'?')+'<br>Wages '+currencyK(p.wage)+'</div><strong class="accent" style="font-size:17px">'+price(p.fee)+'</strong><p class="p3-note">Rival interest '+(p.interest??p6MarketInterest(p))+'/95 · '+(p.dossier?'Confidence '+p.dossier.confidence+'%':'Unscouted')+'</p><div class="compact-actions spaced"><button class="btn sm" data-action="offer" data-id="'+p.id+'" '+(state.round>=state.fixtures.length?'disabled':'')+'>Negotiate</button><button class="btn secondary sm" data-action="scout" data-id="'+p.id+'" '+(p.scouted||state.cash<.2?'disabled':'')+'>'+ (p.scouted?'Scouted':'Scout')+'</button><button class="btn ghost sm" data-action="scout-detail" data-id="'+p.id+'">Details</button><button class="btn ghost sm" data-action="shortlist" data-id="'+p.id+'">'+(state.shortlist.includes(p.id)?'★ Saved':'☆ Save')+'</button></div></div>').join('')+'</div></section>'+
  '<section class="panel"><h2>Scout archive</h2>'+(state.scoutHistory?.length?state.scoutHistory.slice(0,6).map(x=>'<div class="result-line"><span>'+goalEsc(x.player)+' · '+x.position+' · '+x.year+' week '+x.round+'</span><b>'+x.confidence+'%</b></div>').join(''):'<p class="empty">No previous reports.</p>')+'</section><section class="panel"><h2>Shortlist</h2><p class="note-line">'+(state.shortlist.length?state.market.filter(p=>state.shortlist.includes(p.id)).map(p=>p.name+' ('+p.pos+')').join(' · '):'No shortlisted targets. Star a player to save them during this transfer window.')+'</p></section>';
  return html+p5MarketPanel()+p5AssistantPanel();
@@ -1806,8 +1826,8 @@ function transfers(){
 function league(){
  const displayed=viewDivision||state.division,info=leagueSnapshot(displayed),t=orderTable(info.table),isPL=displayed==='premier',isChamp=displayed==='championship';
  let html='<section class="panel"><h2>League tables · '+state.year+'/'+String(state.year+1).slice(-2)+'</h2><div class="buttonrow">'+ALL_DIVISIONS.map(d=>'<button class="btn '+(displayed===d?'':'ghost')+' sm" data-action="league-view" data-id="'+d+'">'+DIV_LABEL[d]+'</button>').join('')+'</div><p class="p3-note">'+info.round+' / '+info.fixtures.length+' rounds · '+t.length+' clubs</p><div class="table-wrap"><table class="league"><thead><tr><th>#</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>GD</th><th>Pts</th></tr></thead><tbody>'+
- t.map((row,n)=>'<tr class="'+(row.id===state.clubId?'mine':'')+'"><td>'+(n+1)+(isPL&&n>=17?' ↓':isChamp&&n<2?' ↑':isChamp&&n>=2&&n<8?' ▷':'')+'</td><td>'+goalEsc(CLUBS[row.id].name)+'</td><td>'+row.p+'</td><td>'+row.w+'</td><td>'+row.d+'</td><td>'+((row.gf-row.ga)>0?'+':'')+(row.gf-row.ga)+'</td><td><b>'+row.pts+'</b></td></tr>').join('')+'</tbody></table></div>'+
- '<p class="p3-note">'+(isPL?'Premier League bottom three are relegated to the Championship.':isChamp?'Top two are promoted; positions 3–8 enter the simulated play-offs. The Championship has no League One in this edition.':'This is a fictional national club league. Its champion wins the title; there is no cross-country promotion or relegation.')+'</p></section>';
+ t.map((row,n)=>'<tr class="'+(row.id===state.clubId?'mine':'')+'"><td>'+(n+1)+(isPL&&n>=17?' ↓':isChamp&&n<2?' ↑':isChamp&&n>=2&&n<6?' ▷':'')+'</td><td>'+goalEsc(CLUBS[row.id].name)+'</td><td>'+row.p+'</td><td>'+row.w+'</td><td>'+row.d+'</td><td>'+((row.gf-row.ga)>0?'+':'')+(row.gf-row.ga)+'</td><td><b>'+row.pts+'</b></td></tr>').join('')+'</tbody></table></div>'+
+ '<p class="p3-note">'+(isPL?'Premier League bottom three are relegated to the Championship.':isChamp?'Top two are promoted; positions 3–6 enter the simulated play-offs. The Championship has no League One in this edition.':'This is a fictional national club league. Its champion wins the title; there is no cross-country promotion or relegation.')+'</p></section>';
  html+='<section class="panel"><h2>Recent '+DIV_LABEL[displayed]+' results</h2>'+(info.results.length?info.results.slice(-10).reverse().map(m=>'<div class="result-line"><span>'+CLUBS[m.home].short+' '+m.hg+'–'+m.ag+' '+CLUBS[m.away].short+'</span><span class="muted">Round '+m.round+'</span></div>').join(''):'<p class="empty">No matches yet.</p>')+'</section>';
  return html+promotionPanel();
 }
@@ -1929,7 +1949,7 @@ case 'train':p5TrainSpecialist();return;
 case 'rest':if(state.trained||state.round>=state.fixtures.length)return;state.squad.forEach(p=>p.fitness=clamp(p.fitness+13+3*((state.staff.medical||1)-1),40,100));state.trained=true;flash='Recovery completed: squad fitness improved.';break;
 case 'start':{const p=state.squad.find(x=>x.id===id);if(!p||p.injury||state.starting.includes(id))return;const same=state.squad.filter(x=>x.pos===p.pos&&state.starting.includes(x.id)).sort((a,b)=>lineupScore(a)-lineupScore(b));if(!same.length){flash='There is no selected starter in this position. Try changing the formation.';break}const oldPosition=state.pitchPositions&&state.pitchPositions[same[0].id];state.starting=state.starting.filter(x=>x!==same[0].id);state.starting.push(id);if(oldPosition){delete state.pitchPositions[same[0].id];state.pitchPositions[id]={...oldPosition}}normalisePitch();flash=p.name+' replaces '+same[0].name+' in the starting XI.';break}
 case 'buy':initiateOffer(id);return;
-case 'sell':{const p=state.squad.find(x=>x.id===id);if(!p)return;const limits={GK:2,DEF:4,MID:5,FWD:3};if(state.squad.length<=14||state.squad.filter(x=>x.pos===p.pos).length<=limits[p.pos]){flash='Keep enough squad depth to cover all available formations (including injuries).';break}const fee=Math.round(p.fee*.6*10)/10;state.cash=Math.round((state.cash+fee)*100)/100;state.squad=state.squad.filter(x=>x.id!==id);autoLineup();flash=p.name+' sold for '+price(fee)+'.';state.news.unshift('Transfer news: '+p.name+' leaves the club.');break}
+case 'sell':{const p=state.squad.find(x=>x.id===id);if(!p)return;const limits={GK:2,DEF:4,MID:5,FWD:3};if(state.squad.length<=14||state.squad.filter(x=>x.pos===p.pos).length<=limits[p.pos]){flash='Keep enough squad depth to cover all available formations (including injuries).';break}const fee=Math.round(p.fee*.6*10)/10;state.cash=Math.round((state.cash+fee)*100)/100;state.squad=state.squad.filter(x=>x.id!==id);autoLineup();flash=p.name+' sold for '+price(fee)+'.';state.news.unshift('Transfer news: '+p.name+' leaves the club.');xpRecordTransfer('Sale',p.name,p.name+' leaves your club for '+price(fee)+'.');break}
 default:return}save();render()}
 root.addEventListener('click',e=>{let b=e.target.closest('[data-action]');if(b&&root.contains(b)&&b.tagName!=='SELECT'&&!b.disabled)onAction(b.dataset.action,b.dataset.id)});
 root.addEventListener('input',e=>{const el=e.target;if(negotiation&&['fee','wage'].includes(el.dataset.neg)){negotiation[el.dataset.neg]=Number(el.value)}});
