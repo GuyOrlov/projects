@@ -940,6 +940,10 @@ function xpRequestAction(kind){
  p3Inbox('Squad',flash);save();render();
 }
 function xpResolveRequests(){
+ for(const req of state.experience.requests.filter(x=>x.status==='open'&&x.deadline<=state.round)){
+  req.status='expired';const p=state.squad.find(x=>x.id===req.id);
+  if(p){p.morale=clamp(p.morale-3,20,100);p3Inbox('Squad',p.name+' did not receive a response to the playing-time request. The conversation has closed.');}
+ }
  for(const req of state.experience.requests.filter(x=>x.status==='promised'&&x.deadline<=state.round)){
   const p=state.squad.find(x=>x.id===req.id);if(!p){req.status='expired';continue}
   const kept=statsOf(p).apps-req.startApps>=req.needed;req.status=kept?'kept':'broken';
