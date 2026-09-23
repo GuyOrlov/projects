@@ -1010,7 +1010,7 @@ function render(){
  '<main class="app-main"><header class="workspace-head"><div><div class="eyebrow accent">TOUCHLINE 26 · MANAGEMENT CENTRE</div><h1>'+title+'</h1></div><div class="workspace-status"><span class="pill">'+state.year+'/'+String(state.year+1).slice(-2)+'</span><span class="pill">Round '+Math.min(state.round+1,activeLeagueLength())+' / '+activeLeagueLength()+'</span></div></header>'+
  (flash?'<div class="toast" role="status">'+flash+'</div>':'')+
  '<div class="app-columns"><div class="app-page">'+view+'</div><aside class="app-context" aria-label="Club overview">'+workspaceAside()+'</aside></div>'+
- '<p class="footer">Autosave · 20 club names · All match results and player values simulated · Independent fan game</p></main></div>';
+ '<p class="footer">Autosave · 44 clubs across two leagues · Match results and player values simulated · Independent fan game</p></main></div>';
 }
 function lineStrength(){const starters=state.squad.filter(p=>state.starting.includes(p.id));const avg=starters.reduce((sum,p)=>sum+lineupScore(p),0)/Math.max(starters.length,1);return avg-(starters.length<11?(11-starters.length)*3:0)}
 function poisson(lambda){let limit=Math.exp(-lambda),p=1,k=0;do{k++;p*=Math.random()}while(p>limit&&k<10);return k-1}
