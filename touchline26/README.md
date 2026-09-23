@@ -1,21 +1,20 @@
-# Touchline 26 — real-club prototype
+# ⚽ Touchline 26 — Phase 1 (2026/27)
 
-Mobile-friendly, unofficial football management mini-game for 2026/27. Open `touchline26/index.html` through GitHub Pages (or in a browser). 
+An independent mobile-friendly, single-file football management prototype. Open `index.html` in a browser or enable GitHub Pages for this repository.
 
-## Features
+## Phase 1 features
+1. **Animated 2D match** with illustrative moving players/ball and 90-minute clock; three match speeds.
+2. **Live controls:** pause/resume, half-time review, tactics changes and up to five substitutions. Active matches resume paused after refresh.
+3. **Draggable tactics:** formation presets, keyboard/touch controls, pressing, width, defensive line and individual balanced/push-forward/hold-position instructions. These affect simulated chance creation and stamina.
+4. **Fitness, yellow/second-yellow red cards, suspensions and injuries** across league matches.
+5. **Post-match analysis:** possession, shots, shots on target, passes, passing accuracy, tackles, simulated expected goals, player ratings and highlights timeline.
 
-- Eight real English club names: Aston Villa, Arsenal, Liverpool, Manchester City, Manchester United, Chelsea, Newcastle United and Everton.
-- Three formations (4-4-2, 4-3-3, 3-5-2), with a drag-and-drop tactical pitch supporting touch, mouse and keyboard arrows.
-- Fictional 14-round, eight-club mini-league, simulated scores, fictional transfer market, training, injuries and local autosave.
-- Optional, automatic real-player **name** lookup for your selected club from [TheSportsDB v1](https://www.thesportsdb.com/documentation). The public free endpoint currently returns up to 10 players per team; synthetic development players fill gaps. The provider's data may be incomplete, stale or blocked by browser cross-origin restrictions.
-- Ratings, budgets, player fitness, morale, transfer fees and match results are entirely **game mechanics**, not verified real-world player statistics. Opponent squads and transfer market remain fictional.
+## Existing gameplay retained
+Eight real club names, optional real-player name lookup via TheSportsDB with fictional fillers, fantasy eight-team 14-match league, transfers, training, seasons and browser autosave. Ratings, finances, fixture results and match stats are fictional game mechanics. The live pitch animation illustrates the match rather than reproducing realistic ball physics. Player markers for the opponent are not actual squad data.
 
-## Publish using GitHub Pages
+## Publishing
+File path: `GuyOrlov/projects/touchline26/index.html`. To publish if needed, visit repository **Settings → Pages** and configure **Deploy from a branch → main → /(root)**. When confirmed, the expected URL is `https://guyorlov.github.io/projects/touchline26/`. Do not assume the URL is active until GitHub confirms deployment.
 
-Repository: `GuyOrlov/projects`. In the repository, choose **Settings → Pages → Build and deployment → Deploy from a branch**, select **main** and **/(root)**, then Save. Once deployment is confirmed, the game should appear under `https://guyorlov.github.io/projects/touchline26/`. Do not assume the URL is active until GitHub displays a confirmed deployment. No secret or paid API key is needed.
+Local save key: `touchline26_realclubs_v2`, shared with the prior version; old careers are loaded and given Phase 1 default tactics on startup. Progress stays on the same browser and device. No API secret or server is required. API coverage and browser access may be incomplete; fictional-name fallback keeps the game playable.
 
-## Save data and API use
-
-Local storage key: `touchline26_realclubs_v2`. Saved careers stay in the same browser unless site data is cleared. Roster sync is intentionally limited to before the first match; refreshing it replaces starting players. API requests are sent directly to TheSportsDB only when starting a new club or choosing **Refresh real player names**. If API requests fail, game-generated players remain usable.
-
-Independent fan prototype; not affiliated with football clubs or a football game publisher. No official logos, player photos or protected game assets are included.
+Unofficial independent game. Not affiliated with the clubs or any licensed football management title.
