@@ -327,6 +327,7 @@ function upgradeCareer(s){
  s.version=1;
  phase3Init(s);
  upgradeLeagues(s);
+ p5Init(s);
  s.squad.forEach(statsOf);
 }
 function load(){
@@ -627,6 +628,110 @@ async function rosterImport(input){
 
 function readP4Settings(){try{return Object.assign({font:'normal',contrast:'normal',motion:'normal'},JSON.parse(localStorage.getItem(KEY+'_settings'))||{})}catch(e){return {font:'normal',contrast:'normal',motion:'normal'}}}
 function applyP4Settings(){const p=readP4Settings();if(document.documentElement?.setAttribute){for(const [key,v] of Object.entries(p))document.documentElement.setAttribute('data-tl-'+key,v)}}
+
+
+/* Development pack: progressive coaching, specialist roles, free-agent market and international career.
+   Generated players, bids, badges and matches are fictional game mechanics. */
+const P5_ROLES={
+ GK:[['keeper','Goalkeeper'],['sweeper','Sweeper keeper']],
+ DEF:[['defender','Central defender'],['ball-playing','Ball-playing defender'],['fullback','Attacking full-back']],
+ MID:[['central','Central midfielder'],['playmaker','Advanced playmaker'],['ball-winner','Ball-winning midfielder'],['winger','Winger']],
+ FWD:[['striker','Striker'],['poacher','Poacher'],['target','Target forward'],['pressing','Pressing forward']]
+};
+const P5_BADGES=['Unqualified','Bronze','Silver','Gold'];
+const P5_COACHES={attack:'Attacking',defence:'Defensive',goalkeeping:'Goalkeeping',fitness:'Fitness',youth:'Youth'};
+const P5_NATIONS=['England','Scotland','Wales','Northern Ireland','Republic of Ireland','France','Germany','Spain'];
+const P5_COUNTRY_STRENGTH=[78,69,68,64,68,83,82,82];
+function p5Init(s){
+ s.instructions=Object.assign({pressing:'balanced',width:'normal',line:'normal',passing:'mixed',focus:'balanced',distribution:'mixed'},s.instructions||{});
+ s.roles=s.roles&&typeof s.roles==='object'?s.roles:{};
+ s.focusIds=s.focusIds||{creative:'',attacking:''};
+ s.coaches=Object.assign({attack:1,defence:1,goalkeeping:1,fitness:1,youth:1},s.coaches||{});
+ for(const role of Object.keys(P5_COACHES))s.coaches[role]=clamp(Number(s.coaches[role])||1,1,5);
+ s.career.badge=clamp(Number(s.career.badge)||0,0,3);
+ s.freeAgents=Array.isArray(s.freeAgents)?s.freeAgents:p5FreeAgents(s.year,CLUBS[s.clubId].power);
+ s.transferNews=Array.isArray(s.transferNews)?s.transferNews:[];
+ s.futureSignings=Array.isArray(s.futureSignings)?s.futureSignings:[];
+ s.aiMarket=Array.isArray(s.aiMarket)?s.aiMarket:[];
+ s.assistant=Object.assign({reports:[],lastRound:-1},s.assistant||{});
+ s.international=Object.assign({nation:null,played:0,w:0,d:0,l:0,fixtures:[],trophies:0,pending:null,year:s.year},s.international||{});
+ if(!Array.isArray(s.international.fixtures))s.international.fixtures=[];
+ s.jobSearch=Object.assign({status:'employed',applications:[],invited:null},s.jobSearch||{});
+ for(const p of s.squad||[])if(!s.roles[p.id])s.roles[p.id]=P5_ROLES[p.pos]?.[0]?.[0]||'central';
+}
+function p5FreeAgents(year,power){
+ return ['GK','DEF','DEF','MID','MID','FWD','FWD'].map((pos,i)=>{
+  const p=makePlayer(pos,clamp(power+n(-7,5),64,82));
+  p.fee=0;p.freeAgent=true;p.contract=0;p.season=year;p.wage=Math.ceil(p.wage*.82);
+  return p
+ });
+}
+function p5Role(p){return state.roles?.[p.id]||P5_ROLES[p.pos]?.[0]?.[0]||'central'}
+function p5TrainSpecialist(){
+ const s=state;if(!s||s.activeMatch||s.trained||s.round>=s.fixtures.length)return;
+ const focus=s.trainingFocus||'attack',factor=focus==='attack'?'FWD':focus==='defence'?'DEF':focus==='goalkeeping'?'GK':focus==='youth'?'YOUTH':'FIT';
+ let options=s.squad.filter(p=>focus==='fitness'?true:focus==='youth'?p.age<=21:p.pos===factor);
+ options=options.filter(p=>p.fitness>=45).sort((a,b)=>(b.potential-b.rating)-(a.potential-a.rating));
+ const level=s.coaches[focus]||1,num=Math.min(options.length,1+Math.floor(level/2)+(s.career.badge>=2?1:0));
+ for(const p of options.slice(0,num)){p.rating=clamp(p.rating+1,40,Math.max(p.rating,p.potential));p.morale=clamp(p.morale+3,20,100)}
+ for(const p of s.squad.filter(p=>s.starting.includes(p.id)))p.fitness=clamp(p.fitness-(focus==='fitness'?2:5),40,100);
+ s.trained=true;flash='Training complete: '+num+' players improved in '+P5_COACHES[focus].toLowerCase()+'.';save();render();
+}
+function p5HireCoach(role){
+ if(!P5_COACHES[role]||state.activeMatch||state.coaches[role]>=5)return;
+ const cost=round2(.35*state.coaches[role]);if(state.cash<cost){flash='Not enough transfer funds for this coaching specialist.';render();return}
+ state.cash=round2(state.cash-cost);state.coaches[role]++;p3Inbox('Staff',P5_COACHES[role]+' coaching now level '+state.coaches[role]+'.');flash='Coach hired.';save();render();
+}
+function p5Badge(){
+ if(state.activeMatch||state.career.badge>=3)return;
+ const next=state.career.badge+1,cost=[0,.5,1.2,2.5][next];
+ if(state.cash<cost){flash='Qualification costs '+price(cost)+'.';render();return}
+ if(state.career.seasons<next-1){flash='Complete '+(next-1)+' season(s) before this qualification.';render();return}
+ state.cash=round2(state.cash-cost);state.career.badge=next;state.career.reputation=clamp(state.career.reputation+4,1,100);
+ p3Inbox('Career',P5_BADGES[next]+' coaching badge earned.');flash=P5_BADGES[next]+' badge awarded.';save();render();
+}
+function p5MarketRound(){
+ const s=state;if(!s||s.activeMatch)return;
+ if(s.round%4===0&&s.round<s.fixtures.length&&s.market.length){
+  const pool=s.market.filter(p=>!s.shortlist.includes(p.id));
+  if(pool.length&&Math.random()<.68){const p=pool[n(0,pool.length-1)];s.market=s.market.filter(x=>x.id!==p.id);s.aiMarket.push({round:s.round,player:p.name,club:CLUBS[s.members[s.division][n(0,s.members[s.division].length-1)]].name});p3Inbox('Transfers',p.name+' signed for another club.')}
+ }
+ if(s.round%8===0&&s.freeAgents.length){const p=s.freeAgents[n(0,s.freeAgents.length-1)];s.freeAgents=s.freeAgents.filter(x=>x.id!==p.id);p3Inbox('Transfers',p.name+' left the free-agent market.')}
+}
+function p5SignFree(id){
+ if(state.activeMatch||state.round>=state.fixtures.length)return;
+ const p=state.freeAgents.find(p=>p.id===id);if(!p)return;
+ if(state.squad.length>=30||freeWages()<p.wage){flash='Squad capacity or wage ceiling prevents this signing.';render();return}
+ const signing={...p,freeAgent:false,contract:2,fee:0};statsOf(signing);state.squad.push(signing);state.freeAgents=state.freeAgents.filter(x=>x.id!==id);
+ state.roles[p.id]=P5_ROLES[p.pos][0][0];p3Inbox('Transfers','Free agent '+p.name+' signed on a two-year deal.');autoLineup();flash='Free agent signed: '+p.name+'.';save();render();
+}
+function p5LoanBack(id){
+ if(state.activeMatch||state.round>=state.fixtures.length||state.futureSignings.some(x=>x.id===id))return;
+ const p=state.market.find(x=>x.id===id);if(!p)return;
+ const fee=round2(p.fee*1.15);
+ if(state.cash<fee||state.squad.length+state.futureSignings.length>=30){flash='Not enough funds or room to arrange a loan-back.';render();return}
+ state.cash=round2(state.cash-fee);state.market=state.market.filter(x=>x.id!==id);state.futureSignings.push({...p,fee,contract:3,loanBack:true});
+ p3Inbox('Transfers',p.name+' purchased for '+price(fee)+' and left at his former club until next season.');flash='Loan-back deal agreed.';save();render();
+}
+function p5NextSeason(){
+ for(const p of state.futureSignings){p.loanBack=false;statsOf(p);state.squad.push(p);state.roles[p.id]=P5_ROLES[p.pos][0][0]}
+ if(state.futureSignings.length)p3Inbox('Transfers',state.futureSignings.length+' loan-back signing(s) joined your first team.');
+ state.futureSignings=[];state.freeAgents=p5FreeAgents(state.year,CLUBS[state.clubId].power);state.aiMarket=[];state.assistant.lastRound=-1;
+ if(state.international.nation) p5InternationalSchedule(true);
+}
+function p5ScoutingReport(){
+ const strengths=state.starting.map(id=>state.squad.find(p=>p.id===id)).filter(Boolean);
+ const weakest=[...strengths].sort((a,b)=>a.rating-b.rating)[0],best=[...strengths].sort((a,b)=>b.rating-a.rating)[0];
+ const next=nextFixture(),opponent=next?CLUBS[next[0]===state.clubId?next[1]:next[0]]:null;
+ const suggestions=[
+  weakest?'Consider additional depth at '+weakest.pos+': '+weakest.name+' is rated '+weakest.rating+'.':'Your XI needs attention.',
+  best?'Build around '+best.name+' (rating '+best.rating+').':'Review your starting XI.',
+  opponent?'Opponent: '+opponent.name+' · simulated style '+opponentStyle(next[0]===state.clubId?next[1]:next[0])+'.':'No league fixture currently scheduled.',
+  state.finance.balance<0?'Club reserves are negative; consider reducing wages.':'Current club reserves: '+price(state.finance.balance)+'.'
+ ];
+ state.assistant.reports=suggestions;state.assistant.lastRound=state.round;
+ p3Inbox('Scouting','Assistant assessment available for round '+(state.round+1)+'.');save();render();
+}
 
 function ensureUpgrades(){
  if(!state)return;
