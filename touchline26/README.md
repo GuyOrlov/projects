@@ -25,3 +25,21 @@ Independent fan prototype; not affiliated with real clubs, FIFA, a league, or a 
 ## Desktop & tablet interface (September 2026)
 
 The primary interface is now a widescreen football-management workspace: persistent left sidebar, enlarged 2D match and tactics pitches, a large central management panel, and a contextual club-information rail on wide desktop screens. At tablet widths the sidebar and full-width main game remain while the optional information rail is hidden. Narrow phone screens deliberately retain a scrollable 900px tablet canvas instead of returning to stacked mobile cards; swipe horizontally to see the entire workspace. Typography remains DM Sans and Barlow Condensed, with high-contrast controls and reduced-motion support. All Phase 3 gameplay, existing saves, live scorer/assist notifications and goalscoring report are preserved.
+
+## Management improvements (23 September 2026)
+
+The existing three-phase prototype now includes the following **local, simulated** improvements:
+
+- Wider desktop match-day view: live pitch, updated statistics, substitutes and commentary in the sidebar; a visible pass route joins the actual simulated players.
+- Recorded position-by-position goal build-up replay in the full-time report (step through frames; it is not real video or a physical football simulation).
+- Career player profiles and accumulated appearances, minutes, goals, assists, clean sheets, cards and average ratings. Historical matches played before this release cannot be backfilled reliably; tracking starts with new matches.
+- Squad depth chart, matchweek-based 38-round calendar, own-club player statistics and two-player transfer-target comparison.
+- Optional user-provided player roster JSON import, with name/position validation. The club name must match your selected club. It must contain 11–30 players, including at least 2 GK, 4 DEF, 3 MID and 2 FWD. Data accuracy and reuse rights are the user's responsibility. Imported names are explicitly unverified, while player ratings and financial values remain simulated. Late API responses cannot replace an imported squad.
+- Different **fictional AI approaches** (high press, possession, counter-attack or low block), situational changes and simulated opposition substitutions.
+- Selectable board priorities for league results, finances or academy promotion.
+- Local preferences for text size, contrast and reduced animation. Existing local autosave and JSON backup remain.
+- **Important save fix:** Phase 3 staff constants are now initialized before loading an existing career; previously a saved career could fail to load after refresh.
+
+### Remaining limitations
+
+This is an unofficial single-file browser simulation. It does **not** include a verified full 2026/27 squad database, official match statistics, official FA Cup or UEFA fixtures, a fully playable Championship/promotion-and-relegation system, or automatic cloud synchronisation. TheSportsDB's accessible free endpoint may provide incomplete or stale names. There is no secure online identity/storage backend for cloud sync: use **Career & Saves → Export JSON** to move your career manually to another device. The tablet-style canvas is intentionally wide on narrow phones.
