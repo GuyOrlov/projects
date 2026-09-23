@@ -1,34 +1,24 @@
-# Touchline 26 — Phase 2
+# ⚽ Touchline 26 — Phase 3
 
-Unofficial mobile-first football management prototype for 2026/27.
+Independent, mobile-first football management prototype for the 2026/27 season. This release builds on Phase 2's 20-club, 38-round league, real-club names, optional TheSportsDB player-name lookup, and Phase 1's interactive positional match engine.
 
-## Play
+## New features
 
-With GitHub Pages enabled for `GuyOrlov/projects` on `main` from `/(root)`, visit `https://guyorlov.github.io/projects/touchline26/`. A standalone copy can be opened from `index.html` in a modern browser. The live 2D match remains an illustrative simulation, not full football physics.
+- **Touchline National Cup:** original *fictional* 20-club, 19-tie knockout competition with 12 preliminary byes; cup rounds after league matchweeks 4, 12, 20, 28 and 36. User's ties run through the existing 2D match engine. Drawn games use a simple random penalty winner. Cup matches do not change league points or played count.
+- **Manager career:** season-end ranking and trophies, reputation, season history, fictional job offers and the option to switch to a new club at season end. Switching clubs creates that club's new squad and budget while retaining manager history.
+- **Club staff:** upgrade coaching, medical and scouting staff (levels 1–5); hiring costs and recurring payroll, extra training gains, better recovery/lower injury risk and discounted scouting reports.
+- **Board and inbox:** periodic simulated board confidence and expectations updates, job news and cup notifications.
+- **Save tools:** the existing browser autosave remains at `touchline26_realclubs_v2`; a manual local checkpoint plus downloadable/importable Phase 3 JSON backup help move a career to another device. *There is no cloud-save service or account synchronisation.*
+- **Mobile navigation:** accessible 11-tab grid, ensuring Cups, Staff and Career are visible without horizontal scrolling.
 
-## New in Phase 2
+## Limits
 
-- All **20 actual 2026/27 English Premier League clubs**, including promoted Coventry City, Hull City and Ipswich Town. A **38-round, 380-fixture** simulated double round robin (19 home, 19 away per club). The game starts a new 2026/27 schedule rather than copying the official calendar.
-- Redesigned, higher-contrast interface with **DM Sans** for text and **Barlow Condensed** for sports-style headings (system fallbacks when offline), larger touch targets and horizontally scrollable navigation.
-- Existing draggable tactics, animated match pitch, half-time substitutions, training, injuries and analysis retained.
-- Scouting, shortlists, **negotiated permanent and season-loan transfers**, weekly salary/contract length, squad contract renewal. Transfer market is fictional; negotiations are gameplay only.
-- Youth academy with developing fictional prospects and first-team promotion (age 17+).
-- Club-finance screen including simulated revenues, wage cap, wages, reserves, sponsor allocations and academy/scout upgrades.
-- Expanded player profiles with age, nationality, shirt number (where available), simulated potential, wage and contract. Optional TheSportsDB free API fetch for selected club names; free API limits coverage (up to 10 players/team) and availability can vary. Remaining players are fictional and explicitly marked only API-sourced names REAL.
+Competition structure, fixtures, player ratings, transfers, finances, job offers and scores are entirely game simulations. The Touchline National Cup is **not** the official FA Cup. Licensed FA Cup, League Cup, UEFA competitions, other playable national leagues, true relegation/promotion and cloud storage are **not implemented**. TheSportsDB public API can supply only part of a current squad, and generated players fill any gaps. Club crests and player photos are not officially licensed.
 
-## Known boundaries
+Existing Phase 2 careers load without intentionally deleting any match results or transfer data. For careers already beyond the cup's first scheduled round, the newly introduced cup can start late, as it did not exist in prior saved seasons. Your current squad and budget remain.
 
-- Match schedules, outcomes, strength ratings, transfer valuations, club balances, wage budgets, match stats and academy players are all **simulated**. They are not official or verified values.
-- The Premier League table marks places 18–20 as the relegation zone, but **cross-division promotion/relegation between seasons is not implemented yet**. Later game seasons retain the same 20 teams.
-- The free sports API does not guarantee complete, current squad data for all clubs. The game remains playable with generated players when it fails.
-- The app uses local browser storage, not cloud sync. Keep browser site data to preserve your career.
+## Deployment
 
-## Phase 1 save migration
+Repository location: `GuyOrlov/projects/touchline26/index.html`. GitHub Pages, if already configured to deploy the main branch root, should serve the game at `https://guyorlov.github.io/projects/touchline26/` after GitHub finishes publishing. Save files are stored in your browser and can be exported through **Career**.
 
-Phase 1's eight-team league cannot be mapped honestly to a 20-club, 38-round season. On first launch of Phase 2, the game saves a backup of the old career in browser storage under `touchline26_realclubs_v2_legacy_backup`, retains your selected club, squad and transfer budget, then starts a fresh 2026/27 20-club league. An active unfinished Phase 1 match is not continued in the new format. Clearing browser data deletes both copies; for long-term archival, export your browser data before clearing it.
-
-No real club trademarks, crests or photographs are bundled. All club/player names are used for identification in an unofficial independent prototype. TheSportsDB is credited as optional player-name source. The site uses the free API key only; never publish paid API keys in a public static repository.
-
-## Match-engine positioning fix (September 2026)
-
-The live 2D match now uses a spatial, possession-based simulation rather than randomly moving the ball independently of players. The current ball carrier is highlighted; one pass is simulated and shown per logical match-minute, with its endpoint attached to the actual receiver or interceptor. Players make modest supporting runs from the customised tactical shape. Interceptions and successful passes update actual possession, and substitutes inherit the outgoing player's on-pitch location. A match already saved under the previous version is upgraded in-place and resumes paused. The match remains an *illustrative* lightweight simulation, not realistic physics or live football tracking.
+Independent fan prototype; not affiliated with real clubs, FIFA, a league, or a commercial football management game.
