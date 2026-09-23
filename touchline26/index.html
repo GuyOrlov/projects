@@ -207,7 +207,33 @@ const CLUBS=[
 {name:'Leeds United',short:'LEE',lookup:'Leeds United',power:70,cash:17,color:'#f0e4ac'},
 {name:'Nottingham Forest',short:'NFO',lookup:'Nottingham Forest',power:71,cash:18,color:'#bd2832'},
 {name:'Sunderland',short:'SUN',lookup:'Sunderland',power:69,cash:16,color:'#ba3840'},
-{name:'Tottenham Hotspur',short:'TOT',lookup:'Tottenham Hotspur',power:75,cash:23,color:'#3d526d'}];
+{name:'Tottenham Hotspur',short:'TOT',lookup:'Tottenham Hotspur',power:75,cash:23,color:'#3d526d'},
+{name:"Birmingham City",short:"BIR",lookup:"Birmingham City",power:70,cash:18,color:"#283d96"},
+{name:"Blackburn Rovers",short:"BLB",lookup:"Blackburn Rovers",power:68,cash:15,color:"#2860a8"},
+{name:"Bolton Wanderers",short:"BOL",lookup:"Bolton Wanderers",power:66,cash:12,color:"#666c7d"},
+{name:"Bristol City",short:"BRC",lookup:"Bristol City",power:70,cash:16,color:"#ba3440"},
+{name:"Burnley",short:"BUR",lookup:"Burnley",power:73,cash:20,color:"#71264a"},
+{name:"Cardiff City",short:"CAR",lookup:"Cardiff City",power:66,cash:12,color:"#2454aa"},
+{name:"Charlton Athletic",short:"CHA",lookup:"Charlton Athletic",power:67,cash:12,color:"#bf3844"},
+{name:"Derby County",short:"DER",lookup:"Derby County",power:68,cash:15,color:"#313b40"},
+{name:"Lincoln City",short:"LIN",lookup:"Lincoln City",power:64,cash:10,color:"#ae323b"},
+{name:"Middlesbrough",short:"MID",lookup:"Middlesbrough",power:72,cash:19,color:"#cc3b3d"},
+{name:"Millwall",short:"MIL",lookup:"Millwall",power:68,cash:15,color:"#334f88"},
+{name:"Norwich City",short:"NOR",lookup:"Norwich City",power:69,cash:16,color:"#c4af36"},
+{name:"Portsmouth",short:"POR",lookup:"Portsmouth",power:67,cash:13,color:"#3456ad"},
+{name:"Preston North End",short:"PNE",lookup:"Preston North End",power:68,cash:14,color:"#506076"},
+{name:"Queens Park Rangers",short:"QPR",lookup:"Queens Park Rangers",power:68,cash:14,color:"#395da9"},
+{name:"Sheffield United",short:"SHU",lookup:"Sheffield United",power:72,cash:19,color:"#ba3234"},
+{name:"Southampton",short:"SOU",lookup:"Southampton",power:72,cash:20,color:"#c63737"},
+{name:"Stoke City",short:"STK",lookup:"Stoke City",power:69,cash:16,color:"#ca4040"},
+{name:"Swansea City",short:"SWA",lookup:"Swansea City",power:70,cash:17,color:"#4b5e60"},
+{name:"Watford",short:"WAT",lookup:"Watford",power:69,cash:16,color:"#c4a53b"},
+{name:"West Bromwich Albion",short:"WBA",lookup:"West Bromwich Albion",power:70,cash:17,color:"#314782"},
+{name:"West Ham United",short:"WHU",lookup:"West Ham United",power:74,cash:23,color:"#813551"},
+{name:"Wolverhampton Wanderers",short:"WOL",lookup:"Wolverhampton Wanderers",power:74,cash:22,color:"#bb842b"},
+{name:"Wrexham",short:"WRE",lookup:"Wrexham",power:69,cash:16,color:"#bd4244"}];
+const INITIAL_PREMIER=Array.from({length:20},(_,i)=>i),INITIAL_CHAMPIONSHIP=Array.from({length:24},(_,i)=>i+20);
+const DIV_LABEL={premier:'Premier League',championship:'Championship'};
 // Verified 2026/27 membership; squad and financial figures are deliberately game-generated.
 const SPORTSDB='https://www.thesportsdb.com/api/v1/json/123/';
 let syncing=false,apiStatus='';
@@ -223,14 +249,58 @@ function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
 function price(v){return '£'+v.toFixed(1)+'m'}
 function makePlayer(pos,power){const rating=clamp(power+n(-10,9),58,87);const age=n(18,32);return {id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,9),name:FIRST[n(0,FIRST.length-1)]+' '+LAST[n(0,LAST.length-1)],pos,rating,fitness:n(83,100),morale:n(65,85),injury:0,fee:Math.round(((rating-58)*.21+1.0)*10)/10,age,nationality:['England','Scotland','Wales','France','Spain','Brazil','Nigeria','Germany'][n(0,7)],number:n(1,49),wage:n(24,105),contract:n(1,4),potential:clamp(rating+n(2,12),rating,94),scouted:false}}
 function createMarket(power){return ['GK','DEF','DEF','MID','MID','MID','FWD','FWD','DEF','FWD'].map(p=>makePlayer(p,clamp(power+n(-5,6),67,79))).sort((a,b)=>b.rating-a.rating).slice(0,8)}
-function fixtureList(){
- const N=CLUBS.length,base=CLUBS.map((_,i)=>i),half=[];
+function fixtureList(ids=INITIAL_PREMIER){
+ const N=ids.length,base=[...ids],half=[];
  for(let round=0;round<N-1;round++){
   const fixtures=[];for(let i=0;i<N/2;i++){let a=base[i],b=base[N-1-i];fixtures.push((round+i)%2===0?[a,b]:[b,a])}
   half.push(fixtures);const moving=base.slice(1);moving.unshift(moving.pop());base.splice(1,N-1,...moving)
  }
  return [...half,...half.map(matches=>matches.map(([home,away])=>[away,home]))];
 }
+
+function newLeague(ids){return {table:ids.map(id=>({id,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0})),fixtures:fixtureList(ids),results:[],round:0}}
+function otherDivision(d){return d==='premier'?'championship':'premier'}
+function activeLeagueLength(){return state.fixtures.length}
+function leagueTableRow(id,table=state.table){return table.find(t=>t.id===id)}
+function orderTable(table){return [...table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.id-b.id)}
+function upgradeLeagues(s){
+ if(!s.members||!Array.isArray(s.members.premier)||!Array.isArray(s.members.championship)||s.members.premier.length!==20||s.members.championship.length!==24)s.members={premier:[...INITIAL_PREMIER],championship:[...INITIAL_CHAMPIONSHIP]};
+ const div=s.members.premier.includes(s.clubId)?'premier':s.members.championship.includes(s.clubId)?'championship':null;
+ if(!div)throw Error('Club outside the two leagues');
+ s.division=div;
+ if(!s.otherLeague||s.otherLeague.division!==otherDivision(div)||!Array.isArray(s.otherLeague.table)||s.otherLeague.table.length!==s.members[otherDivision(div)].length)s.otherLeague={...newLeague(s.members[otherDivision(div)]),division:otherDivision(div)};
+ if(s.table.length!==s.members[div].length||!Array.isArray(s.fixtures)||s.fixtures.length!==(s.members[div].length-1)*2)throw Error('Saved league incompatible');
+ if(!Array.isArray(s.results))s.results=[];
+}
+function applyToTable(table,m){
+ const h=table.find(t=>t.id===m.home),a=table.find(t=>t.id===m.away);if(!h||!a)throw Error('Result club outside division');
+ h.p++;a.p++;h.gf+=m.hg;h.ga+=m.ag;a.gf+=m.ag;a.ga+=m.hg;
+ if(m.hg>m.ag){h.w++;h.pts+=3;a.l++}else if(m.hg<m.ag){a.w++;a.pts+=3;h.l++}else{h.d++;a.d++;h.pts++;a.pts++}
+}
+function advanceOtherLeague(full=false){
+ const alt=state.otherLeague;if(!alt)return;
+ const target=full?alt.fixtures.length:Math.min(alt.fixtures.length,Math.floor(state.round*alt.fixtures.length/Math.max(1,state.fixtures.length)));
+ while(alt.round<target){const games=alt.fixtures[alt.round].map(([h,a])=>simulate(h,a));games.forEach(m=>applyToTable(alt.table,m));alt.results.push(...games);alt.round++}
+}
+function leagueSnapshot(div){return div===state.division?{division:state.division,table:state.table,fixtures:state.fixtures,results:state.results,round:state.round}:state.otherLeague}
+function playoffTie(a,b,legs=1){let ag=0,bg=0;for(let i=0;i<legs;i++){const r=simulate(i%2===0?a:b,i%2===0?b:a);if(i%2===0){ag+=r.hg;bg+=r.ag}else{ag+=r.ag;bg+=r.hg}}return {a,b,ag,bg,winner:ag===bg?(Math.random()<.5?a:b):ag>bg?a:b,penalties:ag===bg}}
+function completePromotion(){
+ if(state.seasonReview?.year===state.year)return state.seasonReview;
+ advanceOtherLeague(true);
+ const pl=orderTable(leagueSnapshot('premier').table),ch=orderTable(leagueSnapshot('championship').table);
+ if(pl.length!==20||ch.length!==24||pl.some(t=>t.p!==38)||ch.some(t=>t.p!==46))throw Error('Both leagues must finish');
+ const relegated=pl.slice(-3).map(t=>t.id),automatic=ch.slice(0,2).map(t=>t.id);
+ const e1=playoffTie(ch[4].id,ch[7].id),e2=playoffTie(ch[5].id,ch[6].id);
+ const semis=[playoffTie(ch[2].id,e2.winner,2),playoffTie(ch[3].id,e1.winner,2)],final=playoffTie(semis[0].winner,semis[1].winner);
+ const promoted=[...automatic,final.winner],premier=[...state.members.premier.filter(id=>!relegated.includes(id)),...promoted],championship=[...state.members.championship.filter(id=>!promoted.includes(id)),...relegated];
+ if(premier.length!==20||championship.length!==24||new Set([...premier,...championship]).size!==44)throw Error('Invalid league membership');
+ state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[e1,e2],semis,final},oldDivision:state.division,newDivision:premier.includes(state.clubId)?'premier':'championship'};
+ state.nextMembers={premier,championship};p3Inbox('Leagues',relegated.map(id=>CLUBS[id].name).join(', ')+' relegated; '+promoted.map(id=>CLUBS[id].name).join(', ')+' promoted.');
+ if(state.seasonReview.oldDivision!==state.seasonReview.newDivision)p3Inbox('Career','Your club will play in the '+DIV_LABEL[state.seasonReview.newDivision]+' next season!');
+ return state.seasonReview;
+}
+function promotionPanel(){const r=state.seasonReview;if(!r||r.year!==state.year)return '';const names=ids=>ids.map(id=>CLUBS[id].name).join(', ');return '<section class="panel"><h2>⇅ Promotion and relegation</h2><p class="p3-note"><b>Promoted:</b> '+goalEsc(names(r.promoted))+'</p><p class="p3-note"><b>Relegated:</b> '+goalEsc(names(r.relegated))+'</p><p class="p3-note">Play-off winner: '+goalEsc(CLUBS[r.playoffWinner].name)+' · Your division next year: '+DIV_LABEL[r.newDivision]+'.</p></section>'}
+
 function academyProspect(power){const p=makePlayer(['GK','DEF','MID','FWD'][n(0,3)],power-13);p.age=n(16,19);p.rating=clamp(power+n(-21,-10),43,73);p.potential=clamp(p.rating+n(9,23),p.rating+4,93);p.fee=0;p.wage=n(3,10);p.contract=3;p.youth=true;p.name=FIRST[n(0,FIRST.length-1)]+' '+LAST[n(0,LAST.length-1)];return p}
 function upgradesDefault(){return {balance:68,wageCap:1800,academyLevel:1,scoutLevel:1,sponsor:19,attendance:0,lastReport:null}}
 function upgradeCareer(s){
@@ -242,6 +312,7 @@ function upgradeCareer(s){
  s.market.forEach(p=>{if(!p.age)p.age=n(19,31);if(!p.wage)p.wage=n(35,100);if(!p.contract)p.contract=3;if(!p.potential)p.potential=clamp(p.rating+n(2,11),p.rating,95)});
  s.version=1;
  phase3Init(s);
+ upgradeLeagues(s);
  s.squad.forEach(statsOf);
 }
 function load(){
@@ -252,11 +323,11 @@ function load(){
    // Safeguard the mini-league before starting the real 20-club season.
    if(!localStorage.getItem(KEY+'_legacy_backup'))localStorage.setItem(KEY+'_legacy_backup',original);
    s.archivedMiniLeague={round:s.round,year:s.year,points:s.table[s.clubId]?.pts||0,results:s.results?.length||0};
-   s.table=CLUBS.map((_,i)=>({id:i,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));s.fixtures=fixtureList();s.round=0;s.results=[];s.lastMatch=null;s.activeMatch=null;
+   s.table=newLeague(INITIAL_PREMIER).table;s.fixtures=fixtureList(INITIAL_PREMIER);s.round=0;s.results=[];s.lastMatch=null;s.activeMatch=null;
    s.news=['Phase 2 upgrade: your squad and budget are preserved. The old eight-team save is backed up; a new 20-club season starts now.',...(s.news||[])];
    s.apiCount=s.apiCount||0;s.trained=false;s.year=2026;
   }
-  if(s.table.length!==CLUBS.length)return null;
+  if(![20,24].includes(s.table.length))return null;
   upgradeCareer(s);
   return s;
  }catch(e){return null}
@@ -423,9 +494,9 @@ const matchSpeeds={slow:650,normal:220,fast:65};
 
 /* Phase 3: independent cup, manager career, staff, inbox and offline backup.
    The cup and its scores are simulated, NOT the real FA Cup or UEFA competitions. */
-function p3Cup(){const teams=CLUBS.map((_,i)=>i);for(let i=teams.length-1;i>0;i--){const j=n(0,i);[teams[i],teams[j]]=[teams[j],teams[i]]}return {stage:0,remaining:teams,pending:null,winner:null,history:[],roundWinners:[]}}
+function p3Cup(managerClub=null){const teams=[...INITIAL_PREMIER];if(managerClub!==null&&!teams.includes(managerClub))teams[teams.length-1]=managerClub;for(let i=teams.length-1;i>0;i--){const j=n(0,i);[teams[i],teams[j]]=[teams[j],teams[i]]}return {stage:0,remaining:teams,pending:null,winner:null,history:[],roundWinners:[]}}
 function phase3Init(s){
- if(!s.cup||!Array.isArray(s.cup.remaining))s.cup=p3Cup();
+ if(!s.cup||!Array.isArray(s.cup.remaining))s.cup=p3Cup(s.clubId);
  if(!s.staff||typeof s.staff!=='object')s.staff={coach:1,medical:1,scout:1};
  for(const role of Object.keys(P3_STAFF))s.staff[role]=clamp(Math.floor(Number(s.staff[role])||1),1,5);
  if(!s.career||typeof s.career!=='object')s.career={name:'Manager',reputation:50,seasons:0,clubs:[{id:s.clubId,year:s.year}],history:[],trophies:0,offers:[]};
@@ -447,8 +518,8 @@ function p3AdvanceCup(){
  p3CloseCupRound(winners);
 }
 function p3CompleteCupMatch(m,score){const cup=state.cup,penalty=score[0]===score[1],winner=score[0]>score[1]?m.home:score[0]<score[1]?m.away:(Math.random()<.5?m.home:m.away);cup.history.push({stage:cup.stage,home:m.home,away:m.away,hg:score[0],ag:score[1],winner,penalties:penalty});state.lastMatch.penalties=penalty?CLUBS[winner].name+' won on penalties':null;p3Inbox('Cup',(winner===state.clubId?'You progressed':'You were eliminated')+' in cup round '+(cup.stage+1)+(penalty?' after penalties.':'.'));p3CloseCupRound([...cup.roundWinners,winner])}
-function p3BoardRound(){const played=state.table[state.clubId].p,pts=state.table[state.clubId].pts,target=state.board.target,expectation=target<=4?1.8:target<=10?1.3:.95,pace=played?pts/played:expectation;state.board.confidence=clamp(Math.round(70+(pace-expectation)*18+(state.finance.balance<0?-7:0)+(state.cup.winner===state.clubId?12:0)),15,98);const b=state.board;if(b.objective==='finance'){b.confidence=clamp(b.confidence+(state.finance.balance>=0?3:-6),15,98)}else if(b.objective==='development'){b.confidence=clamp(b.confidence+(b.promotions?3:-1),15,98)};if(state.round%6===0)p3Inbox('Board','Board confidence '+b.confidence+'%. Objective: '+(target<=4?'top four':target<=10?'top ten':'avoid relegation')+'; extra: '+(b.objective||'league')+'.')}
-function p3FinishSeason(){const r=rank(),won=sorted()[0].id===state.clubId,record={year:state.year,club:state.clubId,position:r,points:state.table[state.clubId].pts,cup:state.cup.winner===state.clubId};state.career.history.push(record);state.career.seasons++;state.career.reputation=clamp(state.career.reputation+(won?14:r<=4?7:r<=10?3:r>=18?-8:-2)+(record.cup?4:0),1,100);if(won){state.career.trophies++;p3Inbox('Board','League champions! Your managerial reputation has risen.')}state.career.offers=CLUBS.map((c,id)=>({id,score:Math.abs(c.power-(70+state.career.reputation*.1))})).filter(x=>x.id!==state.clubId).sort((a,b)=>a.score-b.score).slice(0,3).map(x=>x.id);p3Inbox('Career','Season review: '+r+' of 20, '+record.points+' points. '+state.career.offers.length+' job opportunities available.')}
+function p3BoardRound(){const played=leagueTableRow(state.clubId).p,pts=leagueTableRow(state.clubId).pts,target=state.board.target,expectation=target<=4?1.8:target<=10?1.3:.95,pace=played?pts/played:expectation;state.board.confidence=clamp(Math.round(70+(pace-expectation)*18+(state.finance.balance<0?-7:0)+(state.cup.winner===state.clubId?12:0)),15,98);const b=state.board;if(b.objective==='finance'){b.confidence=clamp(b.confidence+(state.finance.balance>=0?3:-6),15,98)}else if(b.objective==='development'){b.confidence=clamp(b.confidence+(b.promotions?3:-1),15,98)};if(state.round%6===0)p3Inbox('Board','Board confidence '+b.confidence+'%. Objective: '+(target<=4?'top four':target<=10?'top ten':'avoid relegation')+'; extra: '+(b.objective||'league')+'.')}
+function p3FinishSeason(){const r=rank(),won=sorted()[0].id===state.clubId,record={year:state.year,club:state.clubId,position:r,points:leagueTableRow(state.clubId).pts,cup:state.cup.winner===state.clubId};state.career.history.push(record);state.career.seasons++;state.career.reputation=clamp(state.career.reputation+(won?14:r<=4?7:r<=10?3:r>=18?-8:-2)+(record.cup?4:0),1,100);if(won){state.career.trophies++;p3Inbox('Board','League champions! Your managerial reputation has risen.')}state.career.offers=CLUBS.map((c,id)=>({id,score:Math.abs(c.power-(70+state.career.reputation*.1))})).filter(x=>x.id!==state.clubId).sort((a,b)=>a.score-b.score).slice(0,3).map(x=>x.id);p3Inbox('Career','Season review: '+r+' of 20, '+record.points+' points. '+state.career.offers.length+' job opportunities available.')}
 function p3StaffPayroll(){return round2(Object.entries(P3_STAFF).reduce((sum,[role,item])=>sum+item.salary*(state.staff[role]||1),0))}
 function p3Hire(role){const item=P3_STAFF[role];if(!item||state.activeMatch||state.staff[role]>=5)return;const cost=round2(item.cost*state.staff[role]);if(state.cash<cost){flash='Upgrade requires '+price(cost)+' transfer funds.';render();return}state.cash=round2(state.cash-cost);state.staff[role]++;p3Inbox('Staff',item.label+' upgraded to level '+state.staff[role]+'. Recruitment: '+price(cost)+'.');flash='Staff upgrade confirmed.';save();render()}
 function p3SwitchClub(id){if(state.activeMatch||state.round<state.fixtures.length||!state.career.offers.includes(id))return;const previous=CLUBS[state.clubId].name;state.clubId=id;state.career.clubs.push({id,year:state.year+1});state.squad=[];for(const [pos,count] of [['GK',2],['DEF',6],['MID',6],['FWD',4]])for(let i=0;i<count;i++)state.squad.push(makePlayer(pos,CLUBS[id].power));state.cash=CLUBS[id].cash;state.finance=upgradesDefault();state.staff={coach:1,medical:1,scout:1};state.youth=Array.from({length:5},()=>academyProspect(CLUBS[id].power));state.shortlist=[];state.apiCount=0;state.playerInstructions={};state.pitchPositions={};state.career.offers=[];state.board={confidence:70,target:CLUBS[id].power>=77?4:CLUBS[id].power>=73?10:17,objective:'league',promotions:0};upgradeCareer(state);p3Inbox('Career','You left '+previous+' and accepted the '+CLUBS[id].name+' manager role.');newSeason();syncRealRoster()}
@@ -866,15 +937,15 @@ function updateLiveUI(){if(tab!=='match'||!state?.activeMatch)return;const m=sta
  const path=pitch.querySelector('#p4-pass'),segment=pitch.querySelector('#p4-pass-line'),pass=m.lastPass;if(path&&segment){path.hidden=!pass;if(pass){segment.setAttribute('x1',pass.start.x);segment.setAttribute('y1',pass.start.y);segment.setAttribute('x2',pass.end.x);segment.setAttribute('y2',pass.end.y);path.classList.toggle('intercept',!pass.completed)}}
  const ball=pitch.querySelector('#live-ball');if(ball){ball.style.transitionDuration=duration;ball.style.left=m.ball.x+'%';ball.style.top=m.ball.y+'%'}
 }
-function sorted(){return [...state.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.id-b.id)}
+function sorted(){return orderTable(state.table)}
 function rank(){return sorted().findIndex(t=>t.id===state.clubId)+1}
 function crest(id,small=false){let c=CLUBS[id];return '<span class="crest" style="background:'+c.color+';'+(small?'width:25px;height:25px;border-radius:8px;font-size:9px':'')+'">'+c.short.slice(0,2)+'</span>'}
 function heading(){let c=CLUBS[state.clubId];return '<div class="header"><div class="brand"><div class="brandmark">⚽</div><div><div class="eyebrow">YOUR CLUB · '+c.short+'</div><div class="brandname">TOUCHLINE <b>26</b></div></div></div><div class="season">'+state.year+'/'+String(state.year+1).slice(-2)+' SEASON</div></div>'}
 function renderSplash(){root.innerHTML='<div class="app-splash"><div class="header"><div class="brand"><div class="brandmark">⚽</div><div><div class="eyebrow">FOOTBALL MANAGEMENT · DESKTOP EDITION</div><div class="brandname">TOUCHLINE <b>26</b></div></div></div><span class="season">2026/27</span></div><section class="hero"><div class="eyebrow accent">THE DUGOUT IS YOURS</div><h1>Build a club.<br>Win the league.</h1><p>Manage one of 20 real Premier League clubs in a 38-match league. Real player names load when the free sports API responds.</p></section><section class="panel"><div class="panel-head"><h2>Choose your club</h2><span class="pill">20 teams</span></div><div class="grid">'+CLUBS.map((c,i)=>'<button type="button" class="club" data-action="choose" data-id="'+i+'">'+crest(i)+'<strong>'+c.name+'</strong><small>Squad strength '+c.power+'</small><span class="club-bottom"><span>'+price(c.cash)+' budget</span><span class="accent">SELECT →</span></span></button>').join('')+'</div></section><p class="footer">Independent 20-club management simulator · Real club names · Fictional match simulation · No account needed</p></div>'}
 function resultBox(){if(!state.lastMatch)return '';const m=state.lastMatch;const mine=state.clubId;const scored=m.home===mine?m.hg:m.ag,conceded=m.home===mine?m.ag:m.hg;return '<section class="match-result"><div class="eyebrow">'+(m.competition==='cup'?'TOUCHLINE NATIONAL CUP':'YOUR LAST MATCH · ROUND '+m.round)+'</div><div class="large">'+m.hg+' — '+m.ag+'</div><strong>'+CLUBS[m.home].name+' vs '+CLUBS[m.away].name+'</strong><p>'+(scored>conceded?'Three points in the bag!':scored===conceded?'The points are shared.':'A tough result. Time to regroup.')+' · Possession '+m.possession+'%</p></section>'}
 function nextFixture(){return state.round<state.fixtures.length?state.fixtures[state.round].find(([h,a])=>h===state.clubId||a===state.clubId):null}
-function home(){const c=CLUBS[state.clubId],f=nextFixture();let next=f?f[0]===state.clubId?f[1]:f[0]:null;let content='<section class="hero"><div class="eyebrow accent">MANAGER DASHBOARD</div><h1>'+c.name+'</h1><p>'+(state.round<state.fixtures.length?'League round '+(state.round+1)+' of 38 · '+(f[0]===state.clubId?'Home':'Away')+' against '+CLUBS[next].name:'Season complete · Review the final standings or start another season.')+'</p></section><div class="stats"><div class="stat"><small>LEAGUE POSITION</small><strong>'+rank()+'<span class="muted" style="font-size:12px"> / 20</span></strong></div><div class="stat"><small>TRANSFER BUDGET</small><strong style="font-size:19px">'+price(state.cash)+'</strong></div><div class="stat"><small>POINTS</small><strong>'+state.table[state.clubId].pts+'</strong></div></div>';
-if(state.round>=state.fixtures.length){const winner=sorted()[0];content+='<section class="season-end"><div class="eyebrow">FULL-TIME · FINAL TABLE</div><h2>'+(winner.id===state.clubId?'🏆 Champions!':'🏆 '+CLUBS[winner.id].name+' win the title')+'</h2><p>You finished '+rank()+' of 20 with '+state.table[state.clubId].pts+' points. Bottom three clubs are marked in the league table. Continue your managerial career into another simulated Premier League season.</p><button class="btn" data-action="new-season">Start '+(state.year+1)+'/'+String(state.year+2).slice(-2)+' season →</button></section>'}
+function home(){const c=CLUBS[state.clubId],f=nextFixture();let next=f?f[0]===state.clubId?f[1]:f[0]:null;let content='<section class="hero"><div class="eyebrow accent">MANAGER DASHBOARD</div><h1>'+c.name+'</h1><p>'+(state.round<state.fixtures.length?'League round '+(state.round+1)+' of 38 · '+(f[0]===state.clubId?'Home':'Away')+' against '+CLUBS[next].name:'Season complete · Review the final standings or start another season.')+'</p></section><div class="stats"><div class="stat"><small>LEAGUE POSITION</small><strong>'+rank()+'<span class="muted" style="font-size:12px"> / 20</span></strong></div><div class="stat"><small>TRANSFER BUDGET</small><strong style="font-size:19px">'+price(state.cash)+'</strong></div><div class="stat"><small>POINTS</small><strong>'+leagueTableRow(state.clubId).pts+'</strong></div></div>';
+if(state.round>=state.fixtures.length){const winner=sorted()[0];content+='<section class="season-end"><div class="eyebrow">FULL-TIME · FINAL TABLE</div><h2>'+(winner.id===state.clubId?'🏆 Champions!':'🏆 '+CLUBS[winner.id].name+' win the title')+'</h2><p>You finished '+rank()+' of 20 with '+leagueTableRow(state.clubId).pts+' points. Bottom three clubs are marked in the league table. Continue your managerial career into another simulated Premier League season.</p><button class="btn" data-action="new-season">Start '+(state.year+1)+'/'+String(state.year+2).slice(-2)+' season →</button></section>'}
 if(state.cup?.pending){const tie=state.cup.pending;content+='<section class="panel p3-cup"><h2>🏆 Cup tie ready</h2><p class="p3-note">'+CLUBS[tie.home].name+' vs '+CLUBS[tie.away].name+'. Complete the cup tie before the next league match.</p><button class="btn full" data-action="play">⚽ Play National Cup tie →</button></section>'}
 if(state.archivedMiniLeague&&state.round===0){content+='<section class="notice" role="status">Your Phase 1 squad and transfer funds were retained. Your previous eight-team save was backed up in this browser; the 2026/27 20-club season has been reset to round 1.</section>'}content+='<section class="panel"><div class="panel-head"><h2>Real player data</h2><span class="pill">'+(state.apiCount||0)+' loaded</span></div><p class="note-line">'+(apiStatus||((state.apiCount||0)+' real player names in this save · TheSportsDB free tier returns up to 10 players per club. All ratings and fees are fictional.'))+'</p>'+(state.round===0?'<button class="btn secondary full" data-action="sync-roster" '+(syncing?'disabled':'')+'>'+(syncing?'Loading…':'↻ Refresh real player names')+'</button>':'<p class="note-line">Roster refresh is available only before your first match.</p>')+'<p class="p3-note">You may import a roster JSON file if you have permission to use its data. Format: {club, players:[{name,position,number,age,nationality}]}. At least 2 GK, 4 DEF, 3 MID and 2 FWD. Imported names are not verified.</p><label class="p3-note" for="roster-import">Import player roster (JSON)</label><input class="p3-input" id="roster-import" type="file" accept="application/json,.json" '+(state.round>0||state.activeMatch?'disabled':'')+'></section>';if(state.activeMatch){content+='<section class="panel"><h2>Live match in progress</h2><p class="note-line">'+gameMinute(state.activeMatch)+'′ · '+CLUBS[state.activeMatch.home].short+' '+currentScore(state.activeMatch)[0]+'–'+currentScore(state.activeMatch)[1]+' '+CLUBS[state.activeMatch.away].short+'</p><button class="btn full" data-action="tab" data-id="match">▶ Return to match</button></section>'}content+=resultBox();if(state.lastMatch?.detail&&!state.activeMatch)content+='<button class="btn secondary full" data-action="tab" data-id="match" style="margin-bottom:12px">📊 View match analysis →</button>';if(f){content+='<section class="panel"><div class="panel-head"><h2>Next fixture</h2><span class="pill">ROUND '+(state.round+1)+'</span></div><div class="fixture"><div class="teams">'+crest(f[0],true)+'<span class="teamname">'+CLUBS[f[0]].name+'</span></div><span class="score">VS</span><div class="teams"><span class="teamname right">'+CLUBS[f[1]].name+'</span>'+crest(f[1],true)+'</div></div><div class="divider"></div><div class="controls"><label>Formation<select data-action="formation">'+Object.keys(FORMATIONS).map(x=>'<option'+(state.formation===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label><label>Match mentality<select data-action="mentality">'+['balanced','attacking','defensive'].map(x=>'<option value="'+x+'"'+(state.mentality===x?' selected':'')+'>'+x[0].toUpperCase()+x.slice(1)+'</option>').join('')+'</select></label></div><p class="note-line">Line-up: '+state.starting.length+'/11 · Tactics affect both your goalscoring and the chances you concede.</p><button class="btn full" data-action="play" '+(state.cup?.pending?'disabled':'')+'>⚽ Play league match →</button></section>'}
 content+='<section class="panel"><div class="panel-head"><h2>Training ground</h2><span class="pill">'+(state.trained?'SESSION COMPLETE':'1 SESSION / ROUND')+'</span></div><p class="note-line">Choose one session before kick-off. Training improves a few players but tires your squad; recovery restores fitness.</p><div class="buttonrow"><button class="btn secondary" data-action="train" '+(state.trained||state.round>=state.fixtures.length?'disabled':'')+'>Train squad</button><button class="btn ghost" data-action="rest" '+(state.trained||state.round>=state.fixtures.length?'disabled':'')+'>Recovery day</button></div></section>';
@@ -905,7 +976,7 @@ function league(){let t=sorted();return '<section class="panel"><div class="pane
 
 function workspaceAside(){
  if(tab==='match'&&state.activeMatch)return '<div id="matchday-context">'+matchdayAside(state.activeMatch)+'</div>';
- const me=state.table[state.clubId],fixture=state.activeMatch?[state.activeMatch.home,state.activeMatch.away]:nextFixture();
+ const me=leagueTableRow(state.clubId),fixture=state.activeMatch?[state.activeMatch.home,state.activeMatch.away]:nextFixture();
  const names=fixture?'<div class="context-fixture"><strong>'+CLUBS[fixture[0]].short+'</strong><span>VS</span><strong>'+CLUBS[fixture[1]].short+'</strong></div>':'<p class="p3-note">Season complete</p>';
  const opponent=fixture?CLUBS[fixture[fixture[0]===state.clubId?1:0]].name:'No further fixture';
  const fitness=state.squad.length?Math.round(state.squad.reduce((a,p)=>a+p.fitness,0)/state.squad.length):0;
@@ -929,7 +1000,7 @@ function render(){
 function lineStrength(){const starters=state.squad.filter(p=>state.starting.includes(p.id));const avg=starters.reduce((sum,p)=>sum+lineupScore(p),0)/Math.max(starters.length,1);return avg-(starters.length<11?(11-starters.length)*3:0)}
 function poisson(lambda){let limit=Math.exp(-lambda),p=1,k=0;do{k++;p*=Math.random()}while(p>limit&&k<10);return k-1}
 function simulate(homeId,awayId){let hp=homeId===state.clubId?lineStrength():CLUBS[homeId].power+n(-3,3);let ap=awayId===state.clubId?lineStrength():CLUBS[awayId].power+n(-3,3);let hx=clamp(1.35+(hp-ap)*.052+.18,.2,3.6),ax=clamp(1.12+(ap-hp)*.052,.2,3.6);const shape=pitchEffects(),inst=instructionsEffects();if(homeId===state.clubId){hx+=shape.attack+inst.attack;ax+=shape.risk+inst.risk}else if(awayId===state.clubId){ax+=shape.attack+inst.attack;hx+=shape.risk+inst.risk}if(homeId===state.clubId){if(state.mentality==='attacking'){hx+=.33;ax+=.20}else if(state.mentality==='defensive'){hx-=.18;ax-=.28}}if(awayId===state.clubId){if(state.mentality==='attacking'){ax+=.33;hx+=.20}else if(state.mentality==='defensive'){ax-=.18;hx-=.28}}let hg=poisson(Math.max(.15,hx)),ag=poisson(Math.max(.15,ax));return {home:homeId,away:awayId,hg,ag,round:state.round+1}}
-function applyResult(m){const h=state.table[m.home],a=state.table[m.away];h.p++;a.p++;h.gf+=m.hg;h.ga+=m.ag;a.gf+=m.ag;a.ga+=m.hg;if(m.hg>m.ag){h.w++;h.pts+=3;a.l++}else if(m.hg<m.ag){a.w++;a.pts+=3;h.l++}else{h.d++;a.d++;h.pts++;a.pts++}}
+function applyResult(m){applyToTable(state.table,m)}
 function match(){kickoff()}
 
 function newSeason(){if(state.round<state.fixtures.length)return;state.year++;state.round=0;state.cup=p3Cup();state.board.confidence=70;state.board.promotions=0;state.career.offers=[];state.table=CLUBS.map((_,i)=>({id:i,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));state.fixtures=fixtureList();state.results=[];state.lastMatch=null;state.trained=false;state.squad.forEach(p=>{p.fitness=clamp(p.fitness+25,65,100);p.injury=0;p.morale=clamp(p.morale+10,45,100)});state.cash=round2(state.cash+6);state.finance.balance=round2(state.finance.balance+12);state.market=createMarket(CLUBS[state.clubId].power).map(p=>{p.season=state.year;return p});state.shortlist=[];state.squad=state.squad.filter(p=>!p.loan);state.squad.forEach(p=>{p.age++;p.contract=Math.max(0,(p.contract||1)-1);if(p.contract===0)p.contract=1});state.youth.forEach(p=>p.age++);while(state.youth.length<5)state.youth.push(academyProspect(CLUBS[state.clubId].power));state.news.unshift('New season underway. Board funding: £6m. Loan players returned to parent clubs.');p3Inbox('Cup','New Touchline National Cup draw. First ties after league round 4.');state.activeMatch=null;state.squad.forEach(p=>p.suspension=0);autoLineup();tab='home';flash='Welcome to the '+state.year+'/'+String(state.year+1).slice(-2)+' season!';save();render()}
