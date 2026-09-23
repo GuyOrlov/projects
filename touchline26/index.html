@@ -466,6 +466,7 @@ function submitOffer(){
  const rival=state.transferDuels?.find(x=>x.id===player.id&&!x.closed&&x.expires>state.round);
  const required=round2(Math.max(player.fee*(loan?.16:Math.max(.84,1.07-.045*state.finance.scoutLevel)),rival?(loan?player.fee*.2:rival.fee*1.02):0));
  const asking=loan?Math.ceil(player.wage*.6):Math.ceil(Math.max(player.wage*.88,rival?.wage||0));
+ if(state.squad.length>=30){offerFeedback='First-team squad limit (30) reached. Sell or loan a player first.';render();return}
  if(fee>state.cash){offerFeedback='Not enough transfer funds: you have '+price(state.cash)+'.';render();return}
  if(wage>freeWages()){offerFeedback='Wage cap exceeded: '+currencyK(freeWages())+' available.';render();return}
  if(fee+.0001<required){offerFeedback='Offer rejected. The club seeks at least '+price(required)+(loan?' for the loan fee.':'.');render();return}
