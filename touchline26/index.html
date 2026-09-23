@@ -312,9 +312,14 @@ function applyToTable(table,m){
  if(m.hg>m.ag){h.w++;h.pts+=3;a.l++}else if(m.hg<m.ag){a.w++;a.pts+=3;h.l++}else{h.d++;a.d++;h.pts++;a.pts++}
 }
 function advanceOtherLeague(full=false){
- const alt=state.otherLeague;if(!alt)return;
- const target=full?alt.fixtures.length:Math.min(alt.fixtures.length,Math.floor(state.round*alt.fixtures.length/Math.max(1,state.fixtures.length)));
- while(alt.round<target){const games=alt.fixtures[alt.round].map(([h,a])=>({...simulate(h,a),round:alt.round+1}));games.forEach(m=>applyToTable(alt.table,m));alt.results.push(...games);alt.round++}
+ const backgrounds=[state.otherLeague,...Object.values(state.worldLeagues||{})].filter(Boolean);
+ for(const alt of backgrounds){
+  const target=full?alt.fixtures.length:Math.min(alt.fixtures.length,Math.floor(state.round*alt.fixtures.length/Math.max(1,state.fixtures.length)));
+  while(alt.round<target){
+   const games=alt.fixtures[alt.round].map(([h,a])=>({...simulate(h,a),round:alt.round+1}));
+   games.forEach(m=>applyToTable(alt.table,m));alt.results.push(...games);alt.round++;
+  }
+ }
 }
 function leagueSnapshot(div){return div===state.division?{division:state.division,table:state.table,fixtures:state.fixtures,results:state.results,round:state.round}:state.otherLeague?.division===div?state.otherLeague:state.worldLeagues?.[div]||null}
 function playoffTie(a,b,legs=1){let ag=0,bg=0;for(let i=0;i<legs;i++){const atHome=legs===1||i===1;const r=simulate(atHome?a:b,atHome?b:a);if(atHome){ag+=r.hg;bg+=r.ag}else{ag+=r.ag;bg+=r.hg}}return {a,b,ag,bg,winner:ag===bg?(Math.random()<.5?a:b):ag>bg?a:b,penalties:ag===bg}}
@@ -329,7 +334,7 @@ function completePromotion(){
  const semis=[playoffTie(ch[2].id,lowest,2),playoffTie(ch[3].id,highest,2)],final=playoffTie(semis[0].winner,semis[1].winner);
  const promoted=[...automatic,final.winner],premier=[...state.members.premier.filter(id=>!relegated.includes(id)),...promoted],championship=[...state.members.championship.filter(id=>!promoted.includes(id)),...relegated];
  if(premier.length!==20||championship.length!==24||new Set([...premier,...championship]).size!==44)throw Error('Invalid league membership');
- state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[e1,e2],semis,final},oldDivision:state.division,newDivision:premier.includes(state.clubId)?'premier':'championship'};
+ state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[e1,e2],semis,final},oldDivision:state.division,newDivision:WORLD_IDS[state.division]?state.division:premier.includes(state.clubId)?'premier':'championship'};
  state.nextMembers={premier,championship};p3Inbox('Leagues',relegated.map(id=>CLUBS[id].name).join(', ')+' relegated; '+promoted.map(id=>CLUBS[id].name).join(', ')+' promoted.');
  if(state.seasonReview.oldDivision!==state.seasonReview.newDivision)p3Inbox('Career','Your club will play in the '+DIV_LABEL[state.seasonReview.newDivision]+' next season!');
  return state.seasonReview;
@@ -834,7 +839,7 @@ function p5Badge(){
  p3Inbox('Career',P5_BADGES[next]+' coaching badge earned.');flash=P5_BADGES[next]+' badge awarded.';save();render();
 }
 
-function p6RivalBid(p){const clubs=state.members[state.division].filter(id=>id!==state.clubId);const id=clubs[p6Hash(p.id+state.round)%clubs.length];return {id:p.id,club:id,fee:round2(p.fee*(1.02+(p.interest??p6MarketInterest(p))/350)),wage:Math.ceil(p.wage*(1.04+(p.interest??p6MarketInterest(p))/500)),round:state.round,expires:state.round+2}}
+function p6RivalBid(p){const clubs=lmaClubIds(state.division,state.members).filter(id=>id!==state.clubId);const id=clubs[p6Hash(p.id+state.round)%clubs.length];return {id:p.id,club:id,fee:round2(p.fee*(1.02+(p.interest??p6MarketInterest(p))/350)),wage:Math.ceil(p.wage*(1.04+(p.interest??p6MarketInterest(p))/500)),round:state.round,expires:state.round+2}}
 function p6RivalMarket(){
  const s=state;
  for(const duel of s.transferDuels.filter(x=>!x.closed&&x.expires<=s.round)){
@@ -916,7 +921,7 @@ function p6QualInit(s){
  if(i.qualifier?.year===s.year&&i.qualifier.nation===i.nation)return;
  const others=P5_NATIONS.map((_,id)=>id).filter(id=>id!==i.nation);
  const start=(i.nation*3+s.year)%others.length,group=[i.nation,...[0,1,2].map(n=>others[(start+n)%others.length])];
- const weeks=s.division==='championship'?[9,22,36]:[8,19,31];
+ const weeks=s.fixtures.length===46?[9,22,36]:s.fixtures.length===34?[8,18,30]:[8,19,31];
  i.qualifier={year:s.year,nation:i.nation,group,fixtures:weeks.map((round,k)=>({round,opponent:group[k+1],home:k%2===0,score:null,other:null})),table:group.map(nation=>({nation,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0})),pending:null,final:null,qualified:null,done:false};
  if(!Array.isArray(i.qualifierHistory))i.qualifierHistory=[];
 }
@@ -1015,7 +1020,7 @@ function p5InternationalSchedule(reset=false){
  const i=state.international;if(i.nation===null)return;
  if(reset){i.fixtures=[];i.pending=null;i.cup=null;i.year=state.year;i.playedSeason=0}
  if(i.fixtures.length)return;
- const steps=state.division==='championship'?[6,13,20,28,35,42]:[5,11,17,23,29,35];
+ const steps=state.fixtures.length===46?[6,13,20,28,35,42]:state.fixtures.length===34?[5,10,15,21,27,32]:[5,11,17,23,29,35];
  i.fixtures=steps.map((round,n)=>({round,home:n%2===0,opponent:(i.nation+2+n)%P5_NATIONS.length===i.nation?(i.nation+3+n)%P5_NATIONS.length:(i.nation+2+n)%P5_NATIONS.length,score:null}));
 }
 function p5ApplyNation(id){
@@ -1620,7 +1625,7 @@ function lmaInstantMatch(){
 }
 
 
-function newSeason(){if(state.round<state.fixtures.length||state.jobSearch?.status==='seeking'){if(state.jobSearch?.status==='seeking'){flash='Accept a new club job first.';render()}return}if(!state.nextMembers)completePromotion();state.leagueMove=state.seasonReview?.oldDivision!==state.seasonReview?.newDivision?{from:state.seasonReview.oldDivision,to:state.seasonReview.newDivision,year:state.year+1}:null;state.members=state.nextMembers;state.nextMembers=null;state.division=state.members.premier.includes(state.clubId)?'premier':'championship';const fresh=newLeague(state.members[state.division]);state.otherLeague={...newLeague(state.members[otherDivision(state.division)]),division:otherDivision(state.division)};state.year++;state.round=0;state.cup=p3Cup(state.clubId,state.members.premier);state.board.confidence=70;state.board.promotions=0;state.board.target=state.division==='championship'?8:CLUBS[state.clubId].power>=77?4:CLUBS[state.clubId].power>=73?10:17;state.career.offers=[];state.table=fresh.table;state.fixtures=fresh.fixtures;state.results=[];state.lastMatch=null;state.trained=false;state.squad.forEach(p=>{p.fitness=clamp(p.fitness+25,65,100);p.injury=0;p.morale=clamp(p.morale+10,45,100)});state.cash=round2(state.cash+6);state.finance.balance=round2(state.finance.balance+12);state.market=createMarket(CLUBS[state.clubId].power).map(p=>{p.season=state.year;return p});state.shortlist=[];state.squad=state.squad.filter(p=>!p.loan);state.squad.forEach(p=>{p.age++;p.contract=Math.max(0,(p.contract||1)-1);if(p.contract===0)p.contract=1});state.youth.forEach(p=>p.age++);while(state.youth.length<5)state.youth.push(academyProspect(CLUBS[state.clubId].power));p5NextSeason();state.news.unshift('New '+DIV_LABEL[state.division]+' season underway. Board funding: £6m. Loan players returned to parent clubs.');p3Inbox('Cup','New Touchline National Cup draw. First ties after league round 4.');state.activeMatch=null;state.squad.forEach(p=>p.suspension=0);autoLineup();tab='home';flash='Welcome to the '+state.year+'/'+String(state.year+1).slice(-2)+' '+DIV_LABEL[state.division]+' season!';save();render()}
+function newSeason(){if(state.round<state.fixtures.length||state.jobSearch?.status==='seeking'){if(state.jobSearch?.status==='seeking'){flash='Accept a new club job first.';render()}return}if(!state.nextMembers)completePromotion();state.leagueMove=state.seasonReview?.oldDivision!==state.seasonReview?.newDivision?{from:state.seasonReview.oldDivision,to:state.seasonReview.newDivision,year:state.year+1}:null;state.members=state.nextMembers;state.nextMembers=null;state.division=lmaClubDivision(state.clubId,state.members);const fresh=newLeague(lmaClubIds(state.division,state.members));const counterpart=otherDivision(state.division);state.otherLeague={...newLeague(lmaClubIds(counterpart,state.members)),division:counterpart};state.worldLeagues={};state.worldLeagues=lmaBackgroundLeagues(state);state.year++;state.round=0;state.cup=p3Cup(state.clubId,state.members.premier);state.board.confidence=70;state.board.promotions=0;state.board.target=state.division==='championship'?8:CLUBS[state.clubId].power>=77?4:CLUBS[state.clubId].power>=73?10:17;state.career.offers=[];state.table=fresh.table;state.fixtures=fresh.fixtures;state.results=[];state.lastMatch=null;state.trained=false;state.squad.forEach(p=>{p.fitness=clamp(p.fitness+25,65,100);p.injury=0;p.morale=clamp(p.morale+10,45,100)});state.cash=round2(state.cash+6);state.finance.balance=round2(state.finance.balance+12);state.market=createMarket(CLUBS[state.clubId].power).map(p=>{p.season=state.year;return p});state.shortlist=[];state.squad=state.squad.filter(p=>!p.loan);state.squad.forEach(p=>{p.age++;p.contract=Math.max(0,(p.contract||1)-1);if(p.contract===0)p.contract=1});state.youth.forEach(p=>p.age++);while(state.youth.length<5)state.youth.push(academyProspect(CLUBS[state.clubId].power));p5NextSeason();state.news.unshift('New '+DIV_LABEL[state.division]+' season underway. Board funding: £6m. Loan players returned to parent clubs.');p3Inbox('Cup','New Touchline National Cup draw. First ties after league round 4.');state.activeMatch=null;state.squad.forEach(p=>p.suspension=0);autoLineup();tab='home';flash='Welcome to the '+state.year+'/'+String(state.year+1).slice(-2)+' '+DIV_LABEL[state.division]+' season!';save();render()}
 function onAction(action,id){
  if(state?.activeMatch&&['specialist-hire','badge-course','free-sign','loan-back','assistant-report','nation-apply','nation-select','nation-play','nation-cup','nation-qual','nation-qual-final','nation-resign','job-interview','club-resign','hire-staff','save-restore','switch-club','offer','submit-offer','scout','promote-youth','academy-invest','scout-invest','renew','shortlist'].includes(action)){flash='Finish the live match before managing the club.';render();return}
  if(action==='instant-match'){lmaInstantMatch();return}
