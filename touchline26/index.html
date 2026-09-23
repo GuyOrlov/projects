@@ -784,6 +784,7 @@ function driftLiveActors(m){
   const anchor=ours?(state.pitchPositions[idx]||m.actors[key]):{x:OPPONENT_ANCHORS[idx][0],y:OPPONENT_ANCHORS[idx][1]};
   if(!anchor)continue;
   let target={x:anchor.x,y:anchor.y};
+  if(ours){const p=state.squad.find(x=>x.id===idx),role=p?p5Role(p):'';if(side===m.possessionSide){if(['poacher','pressing','winger','fullback'].includes(role))target.y-=role==='poacher'?8:5;if(role==='target')target.y-=3;if(role==='playmaker')target.x+=(50-target.x)*.26}else if(role==='ball-winner'){target.y-=3}if(role==='sweeper')target.y-=3}
   if(!ours){const style=m.aiStyle||opponentStyle(m.opp);if(style==='high press')target.y-=6;if(style==='low block')target.y+=6;if(style==='possession')target.x+=(idx%2?4:-4);if(m.aiApproach==='attacking')target.y-=5;if(m.aiApproach==='defensive')target.y+=5}
   if(side===m.possessionSide){
    const isGK=ours?state.squad.find(p=>p.id===idx)?.pos==='GK':idx===0;
@@ -803,6 +804,20 @@ function receiverFor(m,source,side){
  const rated=choices.map(key=>{
   const dest=m.actors[key],d=liveDistance(src,dest),forward=side==='us'?src.y-dest.y:dest.y-src.y;
   let weight=45-Math.abs(d-20)*.75+(forward>2?Math.min(forward,20)*.42:0);
+  if(side==='us'){
+   const player=state.squad.find(p=>p.id===key.slice(2)),role=player?p5Role(player):'';
+   if(state.focusIds.creative===key.slice(2))weight+=8;
+   if(state.focusIds.attacking===key.slice(2))weight+=forward>0?8:3;
+   if(role==='playmaker'||role==='ball-playing')weight+=5;
+   if(role==='target'&&forward>0)weight+=8;
+   if(role==='poacher'&&forward>0)weight+=4;
+   if(role==='ball-winner'&&forward>0)weight-=3;
+   const passing=state.instructions.passing;
+   weight+=passing==='short'?Math.max(-24,16-d*.65):passing==='direct'?Math.min(20,d*.35)-8:0;
+   if(state.instructions.focus==='centre')weight+=Math.max(-10,7-Math.abs(dest.x-50)*.55);
+   if(state.instructions.focus==='flanks')weight+=Math.abs(dest.x-50)*.45-6;
+   if(source.startsWith('u:')&&state.squad.find(p=>p.id===source.slice(2))?.pos==='GK')weight+=state.instructions.distribution==='short'?10-d*.6:state.instructions.distribution==='long'?d*.4-7:0;
+  }
   if(d>41)weight-=(d-41)*2.3;
   if(key==='o:0'||(side==='us'&&state.squad.find(p=>p.id===key.slice(2))?.pos==='GK'))weight-=13;
   return {key,weight};
@@ -825,7 +840,8 @@ function runLivePass(m){
  const distance=liveDistance(start,target),interceptor=closestInterceptor(m,defending,target);
  const interceptionGap=interceptor?liveDistance(m.actors[interceptor],target):100;
  const ownBonus=side==='us'?clamp((matchLineupRating(m)-CLUBS[m.opp].power)*.004,-.09,.08):0;
- const accuracy=clamp(.93-distance*.0035+ownBonus-(interceptionGap<11?.16:interceptionGap<19?.08:0),.42,.94);
+ const passPenalty=side==='us'&&state.instructions.passing==='direct'?.05:side==='us'&&state.instructions.passing==='short'?-.035:0;
+ const accuracy=clamp(.93-distance*.0035+ownBonus-passPenalty-(interceptionGap<11?.16:interceptionGap<19?.08:0),.42,.94);
  const completed=Math.random()<accuracy;
  const attackingStats=m.stats[side];attackingStats.poss++;attackingStats.passes++;
  if(completed){
@@ -855,7 +871,7 @@ function attemptLiveShot(m){
  const advanced=ours?pos.y<43:pos.y>57;
  if(!advanced||Math.random()>.22)return;
  const odds=matchOdds(m),distance=ours?pos.y:100-pos.y;
- const st=m.stats[side],chance=clamp(.09+(45-distance)*.006+(ours?odds.ours:odds.theirs)*.026,.07,.37);
+ const st=m.stats[side],shooterRole=ours?p5Role(state.squad.find(p=>p.id===m.carrier.slice(2))||{pos:'FWD',id:''}):'',chance=clamp(.09+(45-distance)*.006+(ours?odds.ours:odds.theirs)*.026+(shooterRole==='poacher'?.045:shooterRole==='target'?.018:0),.07,.39);
  st.shots++;st.xg+=chance;
  const on=Math.random()<clamp(.52+(ours?matchLineupRating(m)-CLUBS[m.opp].power:CLUBS[m.opp].power-matchLineupRating(m))*.006,.32,.75);
  if(on)st.on++;
@@ -876,19 +892,34 @@ function attemptLiveShot(m){
   logMatch(m,who+(on?' forces a save.':' shoots wide.'),'shot');
   m.actionText=who+(on?' forces a save.':' shoots wide.');
   restartLivePossession(m,ours?'them':'us');
+  if(!ours){const gk=m.onPitch.find(id=>state.squad.find(p=>p.id===id)?.pos==='GK');if(gk&&m.actors['u:'+gk]){m.carrier='u:'+gk;m.ball={...m.actors[m.carrier]};m.possessionSide='us'}}
  }
 }
 
 function roleLabel(p){return ({GK:'Goalkeeper',DEF:'Defender',MID:'Midfielder',FWD:'Forward'})[p.pos]||p.pos}
+
+function p5IndividualTactics(){
+ const choices=state.starting.map(id=>state.squad.find(p=>p.id===id)).filter(Boolean);
+ const selected=state.squad.find(p=>p.id===focusedPlayer);
+ const select=(key,label,positions)=>'<label>'+label+'<select data-p5-focus="'+key+'"><option value="">Automatic</option>'+choices.filter(p=>positions.includes(p.pos)).map(p=>'<option value="'+p.id+'"'+(state.focusIds?.[key]===p.id?' selected':'')+'>'+goalEsc(p.name)+'</option>').join('')+'</select></label>';
+ return '<section class="panel"><h2>Specialist player roles</h2><p class="p3-note">Choose a starter and give them an individual position-specific role. Roles influence movement, receiving passes and chance creation.</p><div class="controls">'+
+ '<label>Selected player<select data-player-choice><option value="">Choose a player</option>'+choices.map(p=>'<option value="'+p.id+'"'+(focusedPlayer===p.id?' selected':'')+'>'+goalEsc(p.name)+' · '+p.pos+'</option>').join('')+'</select></label>'+
+ '<label>Role<select data-p5-role '+(!selected?'disabled':'')+'>'+((selected?P5_ROLES[selected.pos]:[['none','Select a player']])||[]).map(([v,label])=>'<option value="'+v+'"'+(selected&&p5Role(selected)===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label>'+
+ select('creative','Creative outlet',['MID','FWD'])+select('attacking','Main attacking threat',['MID','FWD'])+'</div></section>';
+}
+
 function instructionsUI(){const a=state.instructions||{pressing:'balanced',width:'normal',line:'normal'};return '<div class="controls tactics-extra">'+[
  ['pressing','Pressing',[['low','Low block'],['balanced','Balanced'],['high','High press']]],
  ['width','Attacking width',[['narrow','Narrow'],['normal','Normal'],['wide','Wide']]],
- ['line','Defensive line',[['deep','Deep'],['normal','Normal'],['high','High']]]
+ ['line','Defensive line',[['deep','Deep'],['normal','Normal'],['high','High']]],
+ ['passing','Passing focus',[['mixed','Mixed'],['short','Short passing'],['direct','Direct passing']]],
+ ['focus','Attacking approach',[['balanced','Balanced'],['centre','Through middle'],['flanks','Use wide players']]],
+ ['distribution','GK distribution',[['mixed','Mixed'],['short','Play short'],['long','Long balls']]]
  ].map(([key,label,opts])=>'<label>'+label+'<select data-instruction="'+key+'">'+opts.map(([v,t])=>'<option value="'+v+'"'+(a[key]===v?' selected':'')+'>'+t+'</option>').join('')+'</select></label>').join('')+'</div><p class="note-line">These instructions affect chances, stamina use and defensive risk. Your draggable positions are used for the live match shape.</p>'}
 function instructionsEffects(){const a=state.instructions||{pressing:'balanced',width:'normal',line:'normal'};return {
  attack:(a.pressing==='high'?.09:a.pressing==='low'?-.06:0)+(a.width==='wide'?.08:a.width==='narrow'?-.02:0)+(a.line==='high'?.045:a.line==='deep'?-.04:0),
  risk:(a.line==='high'?.13:a.line==='deep'?-.11:0)+(a.pressing==='high'?.06:a.pressing==='low'?-.055:0),
- fatigue:a.pressing==='high'?1.5:a.pressing==='low'?.7:1,
+ fatigue:(a.pressing==='high'?1.5:a.pressing==='low'?.7:1)*(a.passing==='direct'?1.05:1),
  width:a.width==='wide'?1.15:a.width==='narrow'?.85:1
  }}
 function individualEffects(){let attack=0,risk=0;for(const id of state.starting){const p=state.squad.find(x=>x.id===id),instruction=state.playerInstructions?.[id]||'balanced';if(!p)continue;if(instruction==='attack'){attack+=p.pos==='FWD'?.038:.016;risk+=p.pos==='DEF'?.028:.009}else if(instruction==='hold'){attack-=p.pos==='FWD'?.018:.004;risk-=p.pos==='DEF'?.022:.008}}return {attack:clamp(attack,-.16,.18),risk:clamp(risk,-.15,.17)}}
@@ -1037,7 +1068,7 @@ function matchPitchMarkup(m){ensureLiveActors(m);
 function matchUI(){const m=state.activeMatch;if(!m)return analysisUI()+(state.round===state.fixtures.length?promotionPanel():'');const score=currentScore(m),subs=availableBench(m),on=m.onPitch.filter(id=>!m.red.includes(id)),outP=state.squad.find(p=>p.id===subOut),choices=subs.filter(p=>!outP||p.pos===outP.pos);
  return '<section class="panel live-panel"><div class="eyebrow accent">'+(m.competition==='cup'?'🏆 NATIONAL CUP':'ROUND '+m.round)+' · '+liveStatus(m)+'</div><div class="live-score" id="live-score">'+CLUBS[m.home].short+' <b>'+score[0]+' – '+score[1]+'</b> '+CLUBS[m.away].short+'</div><div class="match-time"><span id="match-minute">'+gameMinute(m)+'′ / 90′</span><div class="match-progress"><i id="match-progress-fill" style="width:'+m.minute/90*100+'%"></i></div></div>'+matchPitchMarkup(m)+'<div id="goal-announcement" class="goal-announcement" role="alert" aria-live="assertive"></div><div class="commentary" id="live-commentary" aria-live="polite">'+(m.actionText||m.comments[0]?.text||'Kick-off ready')+'</div><div class="live-stat" id="live-stat">Shots '+m.stats.us.shots+'–'+m.stats.them.shots+' · Possession '+Math.round(100*m.stats.us.poss/Math.max(1,m.stats.us.poss+m.stats.them.poss))+'%</div><p class="note-line" style="margin:7px 0">Opponent player names are generated for this simulation; they are not verified real-world squads.</p>'+
  '<div class="buttonrow match-actions"><button class="btn '+(m.paused?'':'secondary')+'" data-action="'+(m.paused?'resume-match':'pause-match')+'">'+(m.paused?'▶ Play':'⏸ Pause')+'</button><button class="btn secondary" data-action="sub-panel" '+(m.subs.length>=5?'disabled':'')+'>⇄ Subs '+m.subs.length+'/5</button><button class="btn ghost" data-action="match-speed">Speed: '+m.speed+'</button></div>'+
- '<div class="divider"></div><div class="controls"><label>Formation<select data-action="formation">'+Object.keys(FORMATIONS).map(x=>'<option'+(state.formation===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label><label>Mentality<select data-action="mentality">'+['balanced','attacking','defensive'].map(x=>'<option value="'+x+'"'+(state.mentality===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label></div>'+instructionsUI()+'</section>'+
+ '<div class="divider"></div><div class="controls"><label>Formation<select data-action="formation">'+Object.keys(FORMATIONS).map(x=>'<option'+(state.formation===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label><label>Mentality<select data-action="mentality">'+['balanced','attacking','defensive'].map(x=>'<option value="'+x+'"'+(state.mentality===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label></div>'+instructionsUI()+'</section>'+p5IndividualTactics()+
  (subOpen?'<section class="panel"><h2>Substitution (pause match)</h2><label class="note-line">Player coming off<select class="sub-select" id="sub-out"><option value="">Choose player</option>'+on.map(id=>{let p=state.squad.find(x=>x.id===id);return '<option value="'+id+'"'+(id===subOut?' selected':'')+'>'+p.name+' · '+p.pos+' · '+Math.round(m.fitness[id]||p.fitness)+'%'+(m.hurt.includes(id)?' Injured':'')+'</option>'}).join('')+'</select></label><label class="note-line">Player coming on<select class="sub-select" id="sub-in"><option value="">Choose substitute</option>'+choices.map(p=>'<option value="'+p.id+'"'+(p.id===subIn?' selected':'')+'>'+p.name+' · '+p.pos+' · '+p.fitness+'%</option>').join('')+'</select></label><div class="buttonrow"><button class="btn" data-action="confirm-sub" '+(!outP||!subIn?'disabled':'')+'>Confirm substitution</button><button class="btn ghost" data-action="close-sub">Cancel</button></div></section>':'')+
  '<section class="panel"><h2>Live updates</h2><div id="live-events">'+m.comments.slice(0,7).map(e=>'<div class="result-line"><span>'+e.minute+'′ '+e.text+'</span></div>').join('')+'</div></section>';
 }
