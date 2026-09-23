@@ -275,6 +275,8 @@ const P5_BADGES=['Unqualified','Bronze','Silver','Gold'];
 const P5_COACHES={attack:'Attacking',defence:'Defensive',goalkeeping:'Goalkeeping',fitness:'Fitness',youth:'Youth'};
 const P5_NATIONS=['England','Scotland','Wales','Northern Ireland','Republic of Ireland','France','Germany','Spain'];
 const P5_COUNTRY_STRENGTH=[78,69,68,64,68,83,82,82];
+const LMA_SKILLS={motivation:'Motivation',coaching:'Coaching',judgement:'Judgement',discipline:'Discipline'};
+const LMA_ROLES={coach:'Coach',manager:'Manager',director:'Director'};
 let tab='home',flash='',state=load(),negotiation=null,offerFeedback='',scoutFilter='all';
 function n(min,max){return min+Math.floor(Math.random()*(max-min+1))}
 function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
@@ -712,8 +714,6 @@ function p6ScoutUI(p){
 
 
 /* LMA-inspired operations. Ticketing and crowd figures are fictional game economics. */
-const LMA_SKILLS={motivation:'Motivation',coaching:'Coaching',judgement:'Judgement',discipline:'Discipline'};
-const LMA_ROLES={coach:'Coach',manager:'Manager',director:'Director'};
 function lmaInit(s){
  s.lma=Object.assign({difficulty:'normal',role:'manager',skills:{motivation:1,coaching:1,judgement:1,discipline:1},skillPoints:6,delegation:{training:false,scouting:false,transfers:false},nextDelegatedRound:-1},s.lma||{});
  const l=s.lma;l.skills=Object.assign({motivation:1,coaching:1,judgement:1,discipline:1},l.skills||{});
