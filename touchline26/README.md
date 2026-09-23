@@ -110,3 +110,18 @@ This release focuses on a more enjoyable **club management game** rather than ad
 - **Club history:** a dedicated navigation screen records selected standout results, best victory, current squad’s career goals/appearances and archived season challenge progress. Historic matches played *before* this release cannot be reconstructed. Career and season data are retained when changing clubs.
 
 **Compatibility and verification:** New fields migrate lazily into existing version-1 game states without changing the persistent key `touchline26_realclubs_v2` or JSON export format. Test runs confirmed the pre-match team talk, instant match and saved highlights, play/pause and manual frame advancement, a complete live 90-minute match with ball-at-carrier invariants, fan reactions, a playing-time promise, academy challenge, old-save migration after removing new fields, Championship season completion and subsequent Premier League promotion. The site has not been independently viewed on an actual user's desktop/tablet. International fixtures remain **score-only**; the new highlights cover club matches only.
+
+## Matchday Experience — gameplay update (23 September 2026)
+
+- **Pre-match briefing:** opposition form and play style, fixture stakes (including designated derbies, knockout ties and late-season close-table meetings), fitness warning, optional calm/inspire/demand team talk. The selected talk affects the club match simulator.
+- **Live-match assistant:** situation-aware substitution, attacking or defensive suggestions, plus text describing tactical effects and interceptions. Only club matches use the 2D engine.
+- **Recorded match highlights:** live **and instant** club matches store short positional snapshots for goals, saves and high-quality chances. The match report includes a selectable frame-by-frame 2D highlight view. These are saved simulation frames, not video or a full animation; prior match reports cannot retroactively gain the snapshots.
+- **Player personalities and conversations:** simulated personality labels and opportunities/contract expectations. Occasional bench players request appearances; the manager can promise or decline, with morale changes when promises are kept or broken.
+- **Fan reactions and stakes:** supporters react to results, derbies, cup victories and ticket prices. Supporter happiness is persisted with the career.
+- **Season challenges:** win eight league matches, keep five league clean sheets, and promote an academy player. Completing an objective grants a fictional board bonus.
+- **Career history:** memorable matches, biggest win, current player goal/app records and completed season summaries in a Club History screen.
+- **Transfer story:** the agent's game-generated motivation and any active rival bid are shown on the offer screen.
+
+**Compatibility and scope:** The existing `touchline26_realclubs_v2` save key, existing English and fictional national club leagues, and score-only international games remain unchanged. Existing saves receive new experience defaults. The original saved league results, squad and funds are preserved in the tested migration. The new events are game-generated and do not represent actual club, player or fan statements.
+
+**Verification:** JavaScript syntax checked, pre-match/team-talk to instant full-time and highlight navigation exercised, player request and club history displayed, persistence tested, and a pre-update Championship save was loaded and advanced. Hosted-device visual validation remains outstanding.
