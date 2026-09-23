@@ -345,6 +345,7 @@ function upgradeCareer(s){
  upgradeLeagues(s);
  p5Init(s);
  p6Init(s);
+ lmaInit(s);
  s.squad.forEach(statsOf);
 }
 function load(){
@@ -435,14 +436,17 @@ const freeWages=()=>Math.max(0,state.finance.wageCap-wageBill());
 const currencyK=n=>'£'+Math.round(n)+'k/wk';
 function financialRound(home){
  const f=state.finance,wages=wageBill()/1000;
- const gate=home?round2(1.25+f.attendance*.11):0;
+ const matchday=home?lmaForecast():null;
+ const gate=matchday?matchday.gate:0;
+ if(matchday){f.attendance=matchday.attendance;f.stadium.history.unshift({year:state.year,round:state.round,kind:'match',attendance:matchday.attendance,gate});f.stadium.history=f.stadium.history.slice(0,15)}
  const sponsor=round2(f.sponsor/38);
- const net=round2(gate+sponsor-wages-.16-p3StaffPayroll());
+ const upkeep=round2(.16+f.stadium.capacity/500000+(f.stadium.facilities-1)*.012);
+ const net=round2(gate+sponsor-wages-upkeep-p3StaffPayroll());
  f.balance=round2(f.balance+net);
  // Transfer funds come from planned board allocation, not all operating income.
  const allocation=Math.max(-.16,Math.min(.45,net*.24));
  state.cash=round2(Math.max(0,state.cash+allocation));
- f.lastReport={gate,sponsor,wages,staff:p3StaffPayroll(),overheads:.16,net};
+ f.lastReport={gate,sponsor,wages,staff:p3StaffPayroll(),overheads:upkeep,attendance:matchday?.attendance||0,ticket:f.stadium.ticket,net};
 }
 function youthDevelopment(){
  for(const p of state.youth){if(p.rating<p.potential&&Math.random()<(.19+.08*state.finance.academyLevel))p.rating++;p.age=Math.max(16,p.age)}
@@ -681,6 +685,62 @@ function p6ScoutUI(p){
  '<div class="p4-record"><div><span>Current rating</span><b>'+p.rating+'</b></div><div><span>Potential / outlook</span><b>'+(dossier?p.potential+' · '+p6PotentialBand(p):'Unknown')+'</b></div><div><span>Rival interest</span><b>'+(p.interest??p6MarketInterest(p))+' / 95</b></div><div><span>Wage estimate</span><b>'+currencyK(p.wage)+'/wk</b></div></div>'+
  (dossier?'<p class="p3-note">Scout confidence '+dossier.confidence+'% · '+goalEsc(dossier.note)+'</p>':'<p class="p3-note">Attributes are stable game-generated estimates, not real-world player data.</p>')+
  '<div class="buttonrow"><button class="btn secondary" data-action="tab" data-id="transfers">← Transfers</button>'+(p.scouted?'':'<button class="btn" data-action="scout" data-id="'+p.id+'">Commission report</button>')+'</div></section>';
+}
+
+
+/* LMA-inspired operations. Ticketing and crowd figures are fictional game economics. */
+const LMA_SKILLS={motivation:'Motivation',coaching:'Coaching',judgement:'Judgement',discipline:'Discipline'};
+const LMA_ROLES={coach:'Coach',manager:'Manager',director:'Director'};
+function lmaInit(s){
+ s.lma=Object.assign({difficulty:'normal',role:'manager',skills:{motivation:1,coaching:1,judgement:1,discipline:1},skillPoints:6,delegation:{training:false,scouting:false,transfers:false},nextDelegatedRound:-1},s.lma||{});
+ const l=s.lma;l.skills=Object.assign({motivation:1,coaching:1,judgement:1,discipline:1},l.skills||{});
+ for(const k of Object.keys(LMA_SKILLS))l.skills[k]=clamp(Math.floor(Number(l.skills[k])||1),1,5);
+ l.skillPoints=clamp(Math.floor(Number(l.skillPoints)||0),0,18);
+ if(!['normal','expert'].includes(l.difficulty))l.difficulty='normal';
+ if(!Object.hasOwn(LMA_ROLES,l.role))l.role='manager';
+ l.delegation=Object.assign({training:false,scouting:false,transfers:false},l.delegation||{});
+ s.finance.stadium=Object.assign({capacity:clamp(Math.round(12500+(CLUBS[s.clubId].power-60)*800),15000,70000),level:1,facilities:1,ticket:28,history:[]},s.finance.stadium||{});
+ const st=s.finance.stadium;st.capacity=clamp(Math.floor(Number(st.capacity)||25000),15000,100000);st.level=clamp(Math.floor(Number(st.level)||1),1,20);st.facilities=clamp(Math.floor(Number(st.facilities)||1),1,5);st.ticket=clamp(Math.floor(Number(st.ticket)||28),10,90);if(!Array.isArray(st.history))st.history=[];
+}
+function lmaForecast(s=state){
+ const st=s.finance.stadium,club=CLUBS[s.clubId],form=s.table?.find(x=>x.id===s.clubId),pace=form?.p?form.pts/form.p:1.3;
+ const raw=Math.round(st.capacity*clamp(.64+(club.power-70)*.008+(pace-1.2)*.07+(st.facilities-1)*.025+(28-st.ticket)*.013+(s.board?.confidence-70)*.0016,.25,1.15));
+ const attendance=clamp(raw,Math.min(3500,st.capacity),st.capacity);
+ return {attendance,capacity:st.capacity,occupation:Math.round(attendance/st.capacity*100),gate:round2(attendance*st.ticket/1e6)};
+}
+function lmaUpgradeStadium(kind){
+ if(state.activeMatch||state.round>=state.fixtures.length){flash='Stadium development is available between matches during the season.';render();return}
+ const st=state.finance.stadium;
+ if((kind==='capacity'&&st.capacity>=100000)||(kind==='facilities'&&st.facilities>=5))return;
+ const fee=kind==='capacity'?round2(1.5+st.capacity/20000):kind==='facilities'?round2(1.2+st.facilities*.95):NaN;
+ if(!Number.isFinite(fee))return;
+ if(state.finance.balance<fee){flash='Not enough club reserves: investment costs '+price(fee)+'.';render();return}
+ state.finance.balance=round2(state.finance.balance-fee);
+ if(kind==='capacity'){st.capacity=Math.min(100000,st.capacity+5000);st.level++}else st.facilities++;
+ st.history.unshift({year:state.year,round:state.round,kind,cost:fee});st.history=st.history.slice(0,15);
+ p3Inbox('Board','Stadium '+kind+' improved for '+price(fee)+'.');flash='Stadium '+kind+' upgraded.';save();render();
+}
+function lmaSetTicket(value){
+ const v=Number(value);if(!Number.isInteger(v)||v<10||v>90||state.activeMatch)return;
+ state.finance.stadium.ticket=v;flash='Ticket price £'+v+'. Forecast attendance '+lmaForecast().attendance.toLocaleString('en-GB')+'.';save();render();
+}
+function lmaSkillUp(key){
+ const l=state.lma;if(!Object.hasOwn(LMA_SKILLS,key)||state.activeMatch||l.skillPoints<=0||l.skills[key]>=5)return;
+ l.skills[key]++;l.skillPoints--;p3Inbox('Career',LMA_SKILLS[key]+' improved to '+l.skills[key]+'/5.');flash='Skill point allocated.';save();render();
+}
+function lmaSetRole(value){
+ if(!Object.hasOwn(LMA_ROLES,value)||state.activeMatch)return;
+ state.lma.role=value;
+ state.lma.delegation=value==='coach'?{training:false,scouting:true,transfers:true}:value==='director'?{training:true,scouting:true,transfers:false}:{training:false,scouting:false,transfers:false};
+ flash='Responsibility mode: '+LMA_ROLES[value]+'. Adjust delegation below.';save();render();
+}
+function lmaDelegate(){
+ const l=state.lma;if(l.nextDelegatedRound===state.round||state.activeMatch||state.round>=state.fixtures.length)return;
+ l.nextDelegatedRound=state.round;
+ if(l.delegation.training&&!state.trained){const focus=state.trainingFocus;state.trainingFocus=l.skills.coaching>=3?'youth':'fitness';p5TrainSpecialist();state.trainingFocus=focus}
+ if(l.delegation.scouting){const p=state.market.find(x=>!x.scouted);if(p){const fee=round2(.2*(1-.12*((state.staff?.scout||1)-1)));if(state.cash>=fee){state.cash=round2(state.cash-fee);p.scouted=true;p.dossier={year:state.year,round:state.round,confidence:clamp(64+l.skills.judgement*4,60,96),note:'Delegated report · '+p6PotentialBand(p)};state.scouting.reports++;state.scoutHistory.unshift({player:p.name,id:p.id,year:state.year,round:state.round,position:p.pos,potential:p.potential,confidence:p.dossier.confidence});state.scoutHistory=state.scoutHistory.slice(0,40);p3Inbox('Scouting','Assistant completed a dossier on '+p.name+'.')}}}
+ if(l.delegation.transfers&&p5TransferWindowOpen()&&state.squad.length<27){const p=state.freeAgents.find(p=>p.wage<=freeWages()&&p.rating>=CLUBS[state.clubId].power-3);if(p){p5SignFree(p.id);p3Inbox('Transfers','Delegated staff signed a free agent.')}}
+ save();render();
 }
 
 function p5Init(s){
