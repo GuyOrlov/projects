@@ -733,6 +733,75 @@ function p5ScoutingReport(){
  p3Inbox('Scouting','Assistant assessment available for round '+(state.round+1)+'.');save();render();
 }
 
+
+/* Independent fictional national-team career: six friendly matches per season.
+   No official tournament, international licence or imported national squad. */
+function p5InternationalSchedule(reset=false){
+ const i=state.international;if(i.nation===null)return;
+ if(reset){i.fixtures=[];i.pending=null;i.year=state.year;i.playedSeason=0}
+ if(i.fixtures.length)return;
+ const steps=state.division==='championship'?[6,13,20,28,35,42]:[5,11,17,23,29,35];
+ i.fixtures=steps.map((round,n)=>({round,home:n%2===0,opponent:(i.nation+2+n)%P5_NATIONS.length===i.nation?(i.nation+3+n)%P5_NATIONS.length:(i.nation+2+n)%P5_NATIONS.length,score:null}));
+}
+function p5ApplyNation(id){
+ const nId=Number(id);
+ if(state.activeMatch||!Number.isInteger(nId)||nId<0||nId>=P5_NATIONS.length||state.career.reputation<48){flash='National team offers require reputation of at least 48.';render();return}
+ const i=state.international;if(i.nation!==null&&i.nation!==nId&&!confirm('Leave your existing national-team role?'))return;
+ Object.assign(i,{nation:nId,played:0,w:0,d:0,l:0,trophies:0,fixtures:[],pending:null,year:state.year,playedSeason:0});
+ i.squad=['GK','GK','DEF','DEF','DEF','DEF','DEF','DEF','MID','MID','MID','MID','MID','MID','FWD','FWD','FWD','FWD'].map((pos,n)=>{
+  const p=makePlayer(pos,P5_COUNTRY_STRENGTH[nId]);p.nationality=P5_NATIONS[nId];p.number=n+1;return p;
+ });
+ i.starting=i.squad.filter(p=>p.pos==='GK').slice(0,1).concat(i.squad.filter(p=>p.pos==='DEF').slice(0,4),i.squad.filter(p=>p.pos==='MID').slice(0,4),i.squad.filter(p=>p.pos==='FWD').slice(0,2)).map(p=>p.id);
+ p5InternationalSchedule();p3Inbox('International','You accepted the fictional '+P5_NATIONS[nId]+' national-team role. Friendly fixtures added.');
+ tab='international';flash='National team appointment confirmed.';save();render();
+}
+function p5InternationalRound(){
+ const i=state.international;if(i.nation===null)return;
+ if(!i.fixtures.length)p5InternationalSchedule();
+ if(!i.pending){const due=i.fixtures.find(f=>f.score===null&&state.round>=f.round);if(due){i.pending=due.round;p3Inbox('International','International friendly: '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[due.opponent]+' ready to play.')}} 
+}
+function p5NationalSelect(id){
+ const i=state.international;if(!i?.squad||state.activeMatch)return;
+ const p=i.squad.find(x=>x.id===id);if(!p)return;
+ const selected=new Set(i.starting||[]);
+ if(selected.has(id)){if(selected.size<=11)selected.delete(id)}
+ else if(selected.size<11)selected.add(id);
+ i.starting=[...selected];save();render();
+}
+function p5PlayInternational(){
+ const i=state.international;if(i.nation===null||state.activeMatch||i.pending===null){flash='No international friendly is ready yet.';render();return}
+ const f=i.fixtures.find(x=>x.round===i.pending&&x.score===null);
+ if(!f)return;
+ const chosen=i.squad.filter(p=>i.starting.includes(p.id));
+ if(chosen.length!==11||chosen.filter(p=>p.pos==='GK').length!==1){flash='Select exactly eleven national-team players, including one goalkeeper.';render();return}
+ const own=chosen.reduce((sum,p)=>sum+p.rating,0)/11,opp=P5_COUNTRY_STRENGTH[f.opponent]+n(-2,2);
+ const attack=clamp(1.1+(own-opp)*.037+(f.home?.18:0)+(state.career.badge*.025),.25,3.4);
+ const defence=clamp(1.18+(opp-own)*.037+(f.home?0:.18),.25,3.4);
+ const scored=poisson(attack),conceded=poisson(defence);
+ f.score={ours:scored,them:conceded};i.played++;i.playedSeason=(i.playedSeason||0)+1;
+ if(scored>conceded)i.w++;else if(scored<conceded)i.l++;else i.d++;
+ i.lastResult={year:state.year,opponent:f.opponent,score:f.score,round:state.round};
+ i.pending=null;
+ state.career.reputation=clamp(state.career.reputation+(scored>conceded?2:scored<conceded?-1:0),1,100);
+ p3Inbox('International',P5_NATIONS[i.nation]+' '+scored+'–'+conceded+' '+P5_NATIONS[f.opponent]+' · simulated friendly.');
+ p5InternationalRound();flash='International friendly played.';save();render();
+}
+function p5ResignNation(){
+ if(state.activeMatch||state.international.nation===null)return;
+ const last=P5_NATIONS[state.international.nation];
+ Object.assign(state.international,{nation:null,pending:null,fixtures:[],squad:[],starting:[]});
+ p3Inbox('International','You resigned from '+last+'.');save();render();
+}
+function internationalUI(){
+ const i=state.international;
+ if(i.nation===null)return '<section class="panel"><h2>🌍 International management</h2><p class="p3-note">Apply to manage a game-generated national squad alongside your club. Matches are simulated friendlies, not official international fixtures or a 2D tournament.</p><p class="p3-note">Your reputation: '+state.career.reputation+' / minimum 48</p><div class="p4-depth">'+P5_NATIONS.map((name,n)=>'<button class="p4-objective" data-action="nation-apply" data-id="'+n+'" '+(state.career.reputation<48?'disabled':'')+'><strong>'+name+'</strong><small>Estimated squad strength '+P5_COUNTRY_STRENGTH[n]+' · Apply</small></button>').join('')+'</div></section>';
+ let h='<section class="panel"><h2>🌍 '+P5_NATIONS[i.nation]+' national team</h2><div class="stats"><div class="stat"><small>PLAYED</small><strong>'+i.played+'</strong></div><div class="stat"><small>W-D-L</small><strong>'+i.w+'-'+i.d+'-'+i.l+'</strong></div><div class="stat"><small>SQUAD</small><strong>'+(i.squad?.length||0)+'</strong></div></div><p class="p3-note">Game-generated players and friendly results. You may manage a club and national team together.</p>'+
+ (i.pending!==null?'<div class="notice"><b>Friendly ready:</b> '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[i.fixtures.find(f=>f.round===i.pending)?.opponent||0]+'. Select your XI below before kick-off.</div><button class="btn full" data-action="nation-play" '+((i.starting||[]).length!==11?'disabled':'')+'>Play simulated friendly →</button>':'<p class="p3-note">Next fixture is scheduled by your club matchweek; continue the club season.</p>')+'</section>';
+ h+='<section class="panel"><h2>National XI · '+(i.starting?.length||0)+'/11</h2><div class="p4-depth">'+(i.squad||[]).map(p=>'<button class="p4-profile" data-action="nation-select" data-id="'+p.id+'"><span>'+(i.starting.includes(p.id)?'✓ ':'')+goalEsc(p.name)+' · '+p.pos+'</span><b>'+p.rating+'</b></button>').join('')+'</div></section>';
+ h+='<section class="panel"><h2>International fixtures</h2>'+i.fixtures.map(f=>'<div class="result-line"><span>Week '+f.round+' · '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[f.opponent]+'</span><b>'+(f.score?f.score.ours+'–'+f.score.them:'Upcoming')+'</b></div>').join('')+'<button class="btn danger sm spaced" data-action="nation-resign">Resign national role</button></section>';
+ return h;
+}
+
 function ensureUpgrades(){
  if(!state)return;
  applyP4Settings();
