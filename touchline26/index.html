@@ -159,6 +159,21 @@ body,button,select,input{font-family:"Nunito Sans","Segoe UI",system-ui,-apple-s
 .app-page .league td{line-height:1.55}.league th{letter-spacing:.01em}
 @media(max-width:760px){.workspace-head h1{font-size:29px}}
 
+
+/* Phase 4: management workspace, readable player tables, responsive preference controls. */
+.p4-record{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 22px}.p4-record>div{background:#1c393d;border:1px solid #3b5c58;border-radius:11px;padding:12px}.p4-record span{display:block;color:#bed3c7;font-size:12px}.p4-record b{display:block;font-size:20px;color:#ffe293;margin-top:5px}
+.p4-depth{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.p4-depth>div{min-width:0;background:#173439;border:1px solid #385855;border-radius:14px;padding:12px}.p4-depth h3{font-size:15px;margin:0 0 10px}
+.p4-profile{border:0;border-bottom:1px solid #385451;background:transparent;color:#e9f8ef;width:100%;display:flex;justify-content:space-between;text-align:left;gap:8px;padding:10px 2px;font-size:13px;cursor:pointer}.p4-profile b{color:#ffe293}.p4-profile:hover,.p4-link:hover{text-decoration:underline}
+.p4-calendar{margin-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.p4-round{display:grid;grid-template-columns:56px minmax(0,1fr) 55px;align-items:center;gap:8px;background:#193638;border:1px solid #355955;border-radius:11px;padding:10px;font-size:12px}.p4-round strong{display:block;font-size:12px}.p4-round small{display:block;color:#adc9b8;margin-top:3px}.p4-round>b:last-child{text-align:right;color:#ffe293}
+.p4-link{font:inherit;background:none;border:0;color:#fff;cursor:pointer;text-align:left;padding:4px}.p4-setting{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;font-size:14px;font-weight:700}.p4-setting select{background:#183e3e;color:#fff;min-width:180px;border:1px solid #729284;border-radius:9px;padding:10px}
+:root[data-tl-font=large]{font-size:18px}:root[data-tl-font=extra]{font-size:20px}
+:root[data-tl-font=large] .app-main,:root[data-tl-font=large] .app-sidebar{font-size:1.1rem}
+:root[data-tl-font=extra] .app-main,:root[data-tl-font=extra] .app-sidebar{font-size:1.22rem}
+:root[data-tl-contrast=high] .panel,:root[data-tl-contrast=high] .app-sidebar{border-color:#b8d8cd;background:#091d21}
+:root[data-tl-contrast=high] .note-line,:root[data-tl-contrast=high] .p3-note{color:#f1f8f5}
+:root[data-tl-motion=reduce] *, :root[data-tl-motion=reduce] *::before,:root[data-tl-motion=reduce] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(max-width:1130px){.p4-depth,.p4-calendar{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -222,6 +237,7 @@ function upgradeCareer(s){
  s.market.forEach(p=>{if(!p.age)p.age=n(19,31);if(!p.wage)p.wage=n(35,100);if(!p.contract)p.contract=3;if(!p.potential)p.potential=clamp(p.rating+n(2,11),p.rating,95)});
  s.version=1;
  phase3Init(s);
+ s.squad.forEach(statsOf);
 }
 function load(){
  try{
@@ -443,8 +459,66 @@ function cupUI(){const cup=state.cup,rounds=['Preliminary','Round of 16','Quarte
 function staffUI(){let h='<section class="panel"><h2>👥 Coaching and club staff</h2><p class="p3-note">Hire staff using transfer funds. Higher levels add operating costs per league round.</p>';for(const [role,item] of Object.entries(P3_STAFF)){const level=state.staff[role],cost=round2(item.cost*level);h+='<div class="p3-row"><div><strong>'+item.label+'</strong><div class="p3-note">Level '+level+'/5 · '+(role==='coach'?'More players improve in training':role==='medical'?'Recovery and injury prevention':'Cheaper scout reports')+'</div></div><button class="btn sm" data-action="hire-staff" data-id="'+role+'" '+(level>=5||state.cash<cost||!!state.activeMatch?'disabled':'')+'>'+(level>=5?'MAX':price(cost))+'</button></div>'}return h+'</section><section class="panel"><h2>Operating costs</h2><p class="p3-note">Staff payroll per league round: '+price(p3StaffPayroll())+'. Transfer budget: '+price(state.cash)+'.</p></section>'}
 function careerUI(){const c=state.career;let h='<section class="panel"><h2>🧑‍💼 Manager career</h2><div class="stats"><div class="stat"><small>REPUTATION</small><strong>'+c.reputation+'</strong></div><div class="stat"><small>SEASONS</small><strong>'+c.seasons+'</strong></div><div class="stat"><small>TROPHIES</small><strong>'+c.trophies+'</strong></div></div><p class="p3-note">Current club: '+CLUBS[state.clubId].name+' · Board confidence '+state.board.confidence+'% · Target: position '+state.board.target+' or better.</p></section>';h+='<section class="panel"><h2>📬 Board and news inbox</h2>'+(state.inbox.length?state.inbox.slice(0,10).map(m=>'<div class="p3-inbox"><b>'+m.type+' · '+m.year+'/'+String(m.year+1).slice(-2)+' · Round '+m.round+'</b><span>'+m.text+'</span></div>').join(''):'<p class="empty">No messages.</p>')+'</section>';h+='<section class="panel"><h2>Job opportunities</h2>';if(state.round<state.fixtures.length)h+='<p class="p3-note">Job offers become available after the league season ends. Your managerial record follows you.</p>';else h+=(c.offers.length?c.offers.map(id=>'<div class="p3-row"><span>'+CLUBS[id].name+'</span><button class="btn sm" data-action="switch-club" data-id="'+id+'">Accept job →</button></div>').join(''):'<p class="empty">No job offers this season.</p>');h+='</section><section class="panel"><h2>Career history</h2>'+(c.history.length?c.history.slice().reverse().map(v=>'<div class="result-line"><span>'+v.year+'/'+String(v.year+1).slice(-2)+' · '+CLUBS[v.club].name+'</span><span>Position '+v.position+(v.cup?' · 🏆 Cup':'')+'</span></div>').join(''):'<p class="empty">Complete a season to build your record.</p>')+'</section>';h+='<section class="panel"><h2>💾 Back up your career</h2><p class="p3-note">Autosave stays on this device. Export a JSON file to move your career between devices; import the file there. Local snapshot is a separate checkpoint. No cloud-sync service is connected.</p><div class="buttonrow"><button class="btn secondary" data-action="save-export">↓ Export JSON</button><button class="btn ghost" data-action="save-snapshot">Save snapshot</button><button class="btn ghost" data-action="save-restore">Restore snapshot</button></div><label class="p3-note" for="p3-import" style="display:block;margin-top:12px">Import Phase 3 JSON backup</label><input class="p3-input" id="p3-import" type="file" accept="application/json,.json" '+(state.activeMatch?'disabled':'')+'></section>';return h}
 
+
+/* Career improvements: local-only, backwards-compatible player records and player views. */
+let profilePlayerId=null,calendarFilter='upcoming',compareIds=[],replayGoalIndex=0,replayFrameIndex=0;
+function statsOf(p){if(!p.careerStats||typeof p.careerStats!=='object')p.careerStats={apps:0,goals:0,assists:0,clean:0,yellows:0,reds:0,minutes:0,ratingsTotal:0,seasons:{}};return p.careerStats}
+function statSeason(p){const s=statsOf(p),year=String(state.year);if(!s.seasons[year])s.seasons[year]={apps:0,goals:0,assists:0,clean:0};return s.seasons[year]}
+function tallyCareer(m){
+ const ownGoals=m.goalEvents||[],involved=new Set([...m.onPitch,...m.used]);
+ for(const id of involved){const p=state.squad.find(x=>x.id===id);if(!p)continue;
+  const career=statsOf(p),season=statSeason(p);career.apps++;season.apps++;
+  const sub=m.subs.find(x=>x.out===id),enter=m.subs.find(x=>x.in===id);
+  const played=Math.max(1,(sub?.minute??90)-(enter?.minute??0));
+  career.minutes+=played;career.ratingsTotal+=Number(m.ratings[id]||6.3);
+  if((p.pos==='GK'||p.pos==='DEF')&&m.goals.them===0&&played>=45){career.clean++;season.clean++}
+  if(m.yellow.includes(id))career.yellows++;if(m.red.includes(id))career.reds++;
+ }
+ for(const g of ownGoals){if(g.side!=='us')continue;
+  const scorer=state.squad.find(p=>p.id===(g.scorerId||''))||state.squad.find(p=>p.name===g.scorer&&involved.has(p.id));
+  const assisted=state.squad.find(p=>p.id===(g.assistId||''))||state.squad.find(p=>p.name===g.assist&&involved.has(p.id));
+  if(scorer){statsOf(scorer).goals++;statSeason(scorer).goals++}
+  if(assisted){statsOf(assisted).assists++;statSeason(assisted).assists++}
+ }
+}
+function playerProfileUI(){
+ const p=state.squad.find(x=>x.id===profilePlayerId)||state.squad[0];if(!p)return '<section class="panel">No player selected.</section>';
+ const st=statsOf(p),avg=st.apps? (st.ratingsTotal/st.apps).toFixed(1):'—',season=statSeason(p);
+ return '<section class="panel"><div class="panel-head"><h2>'+goalEsc(p.name)+'</h2><span class="pill">'+p.pos+' · #'+p.number+'</span></div><p class="p3-note">'+p.age+' years · '+goalEsc(p.nationality)+' · '+(p.realName?'API-sourced name':'Game-generated player')+'</p><div class="stats"><div class="stat"><small>RATING</small><strong>'+p.rating+'</strong></div><div class="stat"><small>POTENTIAL</small><strong>'+p.potential+'</strong></div><div class="stat"><small>FITNESS</small><strong>'+p.fitness+'%</strong></div></div><h2>Career record</h2><div class="p4-record">'+[['Appearances',st.apps],['Goals',st.goals],['Assists',st.assists],['Clean sheets',st.clean],['Minutes',st.minutes],['Average match rating',avg],['Yellow / red cards',st.yellows+' / '+st.reds]].map(([name,value])=>'<div><span>'+name+'</span><b>'+value+'</b></div>').join('')+'</div><h2>Current season</h2><p class="p3-note">'+state.year+'/'+String(state.year+1).slice(-2)+': '+season.apps+' appearances · '+season.goals+' goals · '+season.assists+' assists · '+season.clean+' clean sheets</p><h2>Contract</h2><p class="p3-note">'+p.contract+' years remaining · '+currencyK(p.wage)+' weekly wages · Estimated value '+price(p.fee)+'. Player values and ratings are simulated.</p><button class="btn secondary" data-action="tab" data-id="squad">← Back to squad</button></section>';
+}
+function squadDepthUI(){
+ const roles=[['GK','Goalkeepers'],['DEF','Defenders'],['MID','Midfielders'],['FWD','Forwards']];
+ return '<section class="panel"><h2>Squad depth chart</h2><p class="p3-note">Your preferred, second and third choices in every position, based on availability and ability.</p><div class="p4-depth">'+roles.map(([role,label])=>'<div><h3>'+label+'</h3>'+state.squad.filter(p=>p.pos===role).sort((a,b)=>Number(state.starting.includes(b.id))-Number(state.starting.includes(a.id))||b.rating-a.rating).slice(0,5).map((p,i)=>'<button class="p4-profile" data-action="profile" data-id="'+p.id+'"><span>'+(i+1)+'. '+goalEsc(p.name)+(state.starting.includes(p.id)?' ★':'')+'</span><b>'+p.rating+'</b></button>').join('')+'</div>').join('')+'</div></section>';
+}
+function calendarUI(){
+ const rounds=state.fixtures.map((games,i)=>({round:i+1,fixture:games.find(([h,a])=>h===state.clubId||a===state.clubId)})).filter(x=>x.fixture);
+ const results=state.results.filter(x=>x.home===state.clubId||x.away===state.clubId);
+ let shown=calendarFilter==='all'?rounds:calendarFilter==='played'?rounds.filter(x=>x.round<=state.round):rounds.filter(x=>x.round>state.round);
+ return '<section class="panel"><h2>Season calendar</h2><p class="p3-note">Fixture calendar uses matchweeks rather than invented real-world dates. Cup fixtures are scheduled separately.</p><div class="buttonrow">'+[['upcoming','Upcoming'],['played','Played'],['all','All 38']].map(([id,label])=>'<button class="btn '+(calendarFilter===id?'':'ghost')+' sm" data-action="calendar-filter" data-id="'+id+'">'+label+'</button>').join('')+'</div><div class="p4-calendar">'+shown.map(x=>{const [h,a]=x.fixture,match=results.find(r=>r.round===x.round);const opponent=CLUBS[h===state.clubId?a:h].name;return '<div class="p4-round"><b>MW '+x.round+'</b><div><strong>'+goalEsc(opponent)+'</strong><small>'+(h===state.clubId?'HOME':'AWAY')+'</small></div><b>'+(match?(h===state.clubId?match.hg+' – '+match.ag:match.ag+' – '+match.hg):'VS')+'</b></div>'}).join('')+'</div></section>';
+}
+function playerLeadersUI(){
+ const players=[...state.squad].filter(p=>statsOf(p).apps).sort((a,b)=>statsOf(b).goals-statsOf(a).goals||statsOf(b).assists-statsOf(a).assists).slice(0,8);
+ return '<section class="panel"><h2>Your player statistics</h2><p class="p3-note">Career totals for players currently at your club. Opponent squads have no verified player statistics.</p>'+(players.length?'<div class="table-wrap"><table class="league"><thead><tr><th>Player</th><th>Apps</th><th>Goals</th><th>Assists</th><th>CS</th></tr></thead><tbody>'+players.map(p=>{const x=statsOf(p);return '<tr><td><button class="p4-link" data-action="profile" data-id="'+p.id+'">'+goalEsc(p.name)+'</button></td><td>'+x.apps+'</td><td>'+x.goals+'</td><td>'+x.assists+'</td><td>'+x.clean+'</td></tr>'}).join('')+'</tbody></table></div>':'<p class="empty">Play a match to record player statistics.</p>')+'</section>';
+}
+function comparisonUI(){
+ const players=compareIds.map(id=>state.market.find(p=>p.id===id)).filter(Boolean);
+ let h='<section class="panel"><h2>Scout comparison</h2><p class="p3-note">Choose up to two available targets from Transfers. These values are simulated game estimates.</p>';
+ if(!players.length)return h+'<p class="empty">No players selected yet. Choose Compare in Transfers.</p></section>';
+ h+='<div class="p4-depth">'+players.map(p=>'<div><h3>'+goalEsc(p.name)+'</h3>'+[['Position',p.pos],['Rating',p.rating],['Potential',p.potential],['Age',p.age],['Fee',price(p.fee)],['Weekly wage',currencyK(p.wage)],['Contract',p.contract+' years'],['Scouted',p.scouted?'Yes':'Not yet']].map(([k,v])=>'<div class="context-stat"><span>'+k+'</span><b>'+v+'</b></div>').join('')+'<button class="btn sm secondary spaced" data-action="offer" data-id="'+p.id+'">Make offer</button></div>').join('')+'</div><button class="btn ghost spaced" data-action="clear-compare">Clear comparison</button>';
+ return h+'</section>';
+}
+function settingsUI(){
+ const pref=readP4Settings();
+ return '<section class="panel"><h2>Accessibility & display settings</h2><p class="p3-note">Saved on this device. These settings do not change your career or match results.</p>'+
+ [['font','Text size',[['normal','Standard'],['large','Large'],['extra','Extra large']]],['contrast','Colour contrast',[['normal','Standard'],['high','High contrast']]],['motion','Movement',[['normal','Standard'],['reduce','Reduce animation']]]].map(([key,label,opts])=>'<label class="p4-setting">'+label+'<select data-p4-setting="'+key+'">'+opts.map(([v,t])=>'<option value="'+v+'"'+(pref[key]===v?' selected':'')+'>'+t+'</option>').join('')+'</select></label>').join('')+
+ '<p class="p3-note">The GOAL! event remains available as text and on the pitch. The match can be paused or played at three speeds. Keyboard controls work for the tactics pitch.</p></section>';
+}
+function readP4Settings(){try{return Object.assign({font:'normal',contrast:'normal',motion:'normal'},JSON.parse(localStorage.getItem(KEY+'_settings'))||{})}catch(e){return {font:'normal',contrast:'normal',motion:'normal'}}}
+function applyP4Settings(){const p=readP4Settings();if(document.documentElement?.setAttribute){for(const [key,v] of Object.entries(p))document.documentElement.setAttribute('data-tl-'+key,v)}}
+
 function ensureUpgrades(){
  if(!state)return;
+ applyP4Settings();
  state.instructions=Object.assign({pressing:'balanced',width:'normal',line:'normal'},state.instructions||{});
  state.playerInstructions=state.playerInstructions||{};
  state.squad.forEach(p=>{if(!Number.isInteger(p.suspension))p.suspension=0});
@@ -572,7 +646,7 @@ function attemptLiveShot(m){
  if(isGoal){
   const pass=m.lastPass;
   const assist=pass?.completed&&pass.to===shooter&&pass.from!==shooter&&liveSide(pass.from)===side&&m.minute-pass.minute<=2?livePlayerName(m,pass.from):null;
-  const goal={id:(m.goalEvents?.length||0)+1,minute:gameMinute(m),at:Date.now(),side,club:CLUBS[ours?state.clubId:m.opp].name,scorer:who,assist};
+  const goal={id:(m.goalEvents?.length||0)+1,minute:gameMinute(m),at:Date.now(),side,club:CLUBS[ours?state.clubId:m.opp].name,scorer:who,assist,scorerId:ours?shooter.slice(2):null,assistId:ours&&assist?pass.from.slice(2):null};
   if(!m.goalEvents)m.goalEvents=[];
   m.goalEvents.push({...goal});m.goalAlert=goal;m.goals[side]++;
   const commentary='GOAL! '+who+' scores for '+goal.club+'!'+(assist?' Assisted by '+assist+'.':' Unassisted.');
@@ -661,6 +735,7 @@ function finishLiveMatch(){
  const own=m.goals.us,opp=m.goals.them;
  const t=m.stats.us,t2=m.stats.them,poss=Math.round(100*t.poss/Math.max(1,t.poss+t2.poss));
  state.lastMatch={competition:m.competition||'league',home:m.home,away:m.away,hg:score[0],ag:score[1],round:m.round,possession:poss,detail:{us:{...t,xg:+t.xg.toFixed(2)},them:{...t2,xg:+t2.xg.toFixed(2)},goals:[...(m.goalEvents||[])],subs:[...m.subs],events:[...m.comments].reverse(),ratings:{...m.ratings},red:[...m.red],yellow:[...m.yellow],hurt:[...m.hurt],minute:90,ourHome:m.ourHome}};
+ tallyCareer(m);
  for(const p of state.squad){if(p.injury)p.injury=Math.max(0,p.injury-1);if(p.suspension)p.suspension=Math.max(0,p.suspension-1);
   if(m.fitness[p.id]!=null){p.fitness=clamp(Math.round(m.fitness[p.id])-n(4,9),32,100);p.morale=clamp(p.morale+(own>opp?n(2,5):own===opp?n(-1,2):n(-5,-2)),20,100)}else p.fitness=clamp(p.fitness+n(5,9),40,100)}
  for(const id of m.hurt){let p=state.squad.find(x=>x.id===id);if(p)p.injury=Math.max(1,n(1,3)-(state.staff.medical>=4?1:0))}
@@ -756,8 +831,8 @@ function workspaceAside(){
 }
 function render(){
  if(!state){renderSplash();return}
- const items=[['home','⌂','Home'],['match','◉','Match Centre'],['pitch','▤','Tactics Pitch'],['squad','♟','Squad'],['transfers','⇄','Transfers'],['youth','★','Academy'],['finances','£','Finances'],['league','▥','League'],['cup','🏆','Cups'],['staff','⚙','Staff'],['career','▣','Career & Saves']];
- const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI};
+ const items=[['home','⌂','Home'],['match','◉','Match Centre'],['pitch','▤','Tactics Pitch'],['squad','♟','Squad'],['transfers','⇄','Transfers'],['youth','★','Academy'],['finances','£','Finances'],['league','▥','League'],['cup','🏆','Cups'],['staff','⚙','Staff'],['career','▣','Career & Saves'],['calendar','▦','Calendar'],['depth','◇','Depth Chart'],['statistics','▥','Statistics'],['comparison','⇆','Compare'],['settings','⚙','Settings']];
+ const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI,calendar:calendarUI,depth:squadDepthUI,statistics:playerLeadersUI,comparison:comparisonUI,settings:settingsUI,profile:playerProfileUI};
  const title=items.find(x=>x[0]===tab)?.[2]||'Home',view=(views[tab]||home)();
  root.innerHTML='<div class="app-shell"><aside class="app-sidebar">'+heading()+
  '<div class="sidebar-heading">Management</div><nav class="tabs" aria-label="Game sections">'+items.map(([id,symbol,label])=>'<button class="tab '+(tab===id?'active':'')+'" data-action="tab" data-id="'+id+'" aria-current="'+(tab===id?'page':'false')+'"><span class="tab-symbol" aria-hidden="true">'+symbol+'</span><span>'+label+'</span></button>').join('')+'</nav>'+
@@ -776,6 +851,10 @@ function match(){kickoff()}
 function newSeason(){if(state.round<state.fixtures.length)return;state.year++;state.round=0;state.cup=p3Cup();state.board.confidence=70;state.career.offers=[];state.table=CLUBS.map((_,i)=>({id:i,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));state.fixtures=fixtureList();state.results=[];state.lastMatch=null;state.trained=false;state.squad.forEach(p=>{p.fitness=clamp(p.fitness+25,65,100);p.injury=0;p.morale=clamp(p.morale+10,45,100)});state.cash=round2(state.cash+6);state.finance.balance=round2(state.finance.balance+12);state.market=createMarket(CLUBS[state.clubId].power).map(p=>{p.season=state.year;return p});state.shortlist=[];state.squad=state.squad.filter(p=>!p.loan);state.squad.forEach(p=>{p.age++;p.contract=Math.max(0,(p.contract||1)-1);if(p.contract===0)p.contract=1});state.youth.forEach(p=>p.age++);while(state.youth.length<5)state.youth.push(academyProspect(CLUBS[state.clubId].power));state.news.unshift('New season underway. Board funding: £6m. Loan players returned to parent clubs.');p3Inbox('Cup','New Touchline National Cup draw. First ties after league round 4.');state.activeMatch=null;state.squad.forEach(p=>p.suspension=0);autoLineup();tab='home';flash='Welcome to the '+state.year+'/'+String(state.year+1).slice(-2)+' season!';save();render()}
 function onAction(action,id){
  if(state?.activeMatch&&['hire-staff','save-restore','switch-club','offer','submit-offer','scout','promote-youth','academy-invest','scout-invest','renew','shortlist'].includes(action)){flash='Finish the live match before managing the club.';render();return}
+ if(action==='profile'){profilePlayerId=id;tab='profile';render();return}
+ if(action==='calendar-filter'){calendarFilter=id;render();return}
+ if(action==='clear-compare'){compareIds=[];render();return}
+ if(action==='compare-player'){compareIds=compareIds.includes(id)?compareIds.filter(x=>x!==id):[...compareIds.slice(-1),id];tab='comparison';render();return}
  if(action==='hire-staff'){p3Hire(id);return}
  if(action==='save-export'){p3Export();return}
  if(action==='save-snapshot'){p3Snapshot();return}
@@ -806,7 +885,7 @@ case 'sell':{const p=state.squad.find(x=>x.id===id);if(!p)return;const limits={G
 default:return}save();render()}
 root.addEventListener('click',e=>{let b=e.target.closest('[data-action]');if(b&&root.contains(b)&&b.tagName!=='SELECT'&&!b.disabled)onAction(b.dataset.action,b.dataset.id)});
 root.addEventListener('input',e=>{const el=e.target;if(negotiation&&['fee','wage'].includes(el.dataset.neg)){negotiation[el.dataset.neg]=Number(el.value)}});
-root.addEventListener('change',e=>{if(!state)return;const el=e.target;if(el.id==='p3-import'){p3Import(el);return}if(el.dataset.scoutFilter!==undefined){scoutFilter=el.value;render();return}if(el.dataset.neg&&negotiation){negotiation[el.dataset.neg]=el.dataset.neg==='years'?Number(el.value):el.dataset.neg==='kind'?el.value:Number(el.value);if(el.dataset.neg==='kind'&&el.value==='loan'){const p=state.market.find(x=>x.id===negotiation.id);if(p){negotiation.fee=round2(p.fee*.2);negotiation.wage=Math.ceil(p.wage*.6);negotiation.years=1}}else if(el.dataset.neg==='kind'){const p=state.market.find(x=>x.id===negotiation.id);if(p){negotiation.fee=p.fee;negotiation.wage=p.wage;negotiation.years=3}}offerFeedback='';if(el.dataset.neg==='kind'||el.dataset.neg==='years')render();return}if(el.dataset.action==='formation'&&FORMATIONS[el.value]){if(state.activeMatch){if(!state.activeMatch.paused){flash='Pause the match before changing formation.';render();return}state.formation=el.value;state.starting=[...state.activeMatch.onPitch];normalisePitch(true);flash='Formation changed to '+el.value+'. Current XI retained; adjust positions in Pitch.'}else{state.formation=el.value;autoLineup(true);flash='Formation changed to '+el.value+'. Your XI has been updated.'}}else if(el.dataset.action==='mentality'&&['balanced','attacking','defensive'].includes(el.value)){state.mentality=el.value;flash='Mentality set to '+el.value+'.'}else if(el.hasAttribute('data-player-choice')){focusedPlayer=el.value;render();return}else if(el.hasAttribute('data-player-instruction')){if(!focusedPlayer||!['balanced','attack','hold'].includes(el.value))return;state.playerInstructions[focusedPlayer]=el.value;flash='Player instruction saved.'}else if(el.dataset.instruction&&['pressing','width','line'].includes(el.dataset.instruction)){if(!['low','balanced','high','narrow','normal','wide','deep'].includes(el.value))return;state.instructions[el.dataset.instruction]=el.value;flash='Team instruction updated: '+el.dataset.instruction+' → '+el.value+'.'}else if(el.id==='sub-out'){subOut=el.value;subIn='';render();return}else if(el.id==='sub-in'){subIn=el.value;render();return}else return;save();render()});
+root.addEventListener('change',e=>{if(!state)return;const el=e.target;if(el.id==='p3-import'){p3Import(el);return}if(el.dataset.p4Setting){const pref=readP4Settings();if(!['font','contrast','motion'].includes(el.dataset.p4Setting))return;pref[el.dataset.p4Setting]=el.value;localStorage.setItem(KEY+'_settings',JSON.stringify(pref));applyP4Settings();flash='Display preferences saved.';render();return}if(el.dataset.scoutFilter!==undefined){scoutFilter=el.value;render();return}if(el.dataset.neg&&negotiation){negotiation[el.dataset.neg]=el.dataset.neg==='years'?Number(el.value):el.dataset.neg==='kind'?el.value:Number(el.value);if(el.dataset.neg==='kind'&&el.value==='loan'){const p=state.market.find(x=>x.id===negotiation.id);if(p){negotiation.fee=round2(p.fee*.2);negotiation.wage=Math.ceil(p.wage*.6);negotiation.years=1}}else if(el.dataset.neg==='kind'){const p=state.market.find(x=>x.id===negotiation.id);if(p){negotiation.fee=p.fee;negotiation.wage=p.wage;negotiation.years=3}}offerFeedback='';if(el.dataset.neg==='kind'||el.dataset.neg==='years')render();return}if(el.dataset.action==='formation'&&FORMATIONS[el.value]){if(state.activeMatch){if(!state.activeMatch.paused){flash='Pause the match before changing formation.';render();return}state.formation=el.value;state.starting=[...state.activeMatch.onPitch];normalisePitch(true);flash='Formation changed to '+el.value+'. Current XI retained; adjust positions in Pitch.'}else{state.formation=el.value;autoLineup(true);flash='Formation changed to '+el.value+'. Your XI has been updated.'}}else if(el.dataset.action==='mentality'&&['balanced','attacking','defensive'].includes(el.value)){state.mentality=el.value;flash='Mentality set to '+el.value+'.'}else if(el.hasAttribute('data-player-choice')){focusedPlayer=el.value;render();return}else if(el.hasAttribute('data-player-instruction')){if(!focusedPlayer||!['balanced','attack','hold'].includes(el.value))return;state.playerInstructions[focusedPlayer]=el.value;flash='Player instruction saved.'}else if(el.dataset.instruction&&['pressing','width','line'].includes(el.dataset.instruction)){if(!['low','balanced','high','narrow','normal','wide','deep'].includes(el.value))return;state.instructions[el.dataset.instruction]=el.value;flash='Team instruction updated: '+el.dataset.instruction+' → '+el.value+'.'}else if(el.id==='sub-out'){subOut=el.value;subIn='';render();return}else if(el.id==='sub-in'){subIn=el.value;render();return}else return;save();render()});
 // Direct manipulation uses pointer events to support both touch and mouse, with keyboard fallback.
 let activeDrag=null;
 function updatePlayerPosition(el,coords){el.style.left=coords.x+'%';el.style.top=coords.y+'%'}
