@@ -240,7 +240,22 @@ const CLUBS=[
 {name:"Wolverhampton Wanderers",short:"WOL",lookup:"Wolverhampton Wanderers",power:74,cash:22,color:"#bb842b"},
 {name:"Wrexham",short:"WRE",lookup:"Wrexham",power:69,cash:16,color:"#bd4244"}];
 const INITIAL_PREMIER=Array.from({length:20},(_,i)=>i),INITIAL_CHAMPIONSHIP=Array.from({length:24},(_,i)=>i+20);
-const DIV_LABEL={premier:'Premier League',championship:'Championship'};
+const DIV_LABEL={premier:'Premier League',championship:'Championship',spain:'Spain · Sol League',germany:'Germany · Rhein League',italy:'Italy · Centro League',france:'France · Hexagone League'};
+
+/* Four additional fictional national club leagues. Names, rosters, powers and finances are simulated, not official 2026/27 club records. */
+const WORLD_CLUB_SETS={"spain":["Madrid Sol","Barcelona Mar","Valencia Turia","Sevilla Sur","Bilbao Norte","Málaga Costa","Zaragoza Ebro","Vigo Atlántico","Girona Mont","Pamplona Verde","Granada Alba","Murcia Levante","Valladolid Norte","Oviedo Azul","Gijón Puerto","Santander Bahía","Alicante Sol","Córdoba Centro","Palma Balear","Tarragona Mediterráneo"],"germany":["Berlin Mitte","Munich Süd","Hamburg Hafen","Dortmund Ruhr","Leipzig Ost","Frankfurt Main","Stuttgart Neckar","Cologne Rhein","Bremen Weser","Düsseldorf Rhein","Freiburg Schwarzwald","Mainz Dom","Augsburg Stadt","Hanover Nord","Nuremberg Franken","Wolfsburg Grün","Bochum West","Dresden Elbe"],"italy":["Roma Centro","Milano Nord","Torino Alpi","Napoli Golfo","Firenze Arno","Bologna Rosso","Genova Porto","Venezia Laguna","Verona Arena","Bergamo Collina","Parma Ducale","Palermo Sicilia","Bari Adriatico","Lecce Salento","Udine Friuli","Cagliari Isola","Pisa Torre","Como Lago","Modena Emilia","Salerno Costa"],"france":["Paris Rive Gauche","Marseille Vieux Port","Lyon Rhône","Lille Nord","Nice Riviera","Toulouse Garonne","Nantes Loire","Rennes Bretagne","Strasbourg Alsace","Bordeaux Gironde","Montpellier Sud","Reims Champagne","Brest Atlantique","Lens Artois","Saint-Étienne Loire","Le Havre Port","Metz Lorraine","Auxerre Bourgogne"]};
+const WORLD_IDS={};
+const WORLD_COLORS=['#a54554','#385bb5','#c6a247','#528968','#794e9a','#4599b3','#a65c35'];
+for(const [division,names] of Object.entries(WORLD_CLUB_SETS)){
+ const start=CLUBS.length;
+ WORLD_IDS[division]=names.map((name,index)=>start+index);
+ names.forEach((name,index)=>CLUBS.push({name,short:division.slice(0,2).toUpperCase()+String(index+1).padStart(2,'0'),lookup:null,power:clamp(64+(index*7+division.length)%16,62,82),cash:12+(index*5)%20,color:WORLD_COLORS[index%WORLD_COLORS.length],fictional:true,country:division}));
+}
+const ALL_DIVISIONS=['premier','championship','spain','germany','italy','france'];
+function lmaClubIds(div,members){return div==='premier'?members.premier:div==='championship'?members.championship:WORLD_IDS[div]||[]}
+function lmaClubDivision(id,members){if(members.premier.includes(id))return 'premier';if(members.championship.includes(id))return 'championship';return Object.keys(WORLD_IDS).find(d=>WORLD_IDS[d].includes(id))||null}
+function lmaBackgroundLeagues(s){const data={};for(const div of ALL_DIVISIONS){if(div===s.division||div===s.otherLeague?.division)continue;const ids=lmaClubIds(div,s.members);const prior=s.worldLeagues?.[div];data[div]=prior&&prior.division===div&&prior.table?.length===ids.length?prior:{...newLeague(ids),division:div}}return data}
+
 // Verified 2026/27 membership; squad and financial figures are deliberately game-generated.
 const SPORTSDB='https://www.thesportsdb.com/api/v1/json/123/';
 let syncing=false,apiStatus='';
@@ -282,12 +297,14 @@ function leagueTableRow(id,table=state.table){return table.find(t=>t.id===id)}
 function orderTable(table){return [...table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.id-b.id)}
 function upgradeLeagues(s){
  if(!s.members||!Array.isArray(s.members.premier)||!Array.isArray(s.members.championship)||s.members.premier.length!==20||s.members.championship.length!==24)s.members={premier:[...INITIAL_PREMIER],championship:[...INITIAL_CHAMPIONSHIP]};
- const div=s.members.premier.includes(s.clubId)?'premier':s.members.championship.includes(s.clubId)?'championship':null;
- if(!div)throw Error('Club outside the two leagues');
+ const div=lmaClubDivision(s.clubId,s.members);
+ if(!div)throw Error('Club outside playable leagues');
  s.division=div;
- if(!s.otherLeague||s.otherLeague.division!==otherDivision(div)||!Array.isArray(s.otherLeague.table)||s.otherLeague.table.length!==s.members[otherDivision(div)].length)s.otherLeague={...newLeague(s.members[otherDivision(div)]),division:otherDivision(div)};
- if(s.table.length!==s.members[div].length||!Array.isArray(s.fixtures)||s.fixtures.length!==(s.members[div].length-1)*2)throw Error('Saved league incompatible');
+ const counterpart=otherDivision(div),ids=lmaClubIds(counterpart,s.members);
+ if(!s.otherLeague||s.otherLeague.division!==counterpart||s.otherLeague.table?.length!==ids.length)s.otherLeague={...newLeague(ids),division:counterpart};
+ if(s.table.length!==lmaClubIds(div,s.members).length||!Array.isArray(s.fixtures)||s.fixtures.length!==(s.table.length-1)*2)throw Error('Saved league incompatible');
  if(!Array.isArray(s.results))s.results=[];
+ s.worldLeagues=lmaBackgroundLeagues(s);
 }
 function applyToTable(table,m){
  const h=table.find(t=>t.id===m.home),a=table.find(t=>t.id===m.away);if(!h||!a)throw Error('Result club outside division');
@@ -299,7 +316,7 @@ function advanceOtherLeague(full=false){
  const target=full?alt.fixtures.length:Math.min(alt.fixtures.length,Math.floor(state.round*alt.fixtures.length/Math.max(1,state.fixtures.length)));
  while(alt.round<target){const games=alt.fixtures[alt.round].map(([h,a])=>({...simulate(h,a),round:alt.round+1}));games.forEach(m=>applyToTable(alt.table,m));alt.results.push(...games);alt.round++}
 }
-function leagueSnapshot(div){return div===state.division?{division:state.division,table:state.table,fixtures:state.fixtures,results:state.results,round:state.round}:state.otherLeague}
+function leagueSnapshot(div){return div===state.division?{division:state.division,table:state.table,fixtures:state.fixtures,results:state.results,round:state.round}:state.otherLeague?.division===div?state.otherLeague:state.worldLeagues?.[div]||null}
 function playoffTie(a,b,legs=1){let ag=0,bg=0;for(let i=0;i<legs;i++){const atHome=legs===1||i===1;const r=simulate(atHome?a:b,atHome?b:a);if(atHome){ag+=r.hg;bg+=r.ag}else{ag+=r.ag;bg+=r.hg}}return {a,b,ag,bg,winner:ag===bg?(Math.random()<.5?a:b):ag>bg?a:b,penalties:ag===bg}}
 function completePromotion(){
  if(state.seasonReview?.year===state.year)return state.seasonReview;
@@ -361,19 +378,19 @@ function load(){
    s.news=['Phase 2 upgrade: your squad and budget are preserved. The old eight-team save is backed up; a new 20-club season starts now.',...(s.news||[])];
    s.apiCount=s.apiCount||0;s.trained=false;s.year=2026;
   }
-  if(![20,24].includes(s.table.length))return null;
+  if(![18,20,24].includes(s.table.length))return null;
   upgradeCareer(s);
   return s;
  }catch(e){return null}
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
 function reset(){try{localStorage.removeItem(KEY)}catch(e){}state=null;tab='home';flash='';apiStatus='';render()}
-function begin(id){const club=CLUBS[id],division=id<20?'premier':'championship',ids=division==='premier'?INITIAL_PREMIER:INITIAL_CHAMPIONSHIP,initial=newLeague(ids);const roster=[];for(const [pos,count] of [['GK',2],['DEF',6],['MID',6],['FWD',4]])for(let i=0;i<count;i++)roster.push(makePlayer(pos,club.power));state={version:1,clubId:id,year:2026,round:0,cash:club.cash,formation:'4-4-2',mentality:'balanced',trained:false,squad:roster,starting:[],market:createMarket(club.power),table:initial.table,fixtures:initial.fixtures,results:[],lastMatch:null,news:['You have taken charge of '+club.name+'. Good luck this season!']};upgradeCareer(state);ensureUpgrades();autoLineup();save();render();syncRealRoster()}
+function begin(id){const club=CLUBS[id],division=id<20?'premier':id<44?'championship':lmaClubDivision(id,{premier:INITIAL_PREMIER,championship:INITIAL_CHAMPIONSHIP}),ids=lmaClubIds(division,{premier:INITIAL_PREMIER,championship:INITIAL_CHAMPIONSHIP}),initial=newLeague(ids);const roster=[];for(const [pos,count] of [['GK',2],['DEF',6],['MID',6],['FWD',4]])for(let i=0;i<count;i++)roster.push(makePlayer(pos,club.power));state={version:1,clubId:id,year:2026,round:0,cash:club.cash,formation:'4-4-2',mentality:'balanced',trained:false,squad:roster,starting:[],market:createMarket(club.power),table:initial.table,fixtures:initial.fixtures,results:[],lastMatch:null,news:['You have taken charge of '+club.name+'. Good luck this season!']};upgradeCareer(state);ensureUpgrades();autoLineup();save();render();syncRealRoster()}
 function mappedRole(raw){const p=String(raw||'').toLowerCase();if(/goalkeep|keeper/.test(p))return 'GK';if(/defend|back|centre-back|center-back/.test(p))return 'DEF';if(/midfield|winger|wing/.test(p))return 'MID';if(/attack|forward|striker/.test(p))return 'FWD';return null}
 function safeName(raw){return String(raw||'').replace(/[<>\"'&]/g,'').replace(/\s+/g,' ').trim().slice(0,65)}
 async function sportsDB(path){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),9500);try{const r=await fetch(SPORTSDB+path,{signal:controller.signal});if(!r.ok)throw Error('TheSportsDB HTTP '+r.status);return await r.json()}finally{clearTimeout(timeout)}}
 async function syncRealRoster(){
- if(!state||syncing||state.rosterImported||state.round!==0||state.activeMatch||state.cup?.history?.length||state.squad.some(p=>p.careerStats?.apps))return;
+ if(!state||syncing||CLUBS[state.clubId].fictional||!CLUBS[state.clubId].lookup||state.rosterImported||state.round!==0||state.activeMatch||state.cup?.history?.length||state.squad.some(p=>p.careerStats?.apps))return;
  const clubId=state.clubId,year=state.year;syncing=true;apiStatus='Connecting to TheSportsDB for real player names…';render();
  try{
   const club=CLUBS[clubId],teams=await sportsDB('searchteams.php?t='+encodeURIComponent(club.lookup));
@@ -564,7 +581,7 @@ function p3StaffPayroll(){return round2(Object.entries(P3_STAFF).reduce((sum,[ro
 function p3Hire(role){const item=P3_STAFF[role];if(!item||state.activeMatch||state.staff[role]>=5)return;const cost=round2(item.cost*state.staff[role]);if(state.cash<cost){flash='Upgrade requires '+price(cost)+' transfer funds.';render();return}state.cash=round2(state.cash-cost);state.staff[role]++;p3Inbox('Staff',item.label+' upgraded to level '+state.staff[role]+'. Recruitment: '+price(cost)+'.');flash='Staff upgrade confirmed.';save();render()}
 function p3SwitchClub(id){if(state.activeMatch||state.round<state.fixtures.length||!state.career.offers.includes(id))return;if(state.jobSearch?.invited!==id)return;const previous=CLUBS[state.clubId].name;state.clubId=id;state.career.clubs.push({id,year:state.year+1});state.futureSignings=[];state.roles={};state.rosterImported=false;state.squad=[];for(const [pos,count] of [['GK',2],['DEF',6],['MID',6],['FWD',4]])for(let i=0;i<count;i++)state.squad.push(makePlayer(pos,CLUBS[id].power));state.cash=CLUBS[id].cash;state.finance=upgradesDefault();state.staff={coach:1,medical:1,scout:1};state.youth=Array.from({length:5},()=>academyProspect(CLUBS[id].power));state.shortlist=[];state.apiCount=0;state.playerInstructions={};state.pitchPositions={};state.career.offers=[];state.jobSearch={status:'employed',applications:[],invited:null};state.board={confidence:70,target:CLUBS[id].power>=77?4:CLUBS[id].power>=73?10:17,objective:'league',promotions:0};state.managerContract={until:state.year+3,salary:1.3,danger:0,renewals:0,dismissed:false};p3Inbox('Career','You left '+previous+' and accepted the '+CLUBS[id].name+' manager role.');newSeason();syncRealRoster()}
 function p3Export(){const payload={format:'touchline26-save',version:3,exportedAt:new Date().toISOString(),career:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='touchline26-'+state.year+'-career.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);flash='Career backup exported. Keep the JSON file safe.';render()}
-function p3ValidState(s){return !!(s&&s.version===1&&Number.isInteger(s.clubId)&&s.clubId>=0&&s.clubId<CLUBS.length&&Number.isInteger(s.round)&&s.round>=0&&s.round<=46&&Array.isArray(s.table)&&[20,24].includes(s.table.length)&&Array.isArray(s.squad)&&s.squad.length>=11&&s.squad.length<150&&Array.isArray(s.fixtures)&&s.fixtures.length===(s.table.length-1)*2)}
+function p3ValidState(s){return !!(s&&s.version===1&&Number.isInteger(s.clubId)&&s.clubId>=0&&s.clubId<CLUBS.length&&Number.isInteger(s.round)&&s.round>=0&&s.round<=46&&Array.isArray(s.table)&&[18,20,24].includes(s.table.length)&&Array.isArray(s.squad)&&s.squad.length>=11&&s.squad.length<150&&Array.isArray(s.fixtures)&&s.fixtures.length===(s.table.length-1)*2)}
 function p3Sanitize(data){if(typeof data==='string')return data.replace(/[<>&"'`]/g,'').slice(0,500);if(Array.isArray(data))return data.map(p3Sanitize);if(data&&typeof data==='object'){const clean=Object.create(null);for(const [k,v] of Object.entries(data)){if(['__proto__','constructor','prototype'].includes(k))continue;clean[k]=p3Sanitize(v)}return clean}return data}
 function p3Snapshot(){try{localStorage.setItem(KEY+'_phase3_slot',JSON.stringify(state));flash='Manual snapshot saved on this device.'}catch(e){flash='Browser storage unavailable or full.'}render()}
 function p3Restore(){const raw=localStorage.getItem(KEY+'_phase3_slot');if(!raw){flash='No manual snapshot found.';render();return}if(!confirm('Restore this local snapshot? Current career will be backed up first.'))return;try{const parsed=JSON.parse(raw);if(!p3ValidState(parsed))throw Error('Invalid save');localStorage.setItem(KEY+'_phase3_previous',JSON.stringify(state));stopMatchTimer();state=p3Sanitize(parsed);upgradeCareer(state);ensureUpgrades();normalisePitch();tab='home';flash='Snapshot restored.';save();render()}catch(e){flash='Snapshot could not be restored.';render()}}
