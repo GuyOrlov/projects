@@ -445,7 +445,7 @@ function p3AdvanceCup(){
  p3CloseCupRound(winners);
 }
 function p3CompleteCupMatch(m,score){const cup=state.cup,penalty=score[0]===score[1],winner=score[0]>score[1]?m.home:score[0]<score[1]?m.away:(Math.random()<.5?m.home:m.away);cup.history.push({stage:cup.stage,home:m.home,away:m.away,hg:score[0],ag:score[1],winner,penalties:penalty});state.lastMatch.penalties=penalty?CLUBS[winner].name+' won on penalties':null;p3Inbox('Cup',(winner===state.clubId?'You progressed':'You were eliminated')+' in cup round '+(cup.stage+1)+(penalty?' after penalties.':'.'));p3CloseCupRound([...cup.roundWinners,winner])}
-function p3BoardRound(){const played=state.table[state.clubId].p,pts=state.table[state.clubId].pts,target=state.board.target,expectation=target<=4?1.8:target<=10?1.3:.95,pace=played?pts/played:expectation;state.board.confidence=clamp(Math.round(70+(pace-expectation)*18+(state.finance.balance<0?-7:0)+(state.cup.winner===state.clubId?12:0)),15,98);if(state.round%6===0)p3Inbox('Board','Board confidence '+state.board.confidence+'%. Objective: '+(target<=4?'top four':target<=10?'top ten':'avoid relegation')+'.')}
+function p3BoardRound(){const played=state.table[state.clubId].p,pts=state.table[state.clubId].pts,target=state.board.target,expectation=target<=4?1.8:target<=10?1.3:.95,pace=played?pts/played:expectation;state.board.confidence=clamp(Math.round(70+(pace-expectation)*18+(state.finance.balance<0?-7:0)+(state.cup.winner===state.clubId?12:0)),15,98);const b=state.board;if(b.objective==='finance'){b.confidence=clamp(b.confidence+(state.finance.balance>=0?3:-6),15,98)}else if(b.objective==='development'){b.confidence=clamp(b.confidence+(b.promotions?3:-1),15,98)};if(state.round%6===0)p3Inbox('Board','Board confidence '+b.confidence+'%. Objective: '+(target<=4?'top four':target<=10?'top ten':'avoid relegation')+'; extra: '+(b.objective||'league')+'.')}
 function p3FinishSeason(){const r=rank(),won=sorted()[0].id===state.clubId,record={year:state.year,club:state.clubId,position:r,points:state.table[state.clubId].pts,cup:state.cup.winner===state.clubId};state.career.history.push(record);state.career.seasons++;state.career.reputation=clamp(state.career.reputation+(won?14:r<=4?7:r<=10?3:r>=18?-8:-2)+(record.cup?4:0),1,100);if(won){state.career.trophies++;p3Inbox('Board','League champions! Your managerial reputation has risen.')}state.career.offers=CLUBS.map((c,id)=>({id,score:Math.abs(c.power-(70+state.career.reputation*.1))})).filter(x=>x.id!==state.clubId).sort((a,b)=>a.score-b.score).slice(0,3).map(x=>x.id);p3Inbox('Career','Season review: '+r+' of 20, '+record.points+' points. '+state.career.offers.length+' job opportunities available.')}
 function p3StaffPayroll(){return round2(Object.entries(P3_STAFF).reduce((sum,[role,item])=>sum+item.salary*(state.staff[role]||1),0))}
 function p3Hire(role){const item=P3_STAFF[role];if(!item||state.activeMatch||state.staff[role]>=5)return;const cost=round2(item.cost*state.staff[role]);if(state.cash<cost){flash='Upgrade requires '+price(cost)+' transfer funds.';render();return}state.cash=round2(state.cash-cost);state.staff[role]++;p3Inbox('Staff',item.label+' upgraded to level '+state.staff[role]+'. Recruitment: '+price(cost)+'.');flash='Staff upgrade confirmed.';save();render()}
@@ -568,6 +568,7 @@ function driftLiveActors(m){
   const anchor=ours?(state.pitchPositions[idx]||m.actors[key]):{x:OPPONENT_ANCHORS[idx][0],y:OPPONENT_ANCHORS[idx][1]};
   if(!anchor)continue;
   let target={x:anchor.x,y:anchor.y};
+  if(!ours){const style=m.aiStyle||opponentStyle(m.opp);if(style==='high press')target.y-=6;if(style==='low block')target.y+=6;if(style==='possession')target.x+=(idx%2?4:-4);if(m.aiApproach==='attacking')target.y-=5;if(m.aiApproach==='defensive')target.y+=5}
   if(side===m.possessionSide){
    const isGK=ours?state.squad.find(p=>p.id===idx)?.pos==='GK':idx===0;
    if(!isGK)target.y+=(ours?-6:6);
@@ -676,10 +677,39 @@ function instructionsEffects(){const a=state.instructions||{pressing:'balanced',
  }}
 function individualEffects(){let attack=0,risk=0;for(const id of state.starting){const p=state.squad.find(x=>x.id===id),instruction=state.playerInstructions?.[id]||'balanced';if(!p)continue;if(instruction==='attack'){attack+=p.pos==='FWD'?.038:.016;risk+=p.pos==='DEF'?.028:.009}else if(instruction==='hold'){attack-=p.pos==='FWD'?.018:.004;risk-=p.pos==='DEF'?.022:.008}}return {attack:clamp(attack,-.16,.18),risk:clamp(risk,-.15,.17)}}
 function matchLineupRating(m){let team=state.squad.filter(p=>m.onPitch.includes(p.id)&&!m.red.includes(p.id)&&!m.hurt.includes(p.id));return team.reduce((sum,p)=>sum+lineupScore(p)*(m.fitness[p.id]||p.fitness)/Math.max(1,p.fitness),0)/11-((11-team.length)*2)}
+
+/* Distinct game-generated tactical behaviours for opposition clubs. */
+const OPP_STYLES=['high press','possession','counter attack','low block'];
+function opponentStyle(id){return OPP_STYLES[(id*7+3)%OPP_STYLES.length]}
+function aiMatchChanges(m){
+ if(!m.aiStyle)m.aiStyle=opponentStyle(m.opp);
+ if(!m.aiSubs)m.aiSubs=0;
+ if((m.minute>=65&&m.aiSubs===0)||(m.minute>=79&&m.aiSubs===1)){
+  const idx=m.aiSubs===0?9:7;
+  m.opponentNames[idx]=makePlayer(idx>8?'FWD':'MID',CLUBS[m.opp].power).name;
+  m.aiSubs++;
+  m.aiBoost=(m.aiBoost||0)+.04;
+  logMatch(m,CLUBS[m.opp].short+' make a tactical substitution.','sub');
+ }
+ if(m.minute>=61&&m.goals.them<m.goals.us)m.aiApproach='attacking';
+ else if(m.minute>=70&&m.goals.them>m.goals.us)m.aiApproach='defensive';
+ else m.aiApproach='balanced';
+}
+function boardObjectivesUI(){
+ const b=state.board,objective=b.objective||'league';
+ const options=[['league','League finish','Meet the expected league position'],['finance','Financial health','Maintain positive club reserves'],['development','Youth development','Promote at least one academy prospect this season']];
+ return '<section class="panel"><h2>Board objectives</h2><p class="p3-note">Board confidence: '+b.confidence+'%. Choose one additional seasonal objective. All board decisions are simulated.</p>'+
+ '<div class="p4-depth">'+options.map(([id,label,desc])=>'<button class="p4-objective '+(objective===id?'active':'')+'" data-action="board-objective" data-id="'+id+'"><strong>'+(objective===id?'✓ ':'')+label+'</strong><small>'+desc+'</small></button>').join('')+'</div>'+
+ '<p class="p3-note">League target: '+b.target+'th or better · Financial balance: '+price(state.finance.balance)+' · Youth promotions: '+(b.promotions||0)+'.</p></section>';
+}
+
 function matchOdds(m){const other=CLUBS[m.opp].power,own=matchLineupRating(m),shape=pitchEffects(),extra=instructionsEffects(),individual=individualEffects();let ours=1.35+(own-other)*.035+shape.attack+extra.attack+individual.attack;
  let theirs=1.2+(other-own)*.035+shape.risk+extra.risk+individual.risk;
  if(m.ourHome)ours+=.16;else theirs+=.16;
  if(state.mentality==='attacking'){ours+=.29;theirs+=.17}else if(state.mentality==='defensive'){ours-=.18;theirs-=.24}
+ const style=m.aiStyle||opponentStyle(m.opp);if(style==='high press'){theirs+=.13;ours+=.09}else if(style==='possession'){theirs+=.11;ours-=.06}else if(style==='counter attack'){theirs+=.15;ours+=.12}else if(style==='low block'){theirs-=.09;ours-=.12}
+ if(m.aiApproach==='attacking'){theirs+=.28;ours+=.16}else if(m.aiApproach==='defensive'){theirs-=.1;ours-=.1}
+ theirs+=(m.aiBoost||0);
  const ownFatigue=Object.values(m.fitness).reduce((s,x)=>s+(100-x),0)/Math.max(1,Object.keys(m.fitness).length);
  ours-=Math.max(0,ownFatigue-26)*.008;
  return {ours:clamp(ours,.20,3.0),theirs:clamp(theirs,.20,3.0)}
@@ -697,6 +727,7 @@ function kickoff(){
  const opp=fixture[0]===state.clubId?fixture[1]:fixture[0];
  const ratings={},fitness={};state.starting.forEach(id=>{ratings[id]=6.3;fitness[id]=state.squad.find(p=>p.id===id).fitness});
  state.activeMatch={competition:cupTie?'cup':'league',round:state.round+1,home:fixture[0],away:fixture[1],ourHome:fixture[0]===state.clubId,opp,minute:0,goals:{us:0,them:0},stats:{us:{poss:0,shots:0,on:0,passes:0,completed:0,tackles:0,xg:0},them:{poss:0,shots:0,on:0,passes:0,completed:0,tackles:0,xg:0}},comments:[],ratings,fitness,subs:[],used:[],onPitch:[...state.starting],red:[],yellow:[],hurt:[],paused:true,halftimeDone:false,speed:'normal',ball:{x:50,y:52},attacker:null,events:[],actors:{},possessionSide:fixture[0]===state.clubId?'us':'them',carrier:null,lastPass:null,actionText:'Kick-off ready',version:2};
+ state.activeMatch.aiStyle=opponentStyle(opp);state.activeMatch.aiApproach='balanced';state.activeMatch.aiSubs=0;
  ensureLiveActors(state.activeMatch);
  logMatch(state.activeMatch,'Kick-off: '+CLUBS[fixture[0]].name+' vs '+CLUBS[fixture[1]].name,'kickoff');
  tab='match';flash='Kick-off ready: press ▶ Play to start the match.';save();render();
@@ -708,6 +739,7 @@ function liveStep(){
  m.minute++;
  if(m.minute===45){m.paused=true;m.actionText='Half-time. Review tactics and substitutions.';logMatch(m,'Half-time. Review tactics and make substitutions.','whistle');stopMatchTimer();save();render();return}
  ensureLiveActors(m);
+ aiMatchChanges(m);
  if(m.minute%10===0){const fat=instructionsEffects().fatigue;for(const id of m.onPitch){if(m.red.includes(id)||m.hurt.includes(id))continue;m.fitness[id]=clamp((m.fitness[id]||80)-n(1,3)*fat*(state.playerInstructions?.[id]==='attack'?1.16:state.playerInstructions?.[id]==='hold'?.88:1),32,100)}}
  runLivePass(m);
  attemptLiveShot(m);
