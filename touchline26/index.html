@@ -214,6 +214,8 @@ const FIRST=['Oliver','Leo','Ethan','Noah','Daniel','Mason','Isaac','James','Ada
 const LAST=['Baines','Fletcher','Martin','Silva','Hughes','Khan','Walsh','Turner','Rossi','Carter','Patel','Doyle','Osei','Bennett','Costa','Ferguson','Nolan','Diaz','Brooks','Evans','Murphy','Reed','Ahmed','Price','Morris','Ford','Santos','Ali','Cooper','Mendes','Taylor','Harrison'];
 const FORMATIONS={'4-4-2':{GK:1,DEF:4,MID:4,FWD:2},'4-3-3':{GK:1,DEF:4,MID:3,FWD:3},'3-5-2':{GK:1,DEF:3,MID:5,FWD:2}};
 const root=document.getElementById('tl26');
+const P3_CUP_DUE=[4,12,20,28,36];
+const P3_STAFF={coach:{label:'Head coach',cost:1.2,salary:.022},medical:{label:'Medical team',cost:1.0,salary:.018},scout:{label:'Chief scout',cost:.9,salary:.014}};
 let tab='home',flash='',state=load(),negotiation=null,offerFeedback='',scoutFilter='all';
 function n(min,max){return min+Math.floor(Math.random()*(max-min+1))}
 function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
@@ -420,8 +422,6 @@ const matchSpeeds={slow:650,normal:220,fast:65};
 
 /* Phase 3: independent cup, manager career, staff, inbox and offline backup.
    The cup and its scores are simulated, NOT the real FA Cup or UEFA competitions. */
-const P3_CUP_DUE=[4,12,20,28,36];
-const P3_STAFF={coach:{label:'Head coach',cost:1.2,salary:.022},medical:{label:'Medical team',cost:1.0,salary:.018},scout:{label:'Chief scout',cost:.9,salary:.014}};
 function p3Cup(){const teams=CLUBS.map((_,i)=>i);for(let i=teams.length-1;i>0;i--){const j=n(0,i);[teams[i],teams[j]]=[teams[j],teams[i]]}return {stage:0,remaining:teams,pending:null,winner:null,history:[],roundWinners:[]}}
 function phase3Init(s){
  if(!s.cup||!Array.isArray(s.cup.remaining))s.cup=p3Cup();
