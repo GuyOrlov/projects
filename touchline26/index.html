@@ -265,7 +265,7 @@ function mappedRole(raw){const p=String(raw||'').toLowerCase();if(/goalkeep|keep
 function safeName(raw){return String(raw||'').replace(/[<>\"'&]/g,'').replace(/\s+/g,' ').trim().slice(0,65)}
 async function sportsDB(path){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),9500);try{const r=await fetch(SPORTSDB+path,{signal:controller.signal});if(!r.ok)throw Error('TheSportsDB HTTP '+r.status);return await r.json()}finally{clearTimeout(timeout)}}
 async function syncRealRoster(){
- if(!state||syncing||state.round!==0||state.activeMatch||state.cup?.history?.length||state.squad.some(p=>p.careerStats?.apps))return;
+ if(!state||syncing||state.rosterImported||state.round!==0||state.activeMatch||state.cup?.history?.length||state.squad.some(p=>p.careerStats?.apps))return;
  const clubId=state.clubId,year=state.year;syncing=true;apiStatus='Connecting to TheSportsDB for real player names…';render();
  try{
   const club=CLUBS[clubId],teams=await sportsDB('searchteams.php?t='+encodeURIComponent(club.lookup));
@@ -283,7 +283,7 @@ async function syncRealRoster(){
   }
   if(!fresh.length)throw Error('No usable player names returned');
   // Prevent a late API response from replacing a career already in progress.
-  if(!state||state.clubId!==clubId||state.year!==year||state.round!==0||state.activeMatch)return;
+  if(!state||state.clubId!==clubId||state.year!==year||state.round!==0||state.activeMatch||state.rosterImported)return;
   const reserve=state.squad.filter(p=>!p.realName),roster=[...fresh];
   for(const p of reserve){if(roster.length>=18)break;const cap={GK:2,DEF:6,MID:6,FWD:4}[p.pos];if(roster.filter(x=>x.pos===p.pos).length<cap)roster.push(p)}
   while(roster.length<18)roster.push(makePlayer(['GK','DEF','MID','FWD'][roster.length%4],club.power));
@@ -533,7 +533,7 @@ async function rosterImport(input){
   }
   if(fresh.filter(p=>p.pos==='GK').length<2||fresh.filter(p=>p.pos==='DEF').length<4||fresh.filter(p=>p.pos==='MID').length<3||fresh.filter(p=>p.pos==='FWD').length<2)throw Error('Unbalanced squad');
   if(!confirm('Replace the initial squad with these player names? Game ratings remain simulated.'))return;
-  state.squad=fresh;state.playerInstructions={};state.pitchPositions={};state.apiCount=0;autoLineup(true);
+  state.squad=fresh;state.rosterImported=true;state.playerInstructions={};state.pitchPositions={};state.apiCount=0;autoLineup(true);
   p3Inbox('Squad',fresh.length+' player names imported for '+club+'. Their accuracy has not been verified.');
   flash='Squad imported successfully.';save();render();
  }catch(e){flash='Import failed: use 11–30 unique players, a matching club name and valid positions (at least 2 GK, 4 DEF, 3 MID, 2 FWD).';render()}
