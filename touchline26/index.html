@@ -79,6 +79,62 @@ input:focus-visible{outline:3px solid #e5f58d;outline-offset:2px}.money-grid{dis
 .goal-overlay{position:absolute;z-index:30;top:32%;left:5%;right:5%;text-align:center;border:2px solid #ffe591;border-radius:18px;padding:15px 9px;background:linear-gradient(145deg,#17372ff5,#071a1af7);box-shadow:0 9px 25px #000a;pointer-events:none;animation:goalPop .32s ease-out}
 .goal-overlay[hidden]{display:none!important}.goal-overlay strong{display:block;font:900 clamp(31px,9vw,52px)/1 'Barlow Condensed',system-ui,sans-serif;color:#ffe275;letter-spacing:2px}.goal-overlay span{display:block;margin-top:7px;color:#f5fff5;font-weight:800;font-size:14px;overflow-wrap:anywhere}.goal-overlay .goal-team{font-size:11px;color:#e2efcf}.goal-overlay .goal-assist{font-size:12px;color:#d7e9d4}
 .goal-announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}@keyframes goalPop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}@media(prefers-reduced-motion:reduce){.goal-overlay{animation:none}}
+
+/* Touchline Desktop & Tablet Edition. Phones show a horizontally navigable tablet canvas, not a stacked mobile app. */
+:root{font-family:"DM Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px}
+html,body{min-height:100%;background:#07151a}
+.tl26{max-width:none;width:100%;min-height:100vh;padding:0;background:#07151a}
+.app-shell{display:grid;grid-template-columns:218px minmax(0,1fr);width:100%;max-width:1800px;min-height:100vh;margin:0 auto;border-left:1px solid #203b40;border-right:1px solid #203b40}
+.app-sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:13px;min-width:0;padding:23px 13px 18px;background:linear-gradient(160deg,#133a3b,#0c232b 53%,#091b21);border-right:1px solid #375657;scrollbar-width:thin}
+.app-sidebar .header{display:flex;align-items:flex-start;flex-direction:column;gap:13px;margin:0 3px 14px}
+.app-sidebar .brandname{font-size:29px}.app-sidebar .brandmark{width:42px;height:42px}
+.app-sidebar .season{font-size:11px;padding:8px 10px}
+.sidebar-heading{color:#92b8ad;font-weight:900;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;padding:0 11px}
+.app-sidebar .tabs{display:flex;flex-direction:column;align-items:stretch;overflow:visible;background:none;border:0;padding:0;gap:5px;margin:0}
+.app-sidebar .tab{display:flex;align-items:center;gap:12px;min-width:0;flex:none;text-align:left;padding:12px 13px;min-height:45px;border-radius:11px;font-size:14px;line-height:1.2;white-space:normal}
+.app-sidebar .tab .tab-symbol{display:inline-grid;place-items:center;width:23px;flex:0 0 23px;font-size:18px;font-weight:900}
+.app-sidebar .tab:hover{background:#21433d;color:white}.app-sidebar .tab.active{background:#315e4b;box-shadow:inset 3px 0 0 #e5fa88;color:#fff}
+.sidebar-footer{margin-top:auto;border-top:1px solid #2e4a48;padding:16px 3px 0}.sidebar-footer .btn{width:100%}
+.sidebar-footer .tiny{display:block;line-height:1.5;color:#97b6b1;margin-top:9px}
+.app-main{min-width:0;padding:25px clamp(18px,2.5vw,38px) 20px}
+.workspace-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:19px;padding-bottom:15px;border-bottom:1px solid #29464a}
+.workspace-head h1{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-size:clamp(27px,2.7vw,40px);line-height:1.1;margin:3px 0 0;letter-spacing:.3px}
+.workspace-status{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.workspace-status .pill{font-size:12px;padding:8px 10px}
+.app-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(225px,285px);gap:18px;align-items:start}
+.app-page{min-width:0}.app-context{position:sticky;top:23px;min-width:0}
+.app-context .panel{padding:16px;margin-bottom:13px;border-radius:15px}
+.app-context .panel h2{font-size:16px}.context-fixture{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:6px;margin:13px 0}
+.context-fixture strong{font-family:"Barlow Condensed",sans-serif;font-size:23px;letter-spacing:.3px}
+.context-fixture span{color:#e9eddb;font-size:11px}
+.context-stat{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #294640;font-size:13px}
+.context-stat:last-child{border:0}.context-stat b{color:#f6de8b;font-size:15px}
+.context-news{padding:7px 0;border-bottom:1px solid #294640;color:#bdd2c7;font-size:12px;line-height:1.4}
+.context-news:last-child{border:0}
+.app-page>.panel,.app-page>.hero,.app-page>.season-end{margin-bottom:17px}
+.app-page .hero{padding:25px}.app-page .stats{gap:13px}
+.app-page .live-panel{max-width:none}.app-page .live-pitch{width:100%;max-width:570px;aspect-ratio:.82}
+.app-page .pitch-wrap{max-width:590px}
+.app-page .market{grid-template-columns:repeat(3,minmax(0,1fr))}
+.app-page .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.app-page .tactics-extra{grid-template-columns:repeat(3,minmax(0,1fr))}
+.app-page .live-dot{width:27px;height:27px;font-size:11px}
+.app-page .live-ball{width:12px;height:12px}
+.app-page .live-score{font-size:23px}.app-page .live-score b{font-size:41px}
+.app-page .league{min-width:450px;font-size:14px}
+.app-page .panel h2{font-size:19px}
+.app-page .note-line,.app-page .p3-note,.app-context .note-line{font-size:13px;line-height:1.6}
+.app-page .btn{font-size:14px}.app-page .btn.sm{font-size:12px}
+.app-page .commentary{font-size:14px;min-height:55px}
+.app-page .pitch-player .surname{font-size:10px}
+.app-page .footer{margin-top:23px}
+.app-splash{max-width:1280px;margin:0 auto;padding:30px 32px}
+.app-splash .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.app-splash .hero{padding:33px}.app-splash .hero h1{font-size:54px}
+@media(max-width:1260px){.app-shell{grid-template-columns:196px minmax(0,1fr)}.app-columns{grid-template-columns:minmax(0,1fr) 235px;gap:14px}.app-main{padding:22px 18px}.app-page .market{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1080px){.app-context{display:none}.app-columns{grid-template-columns:minmax(0,1fr)}.app-shell{grid-template-columns:188px minmax(0,1fr)}.app-page .live-pitch{max-width:620px}.app-page .pitch-wrap{max-width:610px}}
+@media(max-width:760px){html,body{overflow-x:auto}.app-shell{width:900px;min-width:900px;grid-template-columns:184px minmax(0,1fr)}.app-main{padding:20px 20px}.workspace-head h1{font-size:30px}.app-splash{width:900px;min-width:900px;padding:22px}.app-splash .grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.app-sidebar .tab{transition:none}}
+
 </style>
 </head>
 <body>
@@ -632,7 +688,7 @@ function sorted(){return [...state.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(
 function rank(){return sorted().findIndex(t=>t.id===state.clubId)+1}
 function crest(id,small=false){let c=CLUBS[id];return '<span class="crest" style="background:'+c.color+';'+(small?'width:25px;height:25px;border-radius:8px;font-size:9px':'')+'">'+c.short.slice(0,2)+'</span>'}
 function heading(){let c=CLUBS[state.clubId];return '<div class="header"><div class="brand"><div class="brandmark">⚽</div><div><div class="eyebrow">YOUR CLUB · '+c.short+'</div><div class="brandname">TOUCHLINE <b>26</b></div></div></div><div class="season">'+state.year+'/'+String(state.year+1).slice(-2)+' SEASON</div></div>'}
-function renderSplash(){root.innerHTML='<div class="header"><div class="brand"><div class="brandmark">⚽</div><div><div class="eyebrow">FOOTBALL MANAGEMENT · PHASE 2</div><div class="brandname">TOUCHLINE <b>26</b></div></div></div><span class="season">2026/27</span></div><section class="hero"><div class="eyebrow accent">THE DUGOUT IS YOURS</div><h1>Build a club.<br>Win the league.</h1><p>Manage one of 20 real Premier League clubs in a 38-match league. Real player names load when the free sports API responds.</p></section><section class="panel"><div class="panel-head"><h2>Choose your club</h2><span class="pill">20 teams</span></div><div class="grid">'+CLUBS.map((c,i)=>'<button type="button" class="club" data-action="choose" data-id="'+i+'">'+crest(i)+'<strong>'+c.name+'</strong><small>Squad strength '+c.power+'</small><span class="club-bottom"><span>'+price(c.cash)+' budget</span><span class="accent">SELECT →</span></span></button>').join('')+'</div></section><p class="footer">Independent 20-club management simulator · Real club names · Fictional match simulation · No account needed</p>'}
+function renderSplash(){root.innerHTML='<div class="app-splash"><div class="header"><div class="brand"><div class="brandmark">⚽</div><div><div class="eyebrow">FOOTBALL MANAGEMENT · DESKTOP EDITION</div><div class="brandname">TOUCHLINE <b>26</b></div></div></div><span class="season">2026/27</span></div><section class="hero"><div class="eyebrow accent">THE DUGOUT IS YOURS</div><h1>Build a club.<br>Win the league.</h1><p>Manage one of 20 real Premier League clubs in a 38-match league. Real player names load when the free sports API responds.</p></section><section class="panel"><div class="panel-head"><h2>Choose your club</h2><span class="pill">20 teams</span></div><div class="grid">'+CLUBS.map((c,i)=>'<button type="button" class="club" data-action="choose" data-id="'+i+'">'+crest(i)+'<strong>'+c.name+'</strong><small>Squad strength '+c.power+'</small><span class="club-bottom"><span>'+price(c.cash)+' budget</span><span class="accent">SELECT →</span></span></button>').join('')+'</div></section><p class="footer">Independent 20-club management simulator · Real club names · Fictional match simulation · No account needed</p></div>'}
 function resultBox(){if(!state.lastMatch)return '';const m=state.lastMatch;const mine=state.clubId;const scored=m.home===mine?m.hg:m.ag,conceded=m.home===mine?m.ag:m.hg;return '<section class="match-result"><div class="eyebrow">'+(m.competition==='cup'?'TOUCHLINE NATIONAL CUP':'YOUR LAST MATCH · ROUND '+m.round)+'</div><div class="large">'+m.hg+' — '+m.ag+'</div><strong>'+CLUBS[m.home].name+' vs '+CLUBS[m.away].name+'</strong><p>'+(scored>conceded?'Three points in the bag!':scored===conceded?'The points are shared.':'A tough result. Time to regroup.')+' · Possession '+m.possession+'%</p></section>'}
 function nextFixture(){return state.round<state.fixtures.length?state.fixtures[state.round].find(([h,a])=>h===state.clubId||a===state.clubId):null}
 function home(){const c=CLUBS[state.clubId],f=nextFixture();let next=f?f[0]===state.clubId?f[1]:f[0]:null;let content='<section class="hero"><div class="eyebrow accent">MANAGER DASHBOARD</div><h1>'+c.name+'</h1><p>'+(state.round<state.fixtures.length?'League round '+(state.round+1)+' of 38 · '+(f[0]===state.clubId?'Home':'Away')+' against '+CLUBS[next].name:'Season complete · Review the final standings or start another season.')+'</p></section><div class="stats"><div class="stat"><small>LEAGUE POSITION</small><strong>'+rank()+'<span class="muted" style="font-size:12px"> / 20</span></strong></div><div class="stat"><small>TRANSFER BUDGET</small><strong style="font-size:19px">'+price(state.cash)+'</strong></div><div class="stat"><small>POINTS</small><strong>'+state.table[state.clubId].pts+'</strong></div></div>';
@@ -664,7 +720,29 @@ function transfers(){
  return html;
 }
 function league(){let t=sorted();return '<section class="panel"><div class="panel-head"><h2>Premier League · '+state.year+'/'+String(state.year+1).slice(-2)+'</h2><span class="pill">'+state.round+' / 38 ROUNDS</span></div><div class="table-wrap"><table class="league"><thead><tr><th>#</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>GD</th><th>Pts</th></tr></thead><tbody>'+t.map((x,i)=>'<tr class="'+(x.id===state.clubId?'mine':'')+'"><td>'+(i+1)+(i>=17?' ↓':'')+'</td><td>'+CLUBS[x.id].name+'</td><td>'+x.p+'</td><td>'+x.w+'</td><td>'+x.d+'</td><td>'+((x.gf-x.ga)>0?'+':'')+(x.gf-x.ga)+'</td><td><b>'+x.pts+'</b></td></tr>').join('')+'</tbody></table></div><p class="note-line">38 fixtures per team (home and away). Positions 18–20 indicate the relegation zone. Future division changes are not yet simulated; this career continues in the same 20-team league.</p></section><section class="panel"><h2>Recent results</h2>'+(state.results.length?state.results.slice(-10).reverse().map(r=>'<div class="result-line"><span>'+CLUBS[r.home].short+' '+r.hg+'–'+r.ag+' '+CLUBS[r.away].short+'</span><span class="muted">Round '+r.round+'</span></div>').join(''):'<div class="empty">No matches played yet.</div>')+'</section>'}
-function render(){if(!state){renderSplash();return}root.innerHTML=heading()+(flash?'<div class="toast" role="status">'+flash+'</div>':'')+'<nav class="tabs" aria-label="Game sections">'+[['home','Home'],['match','Match'],['pitch','Pitch'],['squad','Squad'],['transfers','Transfers'],['youth','Academy'],['finances','Finances'],['league','League'],['cup','Cups'],['staff','Staff'],['career','Career']].map(([id,name])=>'<button class="tab '+(tab===id?'active':'')+'" data-action="tab" data-id="'+id+'" aria-current="'+(tab===id?'page':'false')+'">'+name+'</button>').join('')+'</nav>'+(tab==='home'?home():tab==='match'?matchUI():tab==='pitch'?pitchView():tab==='squad'?squad():tab==='transfers'?transfers():tab==='youth'?youthUI():tab==='finances'?financeUI():tab==='cup'?cupUI():tab==='staff'?staffUI():tab==='career'?careerUI():league())+'<div class="buttonrow" style="justify-content:center;margin-top:15px"><button class="btn ghost sm" data-action="reset">↻ Restart game</button></div><p class="footer">Autosave · 20 real club names · Cup, finances and match results are simulated · Unofficial fan game</p>'}
+
+function workspaceAside(){
+ const me=state.table[state.clubId],fixture=state.activeMatch?[state.activeMatch.home,state.activeMatch.away]:nextFixture();
+ const names=fixture?'<div class="context-fixture"><strong>'+CLUBS[fixture[0]].short+'</strong><span>VS</span><strong>'+CLUBS[fixture[1]].short+'</strong></div>':'<p class="p3-note">Season complete</p>';
+ const opponent=fixture?CLUBS[fixture[fixture[0]===state.clubId?1:0]].name:'No further fixture';
+ const fitness=state.squad.length?Math.round(state.squad.reduce((a,p)=>a+p.fitness,0)/state.squad.length):0;
+ return '<section class="panel"><div class="eyebrow accent">MATCH CENTRE</div><h2>'+(state.activeMatch?'Live match':'Next fixture')+'</h2>'+names+'<p class="p3-note" style="text-align:center">'+(state.activeMatch?'Match in progress. Select Match for live updates.':'Against '+opponent)+'</p><button class="btn secondary full" data-action="tab" data-id="'+(state.activeMatch?'match':'pitch')+'">'+(state.activeMatch?'View live match →':'Set your tactics →')+'</button></section>'+
+ '<section class="panel"><div class="eyebrow accent">CLUB OVERVIEW</div><div class="context-stat"><span>League position</span><b>'+rank()+' / 20</b></div><div class="context-stat"><span>Points</span><b>'+me.pts+'</b></div><div class="context-stat"><span>Transfer budget</span><b>'+price(state.cash)+'</b></div><div class="context-stat"><span>Average fitness</span><b>'+fitness+'%</b></div><div class="context-stat"><span>Board confidence</span><b>'+state.board.confidence+'%</b></div></section>'+
+ '<section class="panel"><div class="eyebrow accent">LATEST NEWS</div>'+(state.news.slice(0,3).map(x=>'<div class="context-news">'+goalEsc(x)+'</div>').join('')||'<p class="p3-note">No updates yet.</p>')+'<button class="btn ghost full sm spaced" data-action="tab" data-id="career">Open inbox →</button></section>';
+}
+function render(){
+ if(!state){renderSplash();return}
+ const items=[['home','⌂','Home'],['match','◉','Match Centre'],['pitch','▤','Tactics Pitch'],['squad','♟','Squad'],['transfers','⇄','Transfers'],['youth','★','Academy'],['finances','£','Finances'],['league','▥','League'],['cup','🏆','Cups'],['staff','⚙','Staff'],['career','▣','Career & Saves']];
+ const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI};
+ const title=items.find(x=>x[0]===tab)?.[2]||'Home',view=(views[tab]||home)();
+ root.innerHTML='<div class="app-shell"><aside class="app-sidebar">'+heading()+
+ '<div class="sidebar-heading">Management</div><nav class="tabs" aria-label="Game sections">'+items.map(([id,symbol,label])=>'<button class="tab '+(tab===id?'active':'')+'" data-action="tab" data-id="'+id+'" aria-current="'+(tab===id?'page':'false')+'"><span class="tab-symbol" aria-hidden="true">'+symbol+'</span><span>'+label+'</span></button>').join('')+'</nav>'+
+ '<div class="sidebar-footer"><button class="btn ghost sm" data-action="tab" data-id="career">💾 Career & backups</button><button class="btn danger sm spaced" data-action="reset">↻ Restart game</button><span class="tiny">Unofficial manager simulator<br>Local career autosave</span></div></aside>'+
+ '<main class="app-main"><header class="workspace-head"><div><div class="eyebrow accent">TOUCHLINE 26 · MANAGEMENT CENTRE</div><h1>'+title+'</h1></div><div class="workspace-status"><span class="pill">'+state.year+'/'+String(state.year+1).slice(-2)+'</span><span class="pill">Round '+Math.min(state.round+1,38)+' / 38</span></div></header>'+
+ (flash?'<div class="toast" role="status">'+flash+'</div>':'')+
+ '<div class="app-columns"><div class="app-page">'+view+'</div><aside class="app-context" aria-label="Club overview">'+workspaceAside()+'</aside></div>'+
+ '<p class="footer">Autosave · 20 club names · All match results and player values simulated · Independent fan game</p></main></div>';
+}
 function lineStrength(){const starters=state.squad.filter(p=>state.starting.includes(p.id));const avg=starters.reduce((sum,p)=>sum+lineupScore(p),0)/Math.max(starters.length,1);return avg-(starters.length<11?(11-starters.length)*3:0)}
 function poisson(lambda){let limit=Math.exp(-lambda),p=1,k=0;do{k++;p*=Math.random()}while(p>limit&&k<10);return k-1}
 function simulate(homeId,awayId){let hp=homeId===state.clubId?lineStrength():CLUBS[homeId].power+n(-3,3);let ap=awayId===state.clubId?lineStrength():CLUBS[awayId].power+n(-3,3);let hx=clamp(1.35+(hp-ap)*.052+.18,.2,3.6),ax=clamp(1.12+(ap-hp)*.052,.2,3.6);const shape=pitchEffects(),inst=instructionsEffects();if(homeId===state.clubId){hx+=shape.attack+inst.attack;ax+=shape.risk+inst.risk}else if(awayId===state.clubId){ax+=shape.attack+inst.attack;hx+=shape.risk+inst.risk}if(homeId===state.clubId){if(state.mentality==='attacking'){hx+=.33;ax+=.20}else if(state.mentality==='defensive'){hx-=.18;ax-=.28}}if(awayId===state.clubId){if(state.mentality==='attacking'){ax+=.33;hx+=.20}else if(state.mentality==='defensive'){ax-=.18;hx-=.28}}let hg=poisson(Math.max(.15,hx)),ag=poisson(Math.max(.15,ax));return {home:homeId,away:awayId,hg,ag,round:state.round+1}}
