@@ -578,6 +578,7 @@ function tallyCareer(m){
  const ownGoals=m.goalEvents||[],involved=new Set([...m.onPitch,...m.used]);
  for(const id of involved){const p=state.squad.find(x=>x.id===id);if(!p)continue;
   const career=statsOf(p),season=statSeason(p);career.apps++;season.apps++;
+  if(p.pos==='GK'){career.saves=(career.saves||0)+(m.saves?.us||0)}
   const sub=m.subs.find(x=>x.out===id),enter=m.subs.find(x=>x.in===id);
   const played=Math.max(1,(sub?.minute??90)-(enter?.minute??0));
   career.minutes+=played;career.ratingsTotal+=Number(m.ratings[id]||6.3);
@@ -594,7 +595,7 @@ function tallyCareer(m){
 function playerProfileUI(){
  const p=state.squad.find(x=>x.id===profilePlayerId)||state.squad[0];if(!p)return '<section class="panel">No player selected.</section>';
  const st=statsOf(p),avg=st.apps? (st.ratingsTotal/st.apps).toFixed(1):'—',season=statSeason(p);
- return '<section class="panel"><div class="panel-head"><h2>'+goalEsc(p.name)+'</h2><span class="pill">'+p.pos+' · #'+p.number+'</span></div><p class="p3-note">'+p.age+' years · '+goalEsc(p.nationality)+' · '+(p.realName?'Sports provider name':p.dataSource==='user-import'?'User-imported name (unverified)':'Game-generated player')+'</p><div class="stats"><div class="stat"><small>RATING</small><strong>'+p.rating+'</strong></div><div class="stat"><small>POTENTIAL</small><strong>'+p.potential+'</strong></div><div class="stat"><small>FITNESS</small><strong>'+p.fitness+'%</strong></div></div><h2>Career record</h2><div class="p4-record">'+[['Appearances',st.apps],['Goals',st.goals],['Assists',st.assists],['Clean sheets',st.clean],['Minutes',st.minutes],['Average match rating',avg],['Yellow / red cards',st.yellows+' / '+st.reds]].map(([name,value])=>'<div><span>'+name+'</span><b>'+value+'</b></div>').join('')+'</div><h2>Current season</h2><p class="p3-note">'+state.year+'/'+String(state.year+1).slice(-2)+': '+season.apps+' appearances · '+season.goals+' goals · '+season.assists+' assists · '+season.clean+' clean sheets</p><h2>Contract</h2><p class="p3-note">'+p.contract+' years remaining · '+currencyK(p.wage)+' weekly wages · Estimated value '+price(p.fee)+'. Player values and ratings are simulated.</p><button class="btn secondary" data-action="tab" data-id="squad">← Back to squad</button></section>';
+ return '<section class="panel"><div class="panel-head"><h2>'+goalEsc(p.name)+'</h2><span class="pill">'+p.pos+' · #'+p.number+'</span></div><p class="p3-note">'+p.age+' years · '+goalEsc(p.nationality)+' · '+(p.realName?'Sports provider name':p.dataSource==='user-import'?'User-imported name (unverified)':'Game-generated player')+'</p><div class="stats"><div class="stat"><small>RATING</small><strong>'+p.rating+'</strong></div><div class="stat"><small>POTENTIAL</small><strong>'+p.potential+'</strong></div><div class="stat"><small>FITNESS</small><strong>'+p.fitness+'%</strong></div></div><h2>Career record</h2><div class="p4-record">'+[['Appearances',st.apps],['Goals',st.goals],['Assists',st.assists],['Clean sheets',st.clean],['Minutes',st.minutes],['Average match rating',avg],['Yellow / red cards',st.yellows+' / '+st.reds],['Goalkeeper saves',st.saves||0]].map(([name,value])=>'<div><span>'+name+'</span><b>'+value+'</b></div>').join('')+'</div><h2>Current season</h2><p class="p3-note">'+state.year+'/'+String(state.year+1).slice(-2)+': '+season.apps+' appearances · '+season.goals+' goals · '+season.assists+' assists · '+season.clean+' clean sheets</p><h2>Contract</h2><p class="p3-note">'+p.contract+' years remaining · '+currencyK(p.wage)+' weekly wages · Estimated value '+price(p.fee)+'. Player values and ratings are simulated.</p><button class="btn secondary" data-action="tab" data-id="squad">← Back to squad</button></section>';
 }
 function squadDepthUI(){
  const roles=[['GK','Goalkeepers'],['DEF','Defenders'],['MID','Midfielders'],['FWD','Forwards']];
@@ -661,6 +662,7 @@ function p5Init(s){
  for(const role of Object.keys(P5_COACHES))s.coaches[role]=clamp(Number(s.coaches[role])||1,1,5);
  s.career.badge=clamp(Number(s.career.badge)||0,0,3);
  s.freeAgents=Array.isArray(s.freeAgents)?s.freeAgents:p5FreeAgents(s.year,CLUBS[s.clubId].power);
+ s.transferPolicy=s.transferPolicy||'open';
  s.transferNews=Array.isArray(s.transferNews)?s.transferNews:[];
  s.futureSignings=Array.isArray(s.futureSignings)?s.futureSignings:[];
  s.aiMarket=Array.isArray(s.aiMarket)?s.aiMarket:[];
@@ -727,9 +729,11 @@ function p5LoanBack(id){
  p3Inbox('Transfers',p.name+' purchased for '+price(fee)+' and left at his former club until next season.');flash='Loan-back deal agreed.';save();render();
 }
 function p5NextSeason(){
- for(const p of state.futureSignings){p.loanBack=false;statsOf(p);state.squad.push(p);state.roles[p.id]=P5_ROLES[p.pos][0][0]}
- if(state.futureSignings.length)p3Inbox('Transfers',state.futureSignings.length+' loan-back signing(s) joined your first team.');
- state.futureSignings=[];state.freeAgents=p5FreeAgents(state.year,CLUBS[state.clubId].power);state.aiMarket=[];state.assistant.lastRound=-1;
+ const waiting=[];let arrivals=0;
+ for(const p of state.futureSignings){if(state.squad.length>=30){waiting.push(p);continue}p.loanBack=false;statsOf(p);state.squad.push(p);state.roles[p.id]=P5_ROLES[p.pos][0][0];arrivals++}
+ if(arrivals)p3Inbox('Transfers',arrivals+' loan-back signing(s) joined your first team.');
+ if(waiting.length)p3Inbox('Transfers',waiting.length+' loan-back signings await a free squad space.');
+ state.futureSignings=waiting;state.freeAgents=p5FreeAgents(state.year,CLUBS[state.clubId].power);state.aiMarket=[];state.assistant.lastRound=-1;
  if(state.international.nation) p5InternationalSchedule(true);
 }
 function p5ScoutingReport(){
@@ -993,6 +997,30 @@ function runLivePass(m){
  }
  replayCapture(m);
 }
+
+function p5Dribble(m){
+ const key=m.carrier,player=m.actors?.[key];if(!key||!player||Math.random()>.14)return;
+ const side=m.possessionSide,other=side==='us'?'them':'us',dir=side==='us'?-1:1;
+ const opponents=liveActiveKeys(m,other).filter(x=>m.actors[x]).sort((a,b)=>liveDistance(m.actors[a],player)-liveDistance(m.actors[b],player));
+ const marker=opponents[0],gap=marker?liveDistance(m.actors[marker],player):100;
+ const rating=side==='us'?state.squad.find(p=>'u:'+p.id===key)?.rating||70:CLUBS[m.opp].power;
+ const steal=gap<10&&Math.random()<clamp(.37-(rating-70)*.009,.17,.51);
+ if(steal){m.carrier=marker;m.ball={...m.actors[marker]};m.possessionSide=other;m.lastPass=null;m.stats[other].tackles++;m.actionText=livePlayerName(m,marker)+' wins the ball from '+livePlayerName(m,key);logMatch(m,m.actionText,'tackle');return}
+ const run=liveClamp({x:player.x+n(-4,4),y:clamp(player.y+dir*n(2,5),9,91)});
+ m.actors[key]=run;m.ball={...run};m.lastPass=null;m.actionText=livePlayerName(m,key)+' drives forward with the ball';
+ replayCapture(m);
+}
+function p5Keepers(m,side,on,chance){
+ if(!on)return false;
+ const defending=side==='us'?'them':'us',gkId=defending==='us'?m.onPitch.find(id=>state.squad.find(p=>p.id===id)?.pos==='GK'):null;
+ const keeper=gkId?state.squad.find(p=>p.id===gkId):null;
+ const strength=keeper?keeper.rating:CLUBS[m.opp].power;
+ const coach=defending==='us'?state.coaches.goalkeeping:1;
+ const saveChance=clamp(.27+(strength-72)*.007+(coach-1)*.014-chance*.22,.13,.43);
+ if(Math.random()<saveChance){m.saves=m.saves||{us:0,them:0};m.saves[defending]++;if(keeper)m.ratings[keeper.id]=clamp((m.ratings[keeper.id]||6.3)+.08,4,10);return true}
+ return false;
+}
+
 function attemptLiveShot(m){
  if(!m.carrier||!m.actors[m.carrier])return;
  const side=m.possessionSide,pos=m.actors[m.carrier],ours=side==='us';
@@ -1004,7 +1032,8 @@ function attemptLiveShot(m){
  const on=Math.random()<clamp(.52+(ours?matchLineupRating(m)-CLUBS[m.opp].power:CLUBS[m.opp].power-matchLineupRating(m))*.006,.32,.75);
  if(on)st.on++;
  const shooter=m.carrier,who=livePlayerName(m,shooter);
- const isGoal=on&&Math.random()<chance*1.5;
+ const saved=p5Keepers(m,side,on,chance);
+ const isGoal=on&&!saved&&Math.random()<chance*1.5;
  if(ours)m.ratings[shooter.slice(2)]=clamp((m.ratings[shooter.slice(2)]||6.3)+(isGoal?1.2:on?.05:-.025),4,10);
  if(isGoal){
   const pass=m.lastPass;
@@ -1117,6 +1146,7 @@ function liveStep(){
  aiMatchChanges(m);
  if(m.minute%10===0){const fat=instructionsEffects().fatigue;for(const id of m.onPitch){if(m.red.includes(id)||m.hurt.includes(id))continue;m.fitness[id]=clamp((m.fitness[id]||80)-n(1,3)*fat*(state.playerInstructions?.[id]==='attack'?1.16:state.playerInstructions?.[id]==='hold'?.88:1),32,100)}}
  runLivePass(m);
+ p5Dribble(m);
  attemptLiveShot(m);
  if(m.minute>10&&Math.random()<.014){const eligible=m.onPitch.filter(id=>!m.red.includes(id)&&!m.hurt.includes(id)),id=eligible[n(0,eligible.length-1)];if(id){let p=state.squad.find(x=>x.id===id);if(p){if(m.yellow.includes(id)){m.red.push(id);m.ratings[id]=clamp((m.ratings[id]||6.3)-1.1,4,10);logMatch(m,p.name+' receives a second yellow and is sent off.','red')}else{m.yellow.push(id);m.ratings[id]=clamp((m.ratings[id]||6.3)-.15,4,10);logMatch(m,p.name+' is shown a yellow card.','card')}if(m.carrier==='u:'+id)restartLivePossession(m,'them')}}}
  if(m.minute>12&&Math.random()<.009*(1-.16*((state.staff?.medical||1)-1))){const eligible=m.onPitch.filter(id=>!m.red.includes(id)&&!m.hurt.includes(id));let id=eligible[n(0,eligible.length-1)];if(id){m.hurt.push(id);logMatch(m,state.squad.find(p=>p.id===id).name+' is injured! Consider substituting.','injury');if(m.carrier==='u:'+id)restartLivePossession(m,'them');m.paused=true;stopMatchTimer();save();render();return}}
@@ -1143,7 +1173,7 @@ function finishLiveMatch(){
  if(m.competition!=='cup'){const results=games.map(([h,a])=>(h===m.home&&a===m.away)?{home:h,away:a,hg:score[0],ag:score[1],round:m.round}:simulate(h,a));results.forEach(applyResult);state.results.push(...results)}
  const own=m.goals.us,opp=m.goals.them;
  const t=m.stats.us,t2=m.stats.them,poss=Math.round(100*t.poss/Math.max(1,t.poss+t2.poss));
- state.lastMatch={competition:m.competition||'league',home:m.home,away:m.away,hg:score[0],ag:score[1],round:m.round,possession:poss,detail:{us:{...t,xg:+t.xg.toFixed(2)},them:{...t2,xg:+t2.xg.toFixed(2)},goals:[...(m.goalEvents||[])],subs:[...m.subs],events:[...m.comments].reverse(),ratings:{...m.ratings},red:[...m.red],yellow:[...m.yellow],hurt:[...m.hurt],minute:90,ourHome:m.ourHome}};
+ state.lastMatch={competition:m.competition||'league',home:m.home,away:m.away,hg:score[0],ag:score[1],round:m.round,possession:poss,detail:{us:{...t,xg:+t.xg.toFixed(2)},them:{...t2,xg:+t2.xg.toFixed(2)},goals:[...(m.goalEvents||[])],saves:{...(m.saves||{us:0,them:0})},subs:[...m.subs],events:[...m.comments].reverse(),ratings:{...m.ratings},red:[...m.red],yellow:[...m.yellow],hurt:[...m.hurt],minute:90,ourHome:m.ourHome}};
  tallyCareer(m);
  for(const p of state.squad){if(p.injury)p.injury=Math.max(0,p.injury-1);if(p.suspension)p.suspension=Math.max(0,p.suspension-1);
   if(m.fitness[p.id]!=null){p.fitness=clamp(Math.round(m.fitness[p.id])-n(4,9),32,100);p.morale=clamp(p.morale+(own>opp?n(2,5):own===opp?n(-1,2):n(-5,-2)),20,100)}else p.fitness=clamp(p.fitness+n(5,9),40,100)}
@@ -1184,7 +1214,7 @@ function analysisUI(){const lm=state.lastMatch;if(!lm)return '<div class="panel"
  const d=lm.detail,us=d.us,them=d.them,events=d.events||[];
  const rates=Object.entries(d.ratings).map(([id,val])=>({p:state.squad.find(x=>x.id===id),rating:val})).filter(x=>x.p).sort((a,b)=>b.rating-a.rating).slice(0,11);
  const pos=Math.round(100*us.poss/Math.max(1,us.poss+them.poss));
- return '<section class="panel"><div class="eyebrow accent">FULL-TIME REPORT · ROUND '+lm.round+'</div><div class="live-score">'+CLUBS[lm.home].short+' <b>'+lm.hg+' – '+lm.ag+'</b> '+CLUBS[lm.away].short+'</div><p class="note-line">Statistics for your club (left) and '+CLUBS[lm.home===state.clubId?lm.away:lm.home].name+' (right). Simulated estimates, not real football statistics.</p>'+statBar('Possession',pos,100-pos,'%')+statBar('Shots',us.shots,them.shots)+statBar('On target',us.on,them.on)+statBar('Pass accuracy',Math.round(100*(us.completed||0)/Math.max(1,us.passes)),Math.round(100*(them.completed||0)/Math.max(1,them.passes)),'%')+statBar('Passes',us.passes,them.passes)+statBar('Tackles',us.tackles,them.tackles)+statBar('Expected goals',+us.xg.toFixed(2),+them.xg.toFixed(2))+'</section>'+
+ return '<section class="panel"><div class="eyebrow accent">FULL-TIME REPORT · ROUND '+lm.round+'</div><div class="live-score">'+CLUBS[lm.home].short+' <b>'+lm.hg+' – '+lm.ag+'</b> '+CLUBS[lm.away].short+'</div><p class="note-line">Statistics for your club (left) and '+CLUBS[lm.home===state.clubId?lm.away:lm.home].name+' (right). Simulated estimates, not real football statistics.</p>'+statBar('Possession',pos,100-pos,'%')+statBar('Shots',us.shots,them.shots)+statBar('On target',us.on,them.on)+statBar('Keeper saves',d.saves?.us||0,d.saves?.them||0)+statBar('Pass accuracy',Math.round(100*(us.completed||0)/Math.max(1,us.passes)),Math.round(100*(them.completed||0)/Math.max(1,them.passes)),'%')+statBar('Passes',us.passes,them.passes)+statBar('Tackles',us.tackles,them.tackles)+statBar('Expected goals',+us.xg.toFixed(2),+them.xg.toFixed(2))+'</section>'+
  replayPanel()+'<section class="panel"><h2>Goal scorers &amp; assists</h2>'+((d.goals||[]).length?d.goals.map(g=>'<div class="result-line"><span>⚽ '+g.minute+'′ · '+goalEsc(g.scorer)+' ('+goalEsc(g.club)+')<br><span class="muted">'+(g.assist?'Assist: '+goalEsc(g.assist):'Unassisted')+'</span></span></div>').join(''):'<p class="empty">No goals scored.</p>')+'</section>'+ '<section class="panel"><h2>Player ratings</h2>'+rates.map(x=>'<div class="result-line"><span>'+x.p.name+'</span><b>'+x.rating.toFixed(1)+'</b></div>').join('')+'</section>'+
  '<section class="panel"><h2>Match timeline</h2>'+events.filter(e=>['goal','card','red','injury','sub','whistle'].includes(e.kind)).slice(-16).map(e=>'<div class="result-line"><span>'+e.minute+'′ '+e.text+'</span></div>').join('')+'</section>';
 }
@@ -1241,7 +1271,7 @@ function pitchView(){
  '<div class="note-line" id="pitch-status" role="status" aria-live="polite">Tip: Move forwards closer to the opposition goal to attack more. A higher defensive line can also leave space behind.</div>'+
  '<div class="controls" style="margin:12px 0"><label>Individual player<select data-player-choice><option value="">Select a starter</option>'+state.starting.map(id=>{const p=state.squad.find(x=>x.id===id);return p?'<option value="'+id+'"'+(focusedPlayer===id?' selected':'')+'>'+p.name+' · '+p.pos+'</option>':''}).join('')+'</select></label><label>Player instruction<select data-player-instruction '+(!focusedPlayer?'disabled':'')+'>'+[['balanced','Balanced'],['attack','Push forward'],['hold','Hold position']].map(([v,label])=>'<option value="'+v+'"'+((state.playerInstructions?.[focusedPlayer]||'balanced')===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label></div>'+
 
- instructionsUI()+'<div class="buttonrow spaced"><button class="btn secondary" data-action="reset-pitch">↺ Reset positions</button><button class="btn ghost" data-action="tab" data-id="squad">Manage substitutes →</button></div>'+
+ instructionsUI()+p5IndividualTactics()+'<div class="buttonrow spaced"><button class="btn secondary" data-action="reset-pitch">↺ Reset positions</button><button class="btn ghost" data-action="tab" data-id="squad">Manage substitutes →</button></div>'+
  (state.round<state.fixtures.length?'<div class="divider"></div><button class="btn full" data-action="play">⚽ Play next match →</button>':'<p class="note-line spaced">The season is complete. Start the next season from Home.</p>')+'</section>';
 }
 function transfers(){
