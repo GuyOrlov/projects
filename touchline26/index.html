@@ -1228,8 +1228,8 @@ function finishLiveMatch(){
  state.round++;state.trained=false;
  // Preserve scouting and shortlists across matchweeks; restock the fictional transfer market periodically.
  if(state.round%4===0||state.market.length<4){const incoming=createMarket(CLUBS[state.clubId].power).slice(0,3).map(p=>{p.season=state.year;return p});state.market=[...state.market,...incoming].slice(-12)}
- p5MarketRound();state.shortlist=state.shortlist.filter(id=>state.market.some(p=>p.id===id));p5InternationalRound();
- state.activeMatch=null;advanceOtherLeague();p3BoardRound();p3AdvanceCup();if(state.round===state.fixtures.length){p3FinishSeason();completePromotion()}autoLineup();tab='match';flash='Full time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short+' · See the match analysis.';
+ state.shortlist=state.shortlist.filter(id=>state.market.some(p=>p.id===id));
+ state.activeMatch=null;p5MarketRound();p5InternationalRound();advanceOtherLeague();p3BoardRound();p3AdvanceCup();if(state.round===state.fixtures.length){p3FinishSeason();completePromotion()}autoLineup();tab='match';flash='Full time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short+' · See the match analysis.';
  save();render();
 }
 function statBar(label,a,b,suffix=''){const total=Math.max(1,a+b);return '<div class="analysis-row"><span>'+label+'</span><b>'+a+suffix+'</b><div class="analysis-track"><i style="width:'+(a/total*100).toFixed(1)+'%"></i></div><b>'+b+suffix+'</b></div>'}
