@@ -1,6 +1,6 @@
-# ⚽ Touchline 26 — Phase 3
+# ⚽ Touchline 26 — Manager Edition
 
-Independent, mobile-first football management prototype for the 2026/27 season. This release builds on Phase 2's 20-club, 38-round league, real-club names, optional TheSportsDB player-name lookup, and Phase 1's interactive positional match engine.
+Independent desktop/tablet football-management browser game. Choose a club in the fictional 2026/27 20-team Premier League or 24-team Championship simulation; manage the club across seasons with promotion and relegation. The original Phase 1–3 live 2D match engine, transfers, academy, cup, finances, club staff and local career saves are retained. Club names reflect the specified season, but game-generated players, results, costs and international competition outcomes are simulated.
 
 ## New features
 
@@ -9,7 +9,7 @@ Independent, mobile-first football management prototype for the 2026/27 season. 
 - **Club staff:** upgrade coaching, medical and scouting staff (levels 1–5); hiring costs and recurring payroll, extra training gains, better recovery/lower injury risk and discounted scouting reports.
 - **Board and inbox:** periodic simulated board confidence and expectations updates, job news and cup notifications.
 - **Save tools:** the existing browser autosave remains at `touchline26_realclubs_v2`; a manual local checkpoint plus downloadable/importable Phase 3 JSON backup help move a career to another device. *There is no cloud-save service or account synchronisation.*
-- **Mobile navigation:** accessible 11-tab grid, ensuring Cups, Staff and Career are visible without horizontal scrolling.
+- **Original Phase 3 mobile navigation (later replaced by the desktop/tablet sidebar):** accessible 11-tab grid, ensuring Cups, Staff and Career are visible without horizontal scrolling.
 
 ## Limits
 
@@ -42,7 +42,7 @@ The existing three-phase prototype now includes the following **local, simulated
 
 ### Remaining limitations
 
-This is an unofficial single-file browser simulation. It does **not** include a verified full 2026/27 squad database, official match statistics, official FA Cup or UEFA fixtures, a fully playable Championship/promotion-and-relegation system, or automatic cloud synchronisation. TheSportsDB's accessible free endpoint may provide incomplete or stale names. There is no secure online identity/storage backend for cloud sync: use **Career & Saves → Export JSON** to move your career manually to another device. The tablet-style canvas is intentionally wide on narrow phones.
+This is an unofficial single-file browser simulation. It does **not** include a verified full 2026/27 squad database, official match statistics, official FA Cup or UEFA fixtures, a playable League One, or automatic cloud synchronisation. TheSportsDB's accessible free endpoint may provide incomplete or stale names. There is no secure online identity/storage backend for cloud sync: use **Career & Saves → Export JSON** to move your career manually to another device. The tablet-style canvas is intentionally wide on narrow phones.
 
 ## Playable Championship and promotion/relegation (23 September 2026)
 
@@ -53,3 +53,17 @@ This is an unofficial single-file browser simulation. It does **not** include a 
 - The prior fictional **Touchline National Cup** remains a 20-club invitational simulation for each new season. For a Championship manager not in the selected Premier League group, their club is invited as a replacement; existing in-progress cup draws are preserved.
 
 **Scope:** A playable League One and relegation from the Championship into League One are not modelled; Championship's bottom three remain in the current 24-club simulation. Real-world squad APIs may provide incomplete or outdated player lists, and no official Championship schedule, FA Cup or cloud save backend has been connected. The football data and promotion outcomes generated *inside the game* are fictional.
+
+## Manager Edition — expanded management (23 September 2026)
+
+Seven feature areas have been added on top of the original three phases:
+
+1. **Advanced tactics and specialist roles:** short/mixed/direct passing, attacking focus through centre or flanks, goalkeeper distribution, selectable main attacking threat and creative outlet. Position-specific roles include sweeper keeper, ball-playing defender, attacking full-back, playmaker, ball-winner, winger, poacher, target forward and pressing forward. Roles and selected players affect simulated pass targeting, off-ball positioning, chance creation and stamina. The draggable tactics pitch remains. The movement is illustrative; there is no fully physical football engine.
+2. **Transfer market:** seven game-generated free agents per season (zero transfer fee, wage cap enforced), AI clubs removing some available transfer targets, an optional first-window restriction for the opening five rounds, and buy-and-loan-back deals where a signing joins the following season. Transfer fees, agents and rival transfers are simplified game simulations.
+3. **Coaching:** attacking, defensive, goalkeeping, fitness and youth specialists (levels 1–5); selectable once-per-round training focus; progressive Bronze, Silver and Gold manager qualifications based on season experience and simulated training costs. Specialist payroll is charged through club finances.
+4. **Match engine:** additional dribbling/tackling decisions, position-role movements, on-target goalkeeper saves, recorded goal build-up frames, live scoring and assist alerts, and a wide desktop match-day sidebar with statistics and substitutes.
+5. **International career:** apply for one of eight generated national squads, choose an XI, and play six simulated friendlies around the club calendar. After six friendlies, a fictional four-nation **Touchline International Invitational** with semi-finals and a final becomes available. This is *not* an official international or FIFA tournament, nor a live 2D national-team engine.
+6. **Assistant/scouting:** generate a current-round assessment of your squad's weakest position, top starter, your opponent's simulated tactical approach and club reserves. Existing scout and transfer comparison screens remain.
+7. **Manager jobs/inbox:** filtered and unread board, transfer, scouting, career and international messages; job interviews, voluntary resignation between seasons and an unemployment state that requires accepting a new job to continue. Existing league objectives and career history remain. There is no complex contract system, press conference, automatic dismissal or real-world job-vacancy service.
+
+**Compatibility:** The browser save key remains `touchline26_realclubs_v2`, and the export/import format remains version 3. Older 20-team careers migrate without resetting league results, points, budget or players. New fields receive conservative defaults; statistics predating their introduction cannot be reconstructed. Keep a JSON backup in Career & Saves before experimenting. Cloud sync remains unavailable; GitHub Pages does not supply a secure identity and save backend.
