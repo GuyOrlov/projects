@@ -343,11 +343,13 @@ function completePromotion(){
  const pl=orderTable(leagueSnapshot('premier').table),ch=orderTable(leagueSnapshot('championship').table);
  if(pl.length!==20||ch.length!==24||pl.some(t=>t.p!==38)||ch.some(t=>t.p!==46))throw Error('Both leagues must finish');
  const relegated=pl.slice(-3).map(t=>t.id),automatic=ch.slice(0,2).map(t=>t.id);
-  // Championship play-offs: positions 3–6 contest two-legged semi-finals, then a final.
-  const semis=[playoffTie(ch[2].id,ch[5].id,2),playoffTie(ch[3].id,ch[4].id,2)],final=playoffTie(semis[0].winner,semis[1].winner);
+  // 2026/27 Championship: 3rd–8th qualify; 5th v 8th and 6th v 7th play single-leg eliminators.
+  const e1=playoffTie(ch[4].id,ch[7].id),e2=playoffTie(ch[5].id,ch[6].id);
+  const rankA=ch.findIndex(x=>x.id===e1.winner),rankB=ch.findIndex(x=>x.id===e2.winner),lowest=rankA>rankB?e1.winner:e2.winner,highest=rankA>rankB?e2.winner:e1.winner;
+  const semis=[playoffTie(ch[2].id,lowest,2),playoffTie(ch[3].id,highest,2)],final=playoffTie(semis[0].winner,semis[1].winner);
  const promoted=[...automatic,final.winner],premier=[...state.members.premier.filter(id=>!relegated.includes(id)),...promoted],championship=[...state.members.championship.filter(id=>!promoted.includes(id)),...relegated];
  if(premier.length!==20||championship.length!==24||new Set([...premier,...championship]).size!==44)throw Error('Invalid league membership');
- state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[],semis,final},oldDivision:state.division,newDivision:WORLD_IDS[state.division]?state.division:premier.includes(state.clubId)?'premier':'championship'};
+ state.seasonReview={year:state.year,relegated,promoted,automatic,playoffWinner:final.winner,playoffs:{eliminators:[e1,e2],semis,final},oldDivision:state.division,newDivision:WORLD_IDS[state.division]?state.division:premier.includes(state.clubId)?'premier':'championship'};
  state.nextMembers={premier,championship};p3Inbox('Leagues',relegated.map(id=>CLUBS[id].name).join(', ')+' relegated; '+promoted.map(id=>CLUBS[id].name).join(', ')+' promoted.');
  if(state.seasonReview.oldDivision!==state.seasonReview.newDivision)p3Inbox('Career','Your club will play in the '+DIV_LABEL[state.seasonReview.newDivision]+' next season!');
  return state.seasonReview;
@@ -1826,8 +1828,8 @@ function transfers(){
 function league(){
  const displayed=viewDivision||state.division,info=leagueSnapshot(displayed),t=orderTable(info.table),isPL=displayed==='premier',isChamp=displayed==='championship';
  let html='<section class="panel"><h2>League tables · '+state.year+'/'+String(state.year+1).slice(-2)+'</h2><div class="buttonrow">'+ALL_DIVISIONS.map(d=>'<button class="btn '+(displayed===d?'':'ghost')+' sm" data-action="league-view" data-id="'+d+'">'+DIV_LABEL[d]+'</button>').join('')+'</div><p class="p3-note">'+info.round+' / '+info.fixtures.length+' rounds · '+t.length+' clubs</p><div class="table-wrap"><table class="league"><thead><tr><th>#</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>GD</th><th>Pts</th></tr></thead><tbody>'+
- t.map((row,n)=>'<tr class="'+(row.id===state.clubId?'mine':'')+'"><td>'+(n+1)+(isPL&&n>=17?' ↓':isChamp&&n<2?' ↑':isChamp&&n>=2&&n<6?' ▷':'')+'</td><td>'+goalEsc(CLUBS[row.id].name)+'</td><td>'+row.p+'</td><td>'+row.w+'</td><td>'+row.d+'</td><td>'+((row.gf-row.ga)>0?'+':'')+(row.gf-row.ga)+'</td><td><b>'+row.pts+'</b></td></tr>').join('')+'</tbody></table></div>'+
- '<p class="p3-note">'+(isPL?'Premier League bottom three are relegated to the Championship.':isChamp?'Top two are promoted; positions 3–6 enter the simulated play-offs. The Championship has no League One in this edition.':'This is a fictional national club league. Its champion wins the title; there is no cross-country promotion or relegation.')+'</p></section>';
+ t.map((row,n)=>'<tr class="'+(row.id===state.clubId?'mine':'')+'"><td>'+(n+1)+(isPL&&n>=17?' ↓':isChamp&&n<2?' ↑':isChamp&&n>=2&&n<8?' ▷':'')+'</td><td>'+goalEsc(CLUBS[row.id].name)+'</td><td>'+row.p+'</td><td>'+row.w+'</td><td>'+row.d+'</td><td>'+((row.gf-row.ga)>0?'+':'')+(row.gf-row.ga)+'</td><td><b>'+row.pts+'</b></td></tr>').join('')+'</tbody></table></div>'+
+ '<p class="p3-note">'+(isPL?'Premier League bottom three are relegated to the Championship.':isChamp?'Top two are promoted; positions 3–8 enter the simulated play-offs. The Championship has no League One in this edition.':'This is a fictional national club league. Its champion wins the title; there is no cross-country promotion or relegation.')+'</p></section>';
  html+='<section class="panel"><h2>Recent '+DIV_LABEL[displayed]+' results</h2>'+(info.results.length?info.results.slice(-10).reverse().map(m=>'<div class="result-line"><span>'+CLUBS[m.home].short+' '+m.hg+'–'+m.ag+' '+CLUBS[m.away].short+'</span><span class="muted">Round '+m.round+'</span></div>').join(''):'<p class="empty">No matches yet.</p>')+'</section>';
  return html+promotionPanel();
 }
