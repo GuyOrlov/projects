@@ -184,6 +184,14 @@ body,button,select,input{font-family:"Nunito Sans","Segoe UI",system-ui,-apple-s
 .p4-objective[disabled],.p4-profile[disabled]{opacity:.5;cursor:not-allowed}
 
 .lma-switch{display:flex;align-items:center;gap:10px;padding:12px;background:#183437;border:1px solid #47685f;border-radius:11px;font-weight:700}.lma-switch input{width:19px;height:19px;accent-color:#dbeb96}
+
+.xp-event{border-color:#5e7950}.xp-talks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.xp-talk{background:#163439;color:#e6f4ea;border:1px solid #557268;border-radius:10px;padding:12px;font-size:12px;font-weight:700;line-height:1.5;text-align:left;cursor:pointer}
+.xp-talk.selected{border:2px solid #d9ed92;background:#315341;color:#fff}
+.xp-advice{border-left:3px solid #dbe68e;background:#233c38;padding:10px 12px;border-radius:5px;color:#fff;font-size:13px;line-height:1.6}
+.xp-progress{margin:15px 0}.xp-progress>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:8px}.xp-progress span{color:#e7eab0}
+@media(max-width:1100px){.xp-talks{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -600,7 +608,7 @@ function staffUI(){let h='<section class="panel"><h2>👥 Coaching and club staf
 function careerUI(){
  const c=state.career;
  let h='<section class="panel"><h2>🧑‍💼 Manager career</h2><div class="stats"><div class="stat"><small>REPUTATION</small><strong>'+c.reputation+'</strong></div><div class="stat"><small>SEASONS</small><strong>'+c.seasons+'</strong></div><div class="stat"><small>TROPHIES</small><strong>'+c.trophies+'</strong></div></div><p class="p3-note">Current club: '+goalEsc(CLUBS[state.clubId].name)+' · Board confidence '+state.board.confidence+'% · Coaching badge: '+P5_BADGES[c.badge]+'</p></section>';
- h+=lmaSkillsUI()+boardObjectivesUI()+p5InboxPanel()+p5CareerPanel();
+ h+=xpSeasonPanel()+lmaSkillsUI()+boardObjectivesUI()+p5InboxPanel()+p5CareerPanel();
  h+='<section class="panel"><h2>Career history</h2>'+(c.history.length?c.history.slice().reverse().map(v=>'<div class="result-line"><span>'+v.year+'/'+String(v.year+1).slice(-2)+' · '+CLUBS[v.club].name+' · '+DIV_LABEL[v.division||'premier']+'</span><span>Position '+v.position+(v.cup?' · 🏆 Cup':'')+'</span></div>').join(''):'<p class="empty">Complete a season to build your record.</p>')+'</section>';
  h+='<section class="panel"><h2>💾 Back up your career</h2><p class="p3-note">Autosave is local to this browser. Use JSON export/import to transfer your career manually. No cloud-sync account is connected.</p><div class="buttonrow"><button class="btn secondary" data-action="save-export">↓ Export JSON</button><button class="btn ghost" data-action="save-snapshot">Save snapshot</button><button class="btn ghost" data-action="save-restore">Restore snapshot</button></div><label class="p3-note" for="p3-import" style="display:block;margin-top:12px">Import career backup</label><input class="p3-input" id="p3-import" type="file" accept="application/json,.json" '+(state.activeMatch?'disabled':'')+'></section>';
  return h;
@@ -1409,6 +1417,7 @@ function runLivePass(m){
   m.carrier=receiver;m.ball={...target};
   m.actionText=livePlayerName(m,from)+' → '+livePlayerName(m,receiver)+' · completed pass';
   m.lastPass={from,to:receiver,start,end:{...target},completed:true,minute:m.minute};
+  if(side==='us'&&state.instructions.passing==='short'&&m.minute%8===0)xpTacticalNote(m,'Short passing is retaining possession.');
  }else if(interceptor){
   // The recipient of an interception must actually be at the ball's endpoint.
   const landing=liveApproach(m.actors[interceptor],lane.point,Math.min(7,liveDistance(m.actors[interceptor],lane.point)));
@@ -1416,6 +1425,8 @@ function runLivePass(m){
   m.possessionSide=defending;m.stats[defending].tackles++;
   m.actionText=livePlayerName(m,interceptor)+' intercepts '+livePlayerName(m,from)+"'s pass";
   m.lastPass={from,to:interceptor,intended:receiver,start,end:{...landing},completed:false,minute:m.minute};
+  if(defending==='us'&&state.instructions.pressing==='high')xpTacticalNote(m,'Your high press forced an interception.');
+  if(side==='us'&&state.instructions.passing==='direct')xpTacticalNote(m,'A direct ball was intercepted. Consider shorter passing.');
  }else{
   restartLivePossession(m,defending);
   m.lastPass={from,to:m.carrier,intended:receiver,start,end:{...m.ball},completed:false,minute:m.minute};
@@ -1547,6 +1558,7 @@ function boardObjectivesUI(){
 function matchOdds(m){const other=CLUBS[m.opp].power+(state.lma.difficulty==='expert'?2:0),own=matchLineupRating(m)+(m.ourHome?(state.finance.stadium.facilities-1)*.3:0),shape=pitchEffects(),extra=instructionsEffects(),individual=individualEffects();let ours=1.35+(own-other)*.035+shape.attack+extra.attack+individual.attack+(m.ourHome?(lmaForecast().occupation-60)*.0015:0);
  let theirs=1.2+(other-own)*.035+shape.risk+extra.risk+individual.risk;
  if(m.ourHome)ours+=.16;else theirs+=.16;
+ if(m.talk==='inspire')ours+=.055;else if(m.talk==='calm'){ours+=.022;theirs-=.018}else if(m.talk==='demand'){ours+=.075;theirs+=.025}
  if(state.mentality==='attacking'){ours+=.29;theirs+=.17}else if(state.mentality==='defensive'){ours-=.18;theirs-=.24}
  const style=m.aiStyle||opponentStyle(m.opp);if(style==='high press'){theirs+=.13;ours+=.09}else if(style==='possession'){theirs+=.11;ours-=.06}else if(style==='counter attack'){theirs+=.15;ours+=.12}else if(style==='low block'){theirs-=.09;ours-=.12}
  if(m.aiApproach==='attacking'){theirs+=.28;ours+=.16}else if(m.aiApproach==='defensive'){theirs-=.1;ours-=.1}
@@ -1567,8 +1579,11 @@ function kickoff(){
  if(state.starting.length!==11||state.starting.some(id=>{const p=state.squad.find(x=>x.id===id);return !p||p.injury||p.suspension})){flash='You need eleven fit, unsuspended starters. Check your squad.';tab='squad';render();return}
  const cupTie=state.cup?.pending;const fixture=cupTie?[cupTie.home,cupTie.away]:nextFixture();if(!fixture)return;
  const opp=fixture[0]===state.clubId?fixture[1]:fixture[0];
+ const talk=xpTalkKey(cupTie?'cup':'league'),stakes=xpStakes(opp,cupTie?'cup':'league');
  const ratings={},fitness={};state.starting.forEach(id=>{ratings[id]=6.3;fitness[id]=state.squad.find(p=>p.id===id).fitness});
  state.activeMatch={competition:cupTie?'cup':'league',round:state.round+1,home:fixture[0],away:fixture[1],ourHome:fixture[0]===state.clubId,opp,minute:0,goals:{us:0,them:0},stats:{us:{poss:0,shots:0,on:0,passes:0,completed:0,tackles:0,xg:0},them:{poss:0,shots:0,on:0,passes:0,completed:0,tackles:0,xg:0}},comments:[],ratings,fitness,subs:[],used:[],onPitch:[...state.starting],red:[],yellow:[],hurt:[],paused:true,halftimeDone:false,speed:'normal',ball:{x:50,y:52},attacker:null,events:[],actors:{},possessionSide:fixture[0]===state.clubId?'us':'them',carrier:null,lastPass:null,actionText:'Kick-off ready',version:2};
+ state.activeMatch.talk=talk;state.activeMatch.stakes=stakes;state.activeMatch.tacticalNotes=[];state.activeMatch.highlights=[];
+ if(talk){for(const id of state.starting){const p=state.squad.find(x=>x.id===id);if(p)p.morale=clamp(p.morale+(talk==='inspire'?3:talk==='calm'?2:1),20,100)}}
  state.activeMatch.aiStyle=opponentStyle(opp);state.activeMatch.aiApproach='balanced';state.activeMatch.aiSubs=0;
  ensureLiveActors(state.activeMatch);
  logMatch(state.activeMatch,'Kick-off: '+CLUBS[fixture[0]].name+' vs '+CLUBS[fixture[1]].name,'kickoff');
@@ -1579,7 +1594,7 @@ function liveStep(){
  if(!m||m.paused||m.minute>=90)return;
  // Each tick advances one simulated minute; pass paths always start/end on actual players.
  m.minute++;
- if(m.minute===45){m.paused=true;m.actionText='Half-time. Review tactics and substitutions.';logMatch(m,'Half-time. Review tactics and make substitutions.','whistle');stopMatchTimer();save();render();return}
+ if(m.minute===45){xpTacticalNote(m,'Half-time: '+xpAssistantSuggestion(m).text);m.paused=true;m.actionText='Half-time. Review tactics and substitutions.';logMatch(m,'Half-time. Review tactics and make substitutions.','whistle');stopMatchTimer();save();render();return}
  ensureLiveActors(m);
  aiMatchChanges(m);
  if(m.minute%10===0){const fat=instructionsEffects().fatigue;for(const id of m.onPitch){if(m.red.includes(id)||m.hurt.includes(id))continue;m.fitness[id]=clamp((m.fitness[id]||80)-n(1,3)*fat*(state.playerInstructions?.[id]==='attack'?1.16:state.playerInstructions?.[id]==='hold'?.88:1),32,100)}}
@@ -1617,11 +1632,11 @@ function finishLiveMatch(){
   if(m.fitness[p.id]!=null){p.fitness=clamp(Math.round(m.fitness[p.id])-n(4,9),32,100);p.morale=clamp(p.morale+(own>opp?n(2,5):own===opp?n(-1,2):n(-5,-2)),20,100)}else p.fitness=clamp(p.fitness+n(5,9),40,100)}
  for(const id of m.hurt){let p=state.squad.find(x=>x.id===id);if(p)p.injury=Math.max(1,n(1,3)-(state.staff.medical>=4?1:0))}
  for(const id of m.red){let p=state.squad.find(x=>x.id===id);if(p)p.suspension=1}
- financialRound(m.ourHome);youthDevelopment();
+ financialRound(m.ourHome);youthDevelopment();xpReaction(m);
  if(m.competition==='cup'){p3CompleteCupMatch(m,score);state.activeMatch=null;autoLineup();tab='cup';flash='Cup full-time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short;save();render();return}
  const summary=own>opp?'Win':own===opp?'Draw':'Defeat';
  state.news.unshift(summary+' '+own+'–'+opp+' against '+CLUBS[m.opp].name+'. Your position: '+rank()+' of '+state.table.length+'.');state.news=state.news.slice(0,7);
- state.round++;state.trained=false;state.lma.nextDelegatedRound=-1;
+ state.round++;state.trained=false;state.lma.nextDelegatedRound=-1;xpResolveRequests();if(state.round<state.fixtures.length)xpPlayerRequest();
  // Preserve scouting and shortlists across matchweeks; restock the fictional transfer market periodically.
  if(state.round%4===0||state.market.length<4){const incoming=createMarket(CLUBS[state.clubId].power).slice(0,3).map(p=>{p.season=state.year;return p});state.market=[...state.market,...incoming].slice(-12)}
  state.shortlist=state.shortlist.filter(id=>state.market.some(p=>p.id===id));
@@ -1647,7 +1662,7 @@ function replayPanel(){
 }
 function matchdayAside(m){
  const bench=availableBench(m).sort((a,b)=>b.rating-a.rating),pos=Math.round(100*m.stats.us.poss/Math.max(1,m.stats.us.poss+m.stats.them.poss));
- return '<section class="panel"><div class="eyebrow accent">MATCH-DAY BENCH</div><h2>Available substitutes</h2><p class="p3-note">'+m.subs.length+'/5 subs used · '+m.minute+'′ played.</p>'+bench.slice(0,9).map(x=>'<div class="p4-bench"><span>'+goalEsc(x.name)+'</span><b>'+x.pos+' · '+Math.round(x.fitness)+'%</b></div>').join('')+'<button class="btn secondary full spaced" data-action="sub-panel" '+(m.subs.length>=5?'disabled':'')+'>Make a substitution →</button></section>'+
+ return xpMatchAtmosphere(m)+'<section class="panel"><div class="eyebrow accent">MATCH-DAY BENCH</div><h2>Available substitutes</h2><p class="p3-note">'+m.subs.length+'/5 subs used · '+m.minute+'′ played.</p>'+bench.slice(0,9).map(x=>'<div class="p4-bench"><span>'+goalEsc(x.name)+'</span><b>'+x.pos+' · '+Math.round(x.fitness)+'%</b></div>').join('')+'<button class="btn secondary full spaced" data-action="sub-panel" '+(m.subs.length>=5?'disabled':'')+'>Make a substitution →</button></section>'+
  '<section class="panel"><h2>Live statistics</h2><div class="context-stat"><span>Score</span><b>'+m.goals.us+' – '+m.goals.them+'</b></div><div class="context-stat"><span>Possession</span><b>'+pos+'%</b></div><div class="context-stat"><span>Shots</span><b>'+m.stats.us.shots+' – '+m.stats.them.shots+'</b></div><div class="context-stat"><span>Shots on target</span><b>'+m.stats.us.on+' – '+m.stats.them.on+'</b></div></section>'+
  '<section class="panel"><h2>Match commentary</h2>'+m.comments.slice(0,6).map(e=>'<div class="p4-comment"><b>'+e.minute+'′</b><span>'+goalEsc(e.text)+'</span></div>').join('')+'</section>';
 }
@@ -1704,6 +1719,7 @@ function renderSplash(){
 function resultBox(){if(!state.lastMatch)return '';const m=state.lastMatch;const mine=state.clubId;const scored=m.home===mine?m.hg:m.ag,conceded=m.home===mine?m.ag:m.hg;return '<section class="match-result"><div class="eyebrow">'+(m.competition==='cup'?'TOUCHLINE NATIONAL CUP':'YOUR LAST MATCH · ROUND '+m.round)+'</div><div class="large">'+m.hg+' — '+m.ag+'</div><strong>'+CLUBS[m.home].name+' vs '+CLUBS[m.away].name+'</strong><p>'+(scored>conceded?'Three points in the bag!':scored===conceded?'The points are shared.':'A tough result. Time to regroup.')+' · Possession '+m.possession+'%</p></section>'}
 function nextFixture(){return state.round<state.fixtures.length?state.fixtures[state.round].find(([h,a])=>h===state.clubId||a===state.clubId):null}
 function home(){const c=CLUBS[state.clubId],f=nextFixture();let next=f?f[0]===state.clubId?f[1]:f[0]:null;let content='<section class="hero"><div class="eyebrow accent">MANAGER DASHBOARD</div><h1>'+c.name+'</h1><p>'+(state.round<state.fixtures.length?'League round '+(state.round+1)+' of '+activeLeagueLength()+' · '+(f[0]===state.clubId?'Home':'Away')+' against '+CLUBS[next].name:'Season complete · Review the final standings or start another season.')+'</p></section><div class="stats"><div class="stat"><small>LEAGUE POSITION</small><strong>'+rank()+'<span class="muted" style="font-size:12px"> / '+state.table.length+'</span></strong></div><div class="stat"><small>TRANSFER BUDGET</small><strong style="font-size:19px">'+price(state.cash)+'</strong></div><div class="stat"><small>POINTS</small><strong>'+leagueTableRow(state.clubId).pts+'</strong></div></div>';
+content+=xpPreMatch()+xpRequestsPanel()+xpSeasonPanel();
 if(state.round>=state.fixtures.length){const winner=sorted()[0];content+='<section class="season-end"><div class="eyebrow">FULL-TIME · FINAL TABLE</div><h2>'+(winner.id===state.clubId?'🏆 Champions!':'🏆 '+CLUBS[winner.id].name+' win the title')+'</h2><p>You finished '+rank()+' of '+state.table.length+' with '+leagueTableRow(state.clubId).pts+' points. Bottom three clubs are marked in the league table. Your managerial career continues in the correct division next season.</p><button class="btn" data-action="new-season">Start '+(state.year+1)+'/'+String(state.year+2).slice(-2)+' season →</button></section>'}
 if(state.seasonReview?.year===state.year)content+=promotionPanel();
 if(state.cup?.pending){const tie=state.cup.pending;content+='<section class="panel p3-cup"><h2>🏆 Cup tie ready</h2><p class="p3-note">'+CLUBS[tie.home].name+' vs '+CLUBS[tie.away].name+'. Complete the cup tie before the next league match.</p><button class="btn full" data-action="play">⚽ Play National Cup tie →</button><button class="btn secondary full spaced" data-action="instant-match">⏭ Instant cup result →</button></section>'}
@@ -1753,8 +1769,8 @@ function workspaceAside(){
 }
 function render(){
  if(!state){renderSplash();return}
- const items=[['home','⌂','Home'],['match','◉','Match Centre'],['pitch','▤','Tactics Pitch'],['squad','♟','Squad'],['transfers','⇄','Transfers'],['youth','★','Academy'],['finances','£','Finances'],['league','▥','League'],['cup','🏆','Cups'],['staff','⚙','Staff'],['career','▣','Career & Saves'],['international','🌍','International'],['calendar','▦','Calendar'],['depth','◇','Depth Chart'],['statistics','▥','Statistics'],['comparison','⇆','Compare'],['settings','⚙','Settings']];
- const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI,international:internationalUI,calendar:calendarUI,depth:squadDepthUI,statistics:playerLeadersUI,comparison:comparisonUI,settings:settingsUI,profile:playerProfileUI,'scout-detail':()=>p6ScoutUI(state.market.find(p=>p.id===scoutDetailId))};
+ const items=[['home','⌂','Home'],['match','◉','Match Centre'],['pitch','▤','Tactics Pitch'],['squad','♟','Squad'],['transfers','⇄','Transfers'],['youth','★','Academy'],['finances','£','Finances'],['league','▥','League'],['cup','🏆','Cups'],['staff','⚙','Staff'],['career','▣','Career & Saves'],['history','★','Club History'],['international','🌍','International'],['calendar','▦','Calendar'],['depth','◇','Depth Chart'],['statistics','▥','Statistics'],['comparison','⇆','Compare'],['settings','⚙','Settings']];
+ const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI,history:xpHistoryUI,international:internationalUI,calendar:calendarUI,depth:squadDepthUI,statistics:playerLeadersUI,comparison:comparisonUI,settings:settingsUI,profile:playerProfileUI,'scout-detail':()=>p6ScoutUI(state.market.find(p=>p.id===scoutDetailId))};
  const title=items.find(x=>x[0]===tab)?.[2]||'Home',view=(views[tab]||home)();
  root.innerHTML='<div class="app-shell"><aside class="app-sidebar">'+heading()+
  '<div class="sidebar-heading">Management</div><nav class="tabs" aria-label="Game sections">'+items.map(([id,symbol,label])=>'<button class="tab '+(tab===id?'active':'')+'" data-action="tab" data-id="'+id+'" aria-current="'+(tab===id?'page':'false')+'"><span class="tab-symbol" aria-hidden="true">'+symbol+'</span><span>'+label+'</span></button>').join('')+'</nav>'+
@@ -1795,6 +1811,9 @@ function newSeason(){if(state.round<state.fixtures.length||state.jobSearch?.stat
 function onAction(action,id){
  if(action==='splash-league'&&!state){if(ALL_DIVISIONS.includes(id)){splashLeague=id;renderSplash()}return}
  if(state?.activeMatch&&['specialist-hire','badge-course','free-sign','loan-back','assistant-report','nation-apply','nation-select','nation-play','nation-cup','nation-qual','nation-qual-final','nation-resign','job-interview','club-resign','hire-staff','save-restore','switch-club','offer','submit-offer','scout','promote-youth','academy-invest','scout-invest','renew','shortlist'].includes(action)){flash='Finish the live match before managing the club.';render();return}
+ if(action==='xp-talk'){xpSetTalk(id);return}
+ if(action==='xp-request'){xpRequestAction(id);return}
+ if(action==='xp-advice'){xpApplyAdvice(id);return}
  if(action==='instant-match'){lmaInstantMatch();return}
  if(action==='stadium-upgrade'){lmaUpgradeStadium(id);return}
  if(action==='skill-up'){lmaSkillUp(id);return}
