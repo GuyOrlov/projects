@@ -243,6 +243,16 @@ const FORMATIONS={'4-4-2':{GK:1,DEF:4,MID:4,FWD:2},'4-3-3':{GK:1,DEF:4,MID:3,FWD
 const root=document.getElementById('tl26');
 const P3_CUP_DUE=[4,12,20,28,36];
 const P3_STAFF={coach:{label:'Head coach',cost:1.2,salary:.022},medical:{label:'Medical team',cost:1.0,salary:.018},scout:{label:'Chief scout',cost:.9,salary:.014}};
+const P5_ROLES={
+ GK:[['keeper','Goalkeeper'],['sweeper','Sweeper keeper']],
+ DEF:[['defender','Central defender'],['ball-playing','Ball-playing defender'],['fullback','Attacking full-back']],
+ MID:[['central','Central midfielder'],['playmaker','Advanced playmaker'],['ball-winner','Ball-winning midfielder'],['winger','Winger']],
+ FWD:[['striker','Striker'],['poacher','Poacher'],['target','Target forward'],['pressing','Pressing forward']]
+};
+const P5_BADGES=['Unqualified','Bronze','Silver','Gold'];
+const P5_COACHES={attack:'Attacking',defence:'Defensive',goalkeeping:'Goalkeeping',fitness:'Fitness',youth:'Youth'};
+const P5_NATIONS=['England','Scotland','Wales','Northern Ireland','Republic of Ireland','France','Germany','Spain'];
+const P5_COUNTRY_STRENGTH=[78,69,68,64,68,83,82,82];
 let tab='home',flash='',state=load(),negotiation=null,offerFeedback='',scoutFilter='all';
 function n(min,max){return min+Math.floor(Math.random()*(max-min+1))}
 function clamp(v,min,max){return Math.min(max,Math.max(min,v))}
@@ -632,16 +642,6 @@ function applyP4Settings(){const p=readP4Settings();if(document.documentElement?
 
 /* Development pack: progressive coaching, specialist roles, free-agent market and international career.
    Generated players, bids, badges and matches are fictional game mechanics. */
-const P5_ROLES={
- GK:[['keeper','Goalkeeper'],['sweeper','Sweeper keeper']],
- DEF:[['defender','Central defender'],['ball-playing','Ball-playing defender'],['fullback','Attacking full-back']],
- MID:[['central','Central midfielder'],['playmaker','Advanced playmaker'],['ball-winner','Ball-winning midfielder'],['winger','Winger']],
- FWD:[['striker','Striker'],['poacher','Poacher'],['target','Target forward'],['pressing','Pressing forward']]
-};
-const P5_BADGES=['Unqualified','Bronze','Silver','Gold'];
-const P5_COACHES={attack:'Attacking',defence:'Defensive',goalkeeping:'Goalkeeping',fitness:'Fitness',youth:'Youth'};
-const P5_NATIONS=['England','Scotland','Wales','Northern Ireland','Republic of Ireland','France','Germany','Spain'];
-const P5_COUNTRY_STRENGTH=[78,69,68,64,68,83,82,82];
 function p5Init(s){
  s.instructions=Object.assign({pressing:'balanced',width:'normal',line:'normal',passing:'mixed',focus:'balanced',distribution:'mixed'},s.instructions||{});
  s.roles=s.roles&&typeof s.roles==='object'?s.roles:{};
