@@ -760,7 +760,7 @@ function p5NextSeason(){
  if(arrivals)p3Inbox('Transfers',arrivals+' loan-back signing(s) joined your first team.');
  if(waiting.length)p3Inbox('Transfers',waiting.length+' loan-back signings await a free squad space.');
  state.futureSignings=waiting;state.freeAgents=p5FreeAgents(state.year,CLUBS[state.clubId].power);state.aiMarket=[];state.assistant.lastRound=-1;
- if(state.international.nation!==null) p5InternationalSchedule(true);
+ if(state.international.nation!==null){p5InternationalSchedule(true);state.international.qualifier=null;p6QualInit(state)}
 }
 function p5ScoutingReport(){
  const strengths=state.starting.map(id=>state.squad.find(p=>p.id===id)).filter(Boolean);
@@ -787,6 +787,75 @@ function p5NationalScore(home,away,ownStrength=0){
  const ag=poisson(clamp(1.2+(strength(away)-strength(home))*.045,.25,3.8));
  return {home,away,hg,ag,winner:hg===ag?(Math.random()<.5?home:away):hg>ag?home:away,penalties:hg===ag};
 }
+
+/* Regional Shield: fictional group qualification + one-off final, score-only (never live 2D). */
+function p6QualInit(s){
+ const i=s.international;if(!i||i.nation===null)return;
+ if(i.qualifier?.year===s.year&&i.qualifier.nation===i.nation)return;
+ const others=P5_NATIONS.map((_,id)=>id).filter(id=>id!==i.nation);
+ const start=(i.nation*3+s.year)%others.length,group=[i.nation,...[0,1,2].map(n=>others[(start+n)%others.length])];
+ const weeks=s.division==='championship'?[9,22,36]:[8,19,31];
+ i.qualifier={year:s.year,nation:i.nation,group,fixtures:weeks.map((round,k)=>({round,opponent:group[k+1],home:k%2===0,score:null,other:null})),table:group.map(nation=>({nation,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0})),pending:null,final:null,qualified:null,done:false};
+ if(!Array.isArray(i.qualifierHistory))i.qualifierHistory=[];
+}
+function p6QualTable(t,res){
+ const h=t.find(x=>x.nation===res.home),a=t.find(x=>x.nation===res.away);
+ if(!h||!a)throw Error('Invalid qualifier fixture');
+ h.p++;a.p++;h.gf+=res.hg;h.ga+=res.ag;a.gf+=res.ag;a.ga+=res.hg;
+ if(res.hg>res.ag){h.w++;h.pts+=3;a.l++}else if(res.hg<res.ag){a.w++;a.pts+=3;h.l++}else{h.d++;a.d++;h.pts++;a.pts++}
+}
+function p6QualAdvance(){
+ const i=state.international;if(i.nation===null)return;p6QualInit(state);
+ const q=i.qualifier;if(q.done||q.pending!==null||q.final)return;
+ const due=q.fixtures.find(f=>f.score===null&&state.round>=f.round);
+ if(due){q.pending=due.round;p3Inbox('International','Regional Shield group qualifier ready: '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[due.opponent]+'. Score-based simulation.')}
+}
+function p6QualPlay(){
+ const i=state.international,q=i.qualifier;
+ if(!q||q.pending===null||state.activeMatch)return;
+ const f=q.fixtures.find(x=>x.round===q.pending&&x.score===null),chosen=i.squad?.filter(p=>i.starting?.includes(p.id))||[];
+ if(!f||chosen.length!==11||chosen.filter(p=>p.pos==='GK').length!==1){flash='Choose a valid national XI before playing the qualifier.';render();return}
+ const strength=chosen.reduce((sum,p)=>sum+p.rating,0)/11;
+ const home=f.home?i.nation:f.opponent,away=f.home?f.opponent:i.nation,score=p5NationalScore(home,away,strength);
+ f.score={ours:f.home?score.hg:score.ag,them:f.home?score.ag:score.hg,hg:score.hg,ag:score.ag};
+ p6QualTable(q.table,score);
+ const other=q.group.filter(x=>x!==i.nation&&x!==f.opponent),o=p5NationalScore(other[0],other[1]);
+ f.other=o;p6QualTable(q.table,o);q.pending=null;
+ p3Inbox('International','Regional Shield: '+P5_NATIONS[i.nation]+' '+f.score.ours+'–'+f.score.them+' '+P5_NATIONS[f.opponent]+'.');
+ if(q.fixtures.every(x=>x.score)){
+  const ranking=[...q.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.nation-b.nation);
+  q.qualified=ranking.findIndex(x=>x.nation===i.nation)<2;
+  if(q.qualified){
+   const rival=P5_NATIONS.map((_,n)=>n).find(n=>!q.group.includes(n));
+   q.final={opponent:rival,score:null,winner:null};
+   p3Inbox('International','Regional Shield qualification achieved! A simulated final is available.');
+  }else{q.done=true;i.qualifierHistory.push({year:state.year,qualified:false,winner:null});p3Inbox('International','Regional Shield group stage complete; your side did not qualify.')}
+ }
+ flash='Regional Shield group match complete.';save();render();
+}
+function p6QualFinal(){
+ const i=state.international,q=i.qualifier;if(!q?.final||q.final.score||state.activeMatch)return;
+ const chosen=i.squad?.filter(p=>i.starting?.includes(p.id))||[];
+ if(chosen.length!==11||chosen.filter(p=>p.pos==='GK').length!==1){flash='Select a full national XI first.';render();return}
+ const strength=chosen.reduce((sum,p)=>sum+p.rating,0)/11;
+ const result=p5NationalScore(i.nation,q.final.opponent,strength);q.final.score=result;q.final.winner=result.winner;q.done=true;
+ i.qualifierHistory.push({year:state.year,qualified:true,winner:result.winner});
+ if(result.winner===i.nation){i.trophies++;state.career.reputation=clamp(state.career.reputation+4,1,100)}
+ p3Inbox('International','Regional Shield final: '+P5_NATIONS[result.home]+' '+result.hg+'–'+result.ag+' '+P5_NATIONS[result.away]+(result.penalties?' (simulated penalties)':'')+'. Winner: '+P5_NATIONS[result.winner]+'.');
+ flash='Regional Shield final complete.';save();render();
+}
+function p6QualUI(){
+ const i=state.international,q=i.qualifier;if(i.nation===null||!q)return '';
+ const rows=[...q.table].sort((a,b)=>b.pts-a.pts||(b.gf-b.ga)-(a.gf-a.ga)||b.gf-a.gf||a.nation-b.nation);
+ let h='<section class="panel"><h2>🌐 Regional Shield qualification</h2><p class="p3-note">Fictional four-team group: top two progress to a one-off simulated final. All matches are score-based, never live 2D.</p><div class="table-wrap"><table class="league"><thead><tr><th>#</th><th>National team</th><th>P</th><th>W</th><th>D</th><th>GD</th><th>Pts</th></tr></thead><tbody>'+
+ rows.map((x,k)=>'<tr class="'+(x.nation===i.nation?'mine':'')+'"><td>'+(k+1)+'</td><td>'+P5_NATIONS[x.nation]+'</td><td>'+x.p+'</td><td>'+x.w+'</td><td>'+x.d+'</td><td>'+((x.gf-x.ga)>0?'+':'')+(x.gf-x.ga)+'</td><td><b>'+x.pts+'</b></td></tr>').join('')+'</tbody></table></div>';
+ h+=q.fixtures.map(f=>'<div class="result-line"><span>Week '+f.round+' · '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[f.opponent]+'</span><b>'+(f.score?f.score.ours+'–'+f.score.them:'Upcoming')+'</b></div>').join('');
+ if(q.pending!==null)h+='<button class="btn full spaced" data-action="nation-qual" '+(!!state.activeMatch?'disabled':'')+'>Play simulated group qualifier →</button>';
+ if(q.final&&!q.final.score)h+='<div class="notice">Qualified! Final against '+P5_NATIONS[q.final.opponent]+'.</div><button class="btn full" data-action="nation-qual-final" '+(!!state.activeMatch?'disabled':'')+'>Play simulated final →</button>';
+ if(q.done)h+='<div class="notice">'+(q.qualified?'Qualified · '+(q.final?.winner===i.nation?'Regional Shield champions':'Final winner: '+P5_NATIONS[q.final.winner]):'Eliminated in group stage')+'</div>';
+ return h+'</section>';
+}
+
 function p5InternationalCup(){
  const i=state.international;
  if(i.nation===null||i.cup?.year===state.year||i.fixtures.some(f=>!f.score))return;
@@ -836,13 +905,14 @@ function p5ApplyNation(id){
   const p=makePlayer(pos,P5_COUNTRY_STRENGTH[nId]);p.nationality=P5_NATIONS[nId];p.number=n+1;return p;
  });
  i.starting=i.squad.filter(p=>p.pos==='GK').slice(0,1).concat(i.squad.filter(p=>p.pos==='DEF').slice(0,4),i.squad.filter(p=>p.pos==='MID').slice(0,4),i.squad.filter(p=>p.pos==='FWD').slice(0,2)).map(p=>p.id);
- p5InternationalSchedule();p3Inbox('International','You accepted the fictional '+P5_NATIONS[nId]+' national-team role. Friendly fixtures added.');
+ p5InternationalSchedule();i.qualifier=null;p6QualInit(state);p3Inbox('International','You accepted the fictional '+P5_NATIONS[nId]+' national-team role. Friendly fixtures added.');
  tab='international';flash='National team appointment confirmed.';save();render();
 }
 function p5InternationalRound(){
  const i=state.international;if(i.nation===null)return;
  if(!i.fixtures.length)p5InternationalSchedule();
- if(i.pending===null){const due=i.fixtures.find(f=>f.score===null&&state.round>=f.round);if(due){i.pending=due.round;p3Inbox('International','International friendly: '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[due.opponent]+' ready to play.')}else p5InternationalCup()} 
+ if(i.pending===null){const due=i.fixtures.find(f=>f.score===null&&state.round>=f.round);if(due){i.pending=due.round;p3Inbox('International','International friendly: '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[due.opponent]+' ready to play.')}else p5InternationalCup()}
+ p6QualAdvance(); 
 }
 function p5NationalSelect(id){
  const i=state.international;if(!i?.squad||state.activeMatch)return;
@@ -881,7 +951,7 @@ function internationalUI(){
  if(i.nation===null)return '<section class="panel"><h2>🌍 International management</h2><p class="p3-note">Apply to manage a game-generated national squad alongside your club. International friendlies and a four-nation invitational are game simulations, not official fixtures or 2D match replays.</p><p class="p3-note">Your reputation: '+state.career.reputation+' / minimum 48</p><div class="p4-depth">'+P5_NATIONS.map((name,n)=>'<button class="p4-objective" data-action="nation-apply" data-id="'+n+'" '+(state.career.reputation<48?'disabled':'')+'><strong>'+name+'</strong><small>Estimated squad strength '+P5_COUNTRY_STRENGTH[n]+' · Apply</small></button>').join('')+'</div></section>';
  let h='<section class="panel"><h2>🌍 '+P5_NATIONS[i.nation]+' national team</h2><div class="stats"><div class="stat"><small>PLAYED</small><strong>'+i.played+'</strong></div><div class="stat"><small>W-D-L</small><strong>'+i.w+'-'+i.d+'-'+i.l+'</strong></div><div class="stat"><small>SQUAD</small><strong>'+(i.squad?.length||0)+'</strong></div></div><p class="p3-note">Game-generated players and friendly results. You may manage a club and national team together.</p>'+
  (i.pending!==null?'<div class="notice"><b>Friendly ready:</b> '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[i.fixtures.find(f=>f.round===i.pending)?.opponent||0]+'. Select your XI below before kick-off.</div><button class="btn full" data-action="nation-play" '+((i.starting||[]).length!==11?'disabled':'')+'>Play simulated friendly →</button>':'<p class="p3-note">Next fixture is scheduled by your club matchweek; continue the club season.</p>')+'</section>';
- h+=p5CupUI();h+='<section class="panel"><h2>National XI · '+(i.starting?.length||0)+'/11</h2><div class="p4-depth">'+(i.squad||[]).map(p=>'<button class="p4-profile" data-action="nation-select" data-id="'+p.id+'"><span>'+(i.starting.includes(p.id)?'✓ ':'')+goalEsc(p.name)+' · '+p.pos+'</span><b>'+p.rating+'</b></button>').join('')+'</div></section>';
+ h+=p5CupUI()+p6QualUI();h+='<section class="panel"><h2>National XI · '+(i.starting?.length||0)+'/11</h2><div class="p4-depth">'+(i.squad||[]).map(p=>'<button class="p4-profile" data-action="nation-select" data-id="'+p.id+'"><span>'+(i.starting.includes(p.id)?'✓ ':'')+goalEsc(p.name)+' · '+p.pos+'</span><b>'+p.rating+'</b></button>').join('')+'</div></section>';
  h+='<section class="panel"><h2>International fixtures</h2>'+i.fixtures.map(f=>'<div class="result-line"><span>Week '+f.round+' · '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[f.opponent]+'</span><b>'+(f.score?f.score.ours+'–'+f.score.them:'Upcoming')+'</b></div>').join('')+'<button class="btn danger sm spaced" data-action="nation-resign">Resign national role</button></section>';
  return h;
 }
@@ -1385,7 +1455,7 @@ function match(){kickoff()}
 
 function newSeason(){if(state.round<state.fixtures.length||state.jobSearch?.status==='seeking'){if(state.jobSearch?.status==='seeking'){flash='Accept a new club job first.';render()}return}if(!state.nextMembers)completePromotion();state.leagueMove=state.seasonReview?.oldDivision!==state.seasonReview?.newDivision?{from:state.seasonReview.oldDivision,to:state.seasonReview.newDivision,year:state.year+1}:null;state.members=state.nextMembers;state.nextMembers=null;state.division=state.members.premier.includes(state.clubId)?'premier':'championship';const fresh=newLeague(state.members[state.division]);state.otherLeague={...newLeague(state.members[otherDivision(state.division)]),division:otherDivision(state.division)};state.year++;state.round=0;state.cup=p3Cup(state.clubId,state.members.premier);state.board.confidence=70;state.board.promotions=0;state.board.target=state.division==='championship'?8:CLUBS[state.clubId].power>=77?4:CLUBS[state.clubId].power>=73?10:17;state.career.offers=[];state.table=fresh.table;state.fixtures=fresh.fixtures;state.results=[];state.lastMatch=null;state.trained=false;state.squad.forEach(p=>{p.fitness=clamp(p.fitness+25,65,100);p.injury=0;p.morale=clamp(p.morale+10,45,100)});state.cash=round2(state.cash+6);state.finance.balance=round2(state.finance.balance+12);state.market=createMarket(CLUBS[state.clubId].power).map(p=>{p.season=state.year;return p});state.shortlist=[];state.squad=state.squad.filter(p=>!p.loan);state.squad.forEach(p=>{p.age++;p.contract=Math.max(0,(p.contract||1)-1);if(p.contract===0)p.contract=1});state.youth.forEach(p=>p.age++);while(state.youth.length<5)state.youth.push(academyProspect(CLUBS[state.clubId].power));p5NextSeason();state.news.unshift('New '+DIV_LABEL[state.division]+' season underway. Board funding: £6m. Loan players returned to parent clubs.');p3Inbox('Cup','New Touchline National Cup draw. First ties after league round 4.');state.activeMatch=null;state.squad.forEach(p=>p.suspension=0);autoLineup();tab='home';flash='Welcome to the '+state.year+'/'+String(state.year+1).slice(-2)+' '+DIV_LABEL[state.division]+' season!';save();render()}
 function onAction(action,id){
- if(state?.activeMatch&&['specialist-hire','badge-course','free-sign','loan-back','assistant-report','nation-apply','nation-select','nation-play','nation-cup','nation-resign','job-interview','club-resign','hire-staff','save-restore','switch-club','offer','submit-offer','scout','promote-youth','academy-invest','scout-invest','renew','shortlist'].includes(action)){flash='Finish the live match before managing the club.';render();return}
+ if(state?.activeMatch&&['specialist-hire','badge-course','free-sign','loan-back','assistant-report','nation-apply','nation-select','nation-play','nation-cup','nation-qual','nation-qual-final','nation-resign','job-interview','club-resign','hire-staff','save-restore','switch-club','offer','submit-offer','scout','promote-youth','academy-invest','scout-invest','renew','shortlist'].includes(action)){flash='Finish the live match before managing the club.';render();return}
  if(action==='specialist-hire'){p5HireCoach(id);return}
  if(action==='badge-course'){p5Badge();return}
  if(action==='free-sign'){if(!p5TransferWindowOpen()){flash='First transfer window is restricted.';render();return}p5SignFree(id);return}
@@ -1396,6 +1466,8 @@ function onAction(action,id){
  if(action==='nation-select'){p5NationalSelect(id);return}
  if(action==='nation-play'){p5PlayInternational();return}
  if(action==='nation-cup'){p5PlayInternationalCup();return}
+ if(action==='nation-qual'){p6QualPlay();return}
+ if(action==='nation-qual-final'){p6QualFinal();return}
  if(action==='nation-resign'){p5ResignNation();return}
  if(action==='job-interview'){p5Interview(Number(id));return}
  if(action==='club-resign'){p5ResignClub();return}
