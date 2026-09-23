@@ -22,3 +22,6 @@ Existing Phase 2 careers load without intentionally deleting any match results o
 Repository location: `GuyOrlov/projects/touchline26/index.html`. GitHub Pages, if already configured to deploy the main branch root, should serve the game at `https://guyorlov.github.io/projects/touchline26/` after GitHub finishes publishing. Save files are stored in your browser and can be exported through **Career**.
 
 Independent fan prototype; not affiliated with real clubs, FIFA, a league, or a commercial football management game.
+## Desktop & tablet interface (September 2026)
+
+The primary interface is now a widescreen football-management workspace: persistent left sidebar, enlarged 2D match and tactics pitches, a large central management panel, and a contextual club-information rail on wide desktop screens. At tablet widths the sidebar and full-width main game remain while the optional information rail is hidden. Narrow phone screens deliberately retain a scrollable 900px tablet canvas instead of returning to stacked mobile cards; swipe horizontally to see the entire workspace. Typography remains DM Sans and Barlow Condensed, with high-contrast controls and reduced-motion support. All Phase 3 gameplay, existing saves, live scorer/assist notifications and goalscoring report are preserved.
