@@ -344,6 +344,7 @@ function upgradeCareer(s){
  phase3Init(s);
  upgradeLeagues(s);
  p5Init(s);
+ p6Init(s);
  s.squad.forEach(statsOf);
 }
 function load(){
@@ -449,7 +450,7 @@ function youthDevelopment(){
 function scanPlayer(id){
  const p=state.market.find(p=>p.id===id);if(!p||p.scouted)return;
  const fee=round2(.2*(1-.12*((state.staff?.scout||1)-1)));if(state.cash<fee){flash='You need '+price(fee)+' to commission the scout report.';render();return}
- state.cash=round2(state.cash-fee);p.scouted=true;state.scouting.reports++;flash='Scout report completed for '+p.name+' (potential '+p.potential+').';save();render();
+ state.cash=round2(state.cash-fee);p.scouted=true;state.scouting.reports++;p.dossier={year:state.year,round:state.round,confidence:clamp(62+state.staff.scout*6+state.finance.scoutLevel*4,60,96),note:(p.potential-p.rating>=10?'Promising long-term development':'Immediate squad depth')+' · '+p6PotentialBand(p)+' outlook'};state.scoutHistory.unshift({player:p.name,id:p.id,year:state.year,round:state.round,position:p.pos,potential:p.potential,confidence:p.dossier.confidence});state.scoutHistory=state.scoutHistory.slice(0,40);flash='Scouting dossier completed for '+p.name+'.';save();render();
 }
 function initiateOffer(id){
  const p=state.market.find(x=>x.id===id);
@@ -654,6 +655,31 @@ function applyP4Settings(){const p=readP4Settings();if(document.documentElement?
 
 /* Development pack: progressive coaching, specialist roles, free-agent market and international career.
    Generated players, bids, badges and matches are fictional game mechanics. */
+
+/* Deeper recruitment: deterministic simulated attributes and history. */
+let scoutDetailId=null;
+const P6_SKILLS={GK:['Reflexes','Handling','Distribution','Positioning'],DEF:['Tackling','Positioning','Pace','Passing'],MID:['Passing','Vision','Stamina','Tackling'],FWD:['Finishing','Movement','Pace','Passing']};
+function p6Hash(id){let h=2166136261;for(const c of String(id))h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0}
+function p6Skills(p){return (P6_SKILLS[p.pos]||P6_SKILLS.MID).map((name,k)=>({name,value:clamp(Math.round((p.rating||70)+(((p6Hash(p.id)>>((k*7)%25))&31)-15)*.55+(k===0?3:0)),35,95)}))}
+function p6PotentialBand(p){const x=p.potential||p.rating;return x>=88?'Elite':x>=80?'High':x>=72?'Developing':'Squad'}
+function p6MarketInterest(p){return clamp(Math.round(25+(p.rating-60)*1.2+(p.potential-p.rating)*1.5+(p6Hash(p.id)%23)),15,95)}
+function p6Init(s){
+ s.managerContract=Object.assign({until:s.year+2,salary:1.3,danger:0,renewals:0,dismissed:false},s.managerContract||{});
+ s.scoutHistory=Array.isArray(s.scoutHistory)?s.scoutHistory:[];
+ s.transferDuels=Array.isArray(s.transferDuels)?s.transferDuels:[];
+ for(const p of s.market||[])if(!Number.isFinite(p.interest))p.interest=p6MarketInterest(p);
+ if(s.international?.nation!==null&&s.international?.nation!==undefined)p6QualInit(s);
+}
+function p6ScoutUI(p){
+ if(!p)return '<section class="panel"><p class="empty">No player selected.</p></section>';
+ const dossier=p.dossier;
+ return '<section class="panel"><h2>🔎 '+goalEsc(p.name)+' · scouting dossier</h2><p class="p3-note">'+p.pos+' · Age '+p.age+' · '+goalEsc(p.nationality)+' · '+(dossier?'Observed by your scouts':'Basic simulated estimate')+'</p>'+
+ '<div class="p4-record">'+p6Skills(p).map(a=>'<div><span>'+a.name+'</span><b>'+a.value+'</b></div>').join('')+'</div>'+
+ '<div class="p4-record"><div><span>Current rating</span><b>'+p.rating+'</b></div><div><span>Potential / outlook</span><b>'+(dossier?p.potential+' · '+p6PotentialBand(p):'Unknown')+'</b></div><div><span>Rival interest</span><b>'+(p.interest??p6MarketInterest(p))+' / 95</b></div><div><span>Wage estimate</span><b>'+currencyK(p.wage)+'/wk</b></div></div>'+
+ (dossier?'<p class="p3-note">Scout confidence '+dossier.confidence+'% · '+goalEsc(dossier.note)+'</p>':'<p class="p3-note">Attributes are stable game-generated estimates, not real-world player data.</p>')+
+ '<div class="buttonrow"><button class="btn secondary" data-action="tab" data-id="transfers">← Transfers</button>'+(p.scouted?'':'<button class="btn" data-action="scout" data-id="'+p.id+'">Commission report</button>')+'</div></section>';
+}
+
 function p5Init(s){
  s.instructions=Object.assign({pressing:'balanced',width:'normal',line:'normal',passing:'mixed',focus:'balanced',distribution:'mixed'},s.instructions||{});
  s.roles=s.roles&&typeof s.roles==='object'?s.roles:{};
@@ -1323,8 +1349,8 @@ function transfers(){
  let html='<section class="hero"><div class="eyebrow accent">TRANSFER CENTRE</div><h1>Transfers & scouting</h1><p>Negotiate contracts, scout potential and arrange loans. Transfer market players and figures are game-generated.</p></section>'+
  '<section class="panel"><div class="money-grid"><div class="money-card"><small>Available transfer funds</small><strong>'+price(state.cash)+'</strong></div><div class="money-card"><small>Wage headroom</small><strong>'+currencyK(freeWages())+'</strong></div></div></section>'+
  negotiateUI()+'<section class="panel"><div class="panel-head"><h2>Scout reports</h2><span class="pill">'+state.scouting.reports+' COMPLETE</span></div><div class="controls"><label>Filter position<select data-scout-filter>'+[['all','All positions'],['GK','Goalkeepers'],['DEF','Defenders'],['MID','Midfielders'],['FWD','Forwards']].map(([v,label])=>'<option value="'+v+'"'+(scoutFilter===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label><label>Transfer availability<div class="season" style="border-radius:10px;padding:12px">'+state.market.length+' targets</div></label></div><p class="note-line">Scout reports cost £0.2m each. Potential ratings are hidden until scouted.</p></section>'+
- '<section class="panel"><h2>Transfer targets</h2><div class="market">'+state.market.filter(p=>scoutFilter==='all'||p.pos===scoutFilter).map(p=>'<div class="market-card"><span class="position">'+p.pos+'</span><strong>'+p.name+'</strong><div class="note-line">Age '+p.age+' · '+p.nationality+' · Rating <b class="accent">'+p.rating+'</b> · Potential '+(p.scouted?p.potential:'?')+'<br>Wages '+currencyK(p.wage)+'</div><strong class="accent" style="font-size:17px">'+price(p.fee)+'</strong><div class="compact-actions spaced"><button class="btn sm" data-action="offer" data-id="'+p.id+'" '+(state.round>=state.fixtures.length?'disabled':'')+'>Negotiate</button><button class="btn secondary sm" data-action="scout" data-id="'+p.id+'" '+(p.scouted||state.cash<.2?'disabled':'')+'>'+ (p.scouted?'Scouted':'Scout')+'</button><button class="btn ghost sm" data-action="shortlist" data-id="'+p.id+'">'+(state.shortlist.includes(p.id)?'★ Saved':'☆ Save')+'</button></div></div>').join('')+'</div></section>'+
- '<section class="panel"><h2>Shortlist</h2><p class="note-line">'+(state.shortlist.length?state.market.filter(p=>state.shortlist.includes(p.id)).map(p=>p.name+' ('+p.pos+')').join(' · '):'No shortlisted targets. Star a player to save them during this transfer window.')+'</p></section>';
+ '<section class="panel"><h2>Transfer targets</h2><div class="market">'+state.market.filter(p=>scoutFilter==='all'||p.pos===scoutFilter).map(p=>'<div class="market-card"><span class="position">'+p.pos+'</span><strong>'+p.name+'</strong><div class="note-line">Age '+p.age+' · '+p.nationality+' · Rating <b class="accent">'+p.rating+'</b> · Potential '+(p.scouted?p.potential:'?')+'<br>Wages '+currencyK(p.wage)+'</div><strong class="accent" style="font-size:17px">'+price(p.fee)+'</strong><p class="p3-note">Rival interest '+(p.interest??p6MarketInterest(p))+'/95 · '+(p.dossier?'Confidence '+p.dossier.confidence+'%':'Unscouted')+'</p><div class="compact-actions spaced"><button class="btn sm" data-action="offer" data-id="'+p.id+'" '+(state.round>=state.fixtures.length?'disabled':'')+'>Negotiate</button><button class="btn secondary sm" data-action="scout" data-id="'+p.id+'" '+(p.scouted||state.cash<.2?'disabled':'')+'>'+ (p.scouted?'Scouted':'Scout')+'</button><button class="btn ghost sm" data-action="scout-detail" data-id="'+p.id+'">Details</button><button class="btn ghost sm" data-action="shortlist" data-id="'+p.id+'">'+(state.shortlist.includes(p.id)?'★ Saved':'☆ Save')+'</button></div></div>').join('')+'</div></section>'+
+ '<section class="panel"><h2>Scout archive</h2>'+(state.scoutHistory?.length?state.scoutHistory.slice(0,6).map(x=>'<div class="result-line"><span>'+goalEsc(x.player)+' · '+x.position+' · '+x.year+' week '+x.round+'</span><b>'+x.confidence+'%</b></div>').join(''):'<p class="empty">No previous reports.</p>')+'</section><section class="panel"><h2>Shortlist</h2><p class="note-line">'+(state.shortlist.length?state.market.filter(p=>state.shortlist.includes(p.id)).map(p=>p.name+' ('+p.pos+')').join(' · '):'No shortlisted targets. Star a player to save them during this transfer window.')+'</p></section>';
  return html+p5MarketPanel()+p5AssistantPanel();
 }
 function league(){const displayed=viewDivision||state.division,info=leagueSnapshot(displayed),t=orderTable(info.table),isPL=displayed==='premier';let html='<section class="panel"><h2>League tables · '+state.year+'/'+String(state.year+1).slice(-2)+'</h2><div class="buttonrow">'+[['premier','Premier League'],['championship','Championship']].map(([id,label])=>'<button class="btn '+(displayed===id?'':'ghost')+' sm" data-action="league-view" data-id="'+id+'">'+label+'</button>').join('')+'</div><p class="p3-note">'+info.round+' / '+info.fixtures.length+' rounds · '+t.length+' clubs</p><div class="table-wrap"><table class="league"><thead><tr><th>#</th><th>Club</th><th>P</th><th>W</th><th>D</th><th>GD</th><th>Pts</th></tr></thead><tbody>'+t.map((row,n)=>'<tr class="'+(row.id===state.clubId?'mine':'')+'"><td>'+(n+1)+(isPL&&n>=17?' ↓':!isPL&&n<2?' ↑':!isPL&&n>=2&&n<8?' ▷':'')+'</td><td>'+goalEsc(CLUBS[row.id].name)+'</td><td>'+row.p+'</td><td>'+row.w+'</td><td>'+row.d+'</td><td>'+((row.gf-row.ga)>0?'+':'')+(row.gf-row.ga)+'</td><td><b>'+row.pts+'</b></td></tr>').join('')+'</tbody></table></div><p class="p3-note">'+(isPL?'Bottom three are relegated to the Championship.':'Top two promoted; positions 3–8 enter the simulated play-offs. League One is not included, so the bottom three stay in this version.')+'</p></section>';html+='<section class="panel"><h2>Recent '+DIV_LABEL[displayed]+' results</h2>'+(info.results.length?info.results.slice(-10).reverse().map(m=>'<div class="result-line"><span>'+CLUBS[m.home].short+' '+m.hg+'–'+m.ag+' '+CLUBS[m.away].short+'</span><span class="muted">Round '+m.round+'</span></div>').join(''):'<p class="empty">No matches yet.</p>')+'</section>';return html+promotionPanel()}
@@ -1341,7 +1367,7 @@ function workspaceAside(){
 function render(){
  if(!state){renderSplash();return}
  const items=[['home','⌂','Home'],['match','◉','Match Centre'],['pitch','▤','Tactics Pitch'],['squad','♟','Squad'],['transfers','⇄','Transfers'],['youth','★','Academy'],['finances','£','Finances'],['league','▥','League'],['cup','🏆','Cups'],['staff','⚙','Staff'],['career','▣','Career & Saves'],['international','🌍','International'],['calendar','▦','Calendar'],['depth','◇','Depth Chart'],['statistics','▥','Statistics'],['comparison','⇆','Compare'],['settings','⚙','Settings']];
- const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI,international:internationalUI,calendar:calendarUI,depth:squadDepthUI,statistics:playerLeadersUI,comparison:comparisonUI,settings:settingsUI,profile:playerProfileUI};
+ const views={home:home,match:matchUI,pitch:pitchView,squad,transfers,youth:youthUI,finances:financeUI,league,cup:cupUI,staff:staffUI,career:careerUI,international:internationalUI,calendar:calendarUI,depth:squadDepthUI,statistics:playerLeadersUI,comparison:comparisonUI,settings:settingsUI,profile:playerProfileUI,'scout-detail':()=>p6ScoutUI(state.market.find(p=>p.id===scoutDetailId))};
  const title=items.find(x=>x[0]===tab)?.[2]||'Home',view=(views[tab]||home)();
  root.innerHTML='<div class="app-shell"><aside class="app-sidebar">'+heading()+
  '<div class="sidebar-heading">Management</div><nav class="tabs" aria-label="Game sections">'+items.map(([id,symbol,label])=>'<button class="tab '+(tab===id?'active':'')+'" data-action="tab" data-id="'+id+'" aria-current="'+(tab===id?'page':'false')+'"><span class="tab-symbol" aria-hidden="true">'+symbol+'</span><span>'+label+'</span></button>').join('')+'</nav>'+
@@ -1364,6 +1390,7 @@ function onAction(action,id){
  if(action==='badge-course'){p5Badge();return}
  if(action==='free-sign'){if(!p5TransferWindowOpen()){flash='First transfer window is restricted.';render();return}p5SignFree(id);return}
  if(action==='loan-back'){if(!p5TransferWindowOpen()){flash='First transfer window is restricted.';render();return}p5LoanBack(id);return}
+ if(action==='scout-detail'){scoutDetailId=id;tab='scout-detail';render();return}
  if(action==='assistant-report'){p5ScoutingReport();return}
  if(action==='nation-apply'){p5ApplyNation(id);return}
  if(action==='nation-select'){p5NationalSelect(id);return}
