@@ -74,6 +74,11 @@ input:focus-visible{outline:3px solid #e5f58d;outline-offset:2px}.money-grid{dis
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
 /* Phase 3: multi-line tabs and dashboard features */
 .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible}.tab{font-size:12px;padding:10px 3px;min-width:0}.p3-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #29433e}.p3-row:last-child{border-bottom:0}.p3-badge{border:1px solid #476a5a;padding:6px 9px;border-radius:9px;color:#ffe59d;background:#243a34;font-size:11px;font-weight:800}.p3-note{line-height:1.6;color:#bfd4c9;font-size:12px}.p3-input{width:100%;padding:10px;background:#102e2e;color:#fff;border:1px solid #597168;border-radius:9px;font:inherit}.p3-cup{border-left:4px solid #f3cf64}.p3-inbox{padding:11px 0;border-bottom:1px solid #29433e}.p3-inbox:last-child{border:0}.p3-inbox b{display:block;font-size:12px}.p3-inbox span{display:block;color:#b1cabc;font-size:11px;margin-top:4px;line-height:1.45}@media(max-width:410px){.tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.tab{font-size:12px;min-height:40px}}
+
+/* High-contrast goal celebration, readable on mobile and with reduced motion. */
+.goal-overlay{position:absolute;z-index:30;top:32%;left:5%;right:5%;text-align:center;border:2px solid #ffe591;border-radius:18px;padding:15px 9px;background:linear-gradient(145deg,#17372ff5,#071a1af7);box-shadow:0 9px 25px #000a;pointer-events:none;animation:goalPop .32s ease-out}
+.goal-overlay[hidden]{display:none!important}.goal-overlay strong{display:block;font:900 clamp(31px,9vw,52px)/1 'Barlow Condensed',system-ui,sans-serif;color:#ffe275;letter-spacing:2px}.goal-overlay span{display:block;margin-top:7px;color:#f5fff5;font-weight:800;font-size:14px;overflow-wrap:anywhere}.goal-overlay .goal-team{font-size:11px;color:#e2efcf}.goal-overlay .goal-assist{font-size:12px;color:#d7e9d4}
+.goal-announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}@keyframes goalPop{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}@media(prefers-reduced-motion:reduce){.goal-overlay{animation:none}}
 </style>
 </head>
 <body>
@@ -374,8 +379,17 @@ function liveActiveKeys(m,side){return side==='us'?m.onPitch.filter(id=>!m.red.i
 function liveClamp(point){return {x:clamp(Number(point.x)||50,8,92),y:clamp(Number(point.y)||50,7,93)}}
 function liveDistance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
 function liveApproach(p,target,step){const d=liveDistance(p,target);if(d<=step)return liveClamp(target);return liveClamp({x:p.x+(target.x-p.x)*step/d,y:p.y+(target.y-p.y)*step/d})}
-function livePlayerName(m,key){if(liveSide(key)==='us'){const p=state.squad.find(x=>'u:'+x.id===key);return p?p.name:'Your player'}return CLUBS[m.opp].short+' #'+(Number(key.slice(2))+1)}
+function livePlayerName(m,key){if(liveSide(key)==='us'){const p=state.squad.find(x=>'u:'+x.id===key);return p?p.name:'Your player'}return m.opponentNames?.[Number(key.slice(2))]||CLUBS[m.opp].short+' #'+(Number(key.slice(2))+1)}
+function goalEsc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function goalActive(m){return !!(m.goalAlert&&Date.now()-m.goalAlert.at<4800)}
+function goalOverlayMarkup(m){const g=m.goalAlert,a=goalActive(m);return '<div class="goal-overlay" id="goal-overlay" '+(a?'':'hidden')+'><strong>⚽ GOAL!</strong><span class="goal-team" id="goal-team">'+(a?goalEsc(g.club)+' · '+g.minute+'′':'')+'</span><span id="goal-scorer">'+(a?goalEsc(g.scorer):'')+'</span><span class="goal-assist" id="goal-assist">'+(a?goalEsc(g.assist?'Assist: '+g.assist:'Unassisted goal'):'')+'</span></div>'}
+function displayGoal(m){const g=m.goalAlert,el=root.querySelector('#goal-overlay');if(!el)return;el.hidden=!goalActive(m);if(el.hidden||!g)return;if(el.dataset.goalId!==String(g.id)){el.dataset.goalId=String(g.id);for(const [id,value] of [['goal-team',g.club+' · '+g.minute+'′'],['goal-scorer',g.scorer],['goal-assist',g.assist?'Assist: '+g.assist:'Unassisted goal']]){const node=root.querySelector('#'+id);if(node)node.textContent=value}const announcement=root.querySelector('#goal-announcement');if(announcement)announcement.textContent='GOAL! '+g.club+'. Scorer: '+g.scorer+'. '+(g.assist?'Assist: '+g.assist+'.':'Unassisted goal.')}}
+function scheduleGoalHide(m,id){setTimeout(()=>{if(state?.activeMatch!==m||m.goalAlert?.id!==id)return;const el=root.querySelector('#goal-overlay');if(el)el.hidden=true},4850)}
+
 function ensureLiveActors(m){
+ if(!m.goalEvents)m.goalEvents=[];
+ // The opponent is simulated; these are explicitly game-generated names, not verified real-world squads.
+ if(!m.opponentNames)m.opponentNames=OPPONENT_ANCHORS.map((_,i)=>makePlayer(i===0?'GK':i<=4?'DEF':i<=8?'MID':'FWD',CLUBS[m.opp].power).name);
  if(!m.actors||typeof m.actors!=='object')m.actors={};
  for(const id of m.onPitch){const key=liveKey('us',id),a=state.pitchPositions[id]||{x:50,y:50};if(!m.actors[key])m.actors[key]=liveClamp(a);}
  OPPONENT_ANCHORS.forEach((a,i)=>{const key=liveKey('them',i);if(!m.actors[key])m.actors[key]={x:a[0],y:a[1]}});
@@ -476,9 +490,15 @@ function attemptLiveShot(m){
  const isGoal=on&&Math.random()<chance*1.5;
  if(ours)m.ratings[shooter.slice(2)]=clamp((m.ratings[shooter.slice(2)]||6.3)+(isGoal?1.2:on?.05:-.025),4,10);
  if(isGoal){
-  m.goals[side]++;logMatch(m,'GOAL! '+who+' scores!','goal');
-  m.actionText='GOAL! '+who+' scores!';
-  restartLivePossession(m,ours?'them':'us');
+  const pass=m.lastPass;
+  const assist=pass?.completed&&pass.to===shooter&&pass.from!==shooter&&liveSide(pass.from)===side&&m.minute-pass.minute<=2?livePlayerName(m,pass.from):null;
+  const goal={id:(m.goalEvents?.length||0)+1,minute:gameMinute(m),at:Date.now(),side,club:CLUBS[ours?state.clubId:m.opp].name,scorer:who,assist};
+  if(!m.goalEvents)m.goalEvents=[];
+  m.goalEvents.push({...goal});m.goalAlert=goal;m.goals[side]++;
+  const commentary='GOAL! '+who+' scores for '+goal.club+'!'+(assist?' Assisted by '+assist+'.':' Unassisted.');
+  logMatch(m,commentary,'goal');m.actionText=commentary;
+  if(ours&&assist&&pass.from.startsWith('u:')){const id=pass.from.slice(2);m.ratings[id]=clamp((m.ratings[id]||6.3)+.3,4,10)}
+  restartLivePossession(m,ours?'them':'us');scheduleGoalHide(m,goal.id);
  }else{
   logMatch(m,who+(on?' forces a save.':' shoots wide.'),'shot');
   m.actionText=who+(on?' forces a save.':' shoots wide.');
@@ -560,7 +580,7 @@ function finishLiveMatch(){
  if(m.competition!=='cup'){const results=games.map(([h,a])=>(h===m.home&&a===m.away)?{home:h,away:a,hg:score[0],ag:score[1],round:m.round}:simulate(h,a));results.forEach(applyResult);state.results.push(...results)}
  const own=m.goals.us,opp=m.goals.them;
  const t=m.stats.us,t2=m.stats.them,poss=Math.round(100*t.poss/Math.max(1,t.poss+t2.poss));
- state.lastMatch={competition:m.competition||'league',home:m.home,away:m.away,hg:score[0],ag:score[1],round:m.round,possession:poss,detail:{us:{...t,xg:+t.xg.toFixed(2)},them:{...t2,xg:+t2.xg.toFixed(2)},subs:[...m.subs],events:[...m.comments].reverse(),ratings:{...m.ratings},red:[...m.red],yellow:[...m.yellow],hurt:[...m.hurt],minute:90,ourHome:m.ourHome}};
+ state.lastMatch={competition:m.competition||'league',home:m.home,away:m.away,hg:score[0],ag:score[1],round:m.round,possession:poss,detail:{us:{...t,xg:+t.xg.toFixed(2)},them:{...t2,xg:+t2.xg.toFixed(2)},goals:[...(m.goalEvents||[])],subs:[...m.subs],events:[...m.comments].reverse(),ratings:{...m.ratings},red:[...m.red],yellow:[...m.yellow],hurt:[...m.hurt],minute:90,ourHome:m.ourHome}};
  for(const p of state.squad){if(p.injury)p.injury=Math.max(0,p.injury-1);if(p.suspension)p.suspension=Math.max(0,p.suspension-1);
   if(m.fitness[p.id]!=null){p.fitness=clamp(Math.round(m.fitness[p.id])-n(4,9),32,100);p.morale=clamp(p.morale+(own>opp?n(2,5):own===opp?n(-1,2):n(-5,-2)),20,100)}else p.fitness=clamp(p.fitness+n(5,9),40,100)}
  for(const id of m.hurt){let p=state.squad.find(x=>x.id===id);if(p)p.injury=Math.max(1,n(1,3)-(state.staff.medical>=4?1:0))}
@@ -580,22 +600,22 @@ function analysisUI(){const lm=state.lastMatch;if(!lm)return '<div class="panel"
  const rates=Object.entries(d.ratings).map(([id,val])=>({p:state.squad.find(x=>x.id===id),rating:val})).filter(x=>x.p).sort((a,b)=>b.rating-a.rating).slice(0,11);
  const pos=Math.round(100*us.poss/Math.max(1,us.poss+them.poss));
  return '<section class="panel"><div class="eyebrow accent">FULL-TIME REPORT · ROUND '+lm.round+'</div><div class="live-score">'+CLUBS[lm.home].short+' <b>'+lm.hg+' – '+lm.ag+'</b> '+CLUBS[lm.away].short+'</div><p class="note-line">Statistics for your club (left) and '+CLUBS[lm.home===state.clubId?lm.away:lm.home].name+' (right). Simulated estimates, not real football statistics.</p>'+statBar('Possession',pos,100-pos,'%')+statBar('Shots',us.shots,them.shots)+statBar('On target',us.on,them.on)+statBar('Pass accuracy',Math.round(100*(us.completed||0)/Math.max(1,us.passes)),Math.round(100*(them.completed||0)/Math.max(1,them.passes)),'%')+statBar('Passes',us.passes,them.passes)+statBar('Tackles',us.tackles,them.tackles)+statBar('Expected goals',+us.xg.toFixed(2),+them.xg.toFixed(2))+'</section>'+
- '<section class="panel"><h2>Player ratings</h2>'+rates.map(x=>'<div class="result-line"><span>'+x.p.name+'</span><b>'+x.rating.toFixed(1)+'</b></div>').join('')+'</section>'+
+ '<section class="panel"><h2>Goal scorers &amp; assists</h2>'+((d.goals||[]).length?d.goals.map(g=>'<div class="result-line"><span>⚽ '+g.minute+'′ · '+goalEsc(g.scorer)+' ('+goalEsc(g.club)+')<br><span class="muted">'+(g.assist?'Assist: '+goalEsc(g.assist):'Unassisted')+'</span></span></div>').join(''):'<p class="empty">No goals scored.</p>')+'</section>'+ '<section class="panel"><h2>Player ratings</h2>'+rates.map(x=>'<div class="result-line"><span>'+x.p.name+'</span><b>'+x.rating.toFixed(1)+'</b></div>').join('')+'</section>'+
  '<section class="panel"><h2>Match timeline</h2>'+events.filter(e=>['goal','card','red','injury','sub','whistle'].includes(e.kind)).slice(-16).map(e=>'<div class="result-line"><span>'+e.minute+'′ '+e.text+'</span></div>').join('')+'</section>';
 }
 function matchPitchMarkup(m){ensureLiveActors(m);
  const playerNodes=m.onPitch.map((id,i)=>{const p=state.squad.find(x=>x.id===id);if(!p||m.red.includes(id)||m.hurt.includes(id))return '';const key=liveKey('us',id),xy=m.actors[key]||state.pitchPositions[id]||{x:50,y:50};return '<div class="live-dot us'+(m.carrier===key?' carrier':'')+'" data-live="'+id+'" style="left:'+xy.x+'%;top:'+xy.y+'%" aria-hidden="true">'+(i+1)+'</div>'}).join('');
  const opponent=OPPONENT_ANCHORS.map((pos,i)=>{const key=liveKey('them',i),xy=m.actors[key]||{x:pos[0],y:pos[1]};return '<div class="live-dot them'+(m.carrier===key?' carrier':'')+'" data-opp="'+i+'" style="left:'+xy.x+'%;top:'+xy.y+'%" aria-hidden="true">'+(i+1)+'</div>'}).join('');
- return '<div class="live-pitch" id="live-pitch" role="img" aria-label="Animated 2D match. Yellow is your team, blue is the opposition. The outlined player has the ball."><div class="live-markings"><div class="live-centre"></div><div class="live-circle"></div><div class="live-area top"></div><div class="live-area bottom"></div></div>'+opponent+playerNodes+'<div class="live-ball" id="live-ball" style="left:'+m.ball.x+'%;top:'+m.ball.y+'%"></div><div class="live-team-label top">'+CLUBS[m.opp].short+'</div><div class="live-team-label bottom">YOUR XI</div></div>';
+ return '<div class="live-pitch" id="live-pitch" role="img" aria-label="Animated 2D match. Yellow is your team, blue is the opposition. The outlined player has the ball."><div class="live-markings"><div class="live-centre"></div><div class="live-circle"></div><div class="live-area top"></div><div class="live-area bottom"></div></div>'+opponent+playerNodes+'<div class="live-ball" id="live-ball" style="left:'+m.ball.x+'%;top:'+m.ball.y+'%"></div>'+goalOverlayMarkup(m)+'<div class="live-team-label top">'+CLUBS[m.opp].short+'</div><div class="live-team-label bottom">YOUR XI</div></div>';
 }
 function matchUI(){const m=state.activeMatch;if(!m)return analysisUI();const score=currentScore(m),subs=availableBench(m),on=m.onPitch.filter(id=>!m.red.includes(id)),outP=state.squad.find(p=>p.id===subOut),choices=subs.filter(p=>!outP||p.pos===outP.pos);
- return '<section class="panel live-panel"><div class="eyebrow accent">'+(m.competition==='cup'?'🏆 NATIONAL CUP':'ROUND '+m.round)+' · '+liveStatus(m)+'</div><div class="live-score" id="live-score">'+CLUBS[m.home].short+' <b>'+score[0]+' – '+score[1]+'</b> '+CLUBS[m.away].short+'</div><div class="match-time"><span id="match-minute">'+gameMinute(m)+'′ / 90′</span><div class="match-progress"><i id="match-progress-fill" style="width:'+m.minute/90*100+'%"></i></div></div>'+matchPitchMarkup(m)+'<div class="commentary" id="live-commentary" aria-live="polite">'+(m.actionText||m.comments[0]?.text||'Kick-off ready')+'</div><div class="live-stat" id="live-stat">Shots '+m.stats.us.shots+'–'+m.stats.them.shots+' · Possession '+Math.round(100*m.stats.us.poss/Math.max(1,m.stats.us.poss+m.stats.them.poss))+'%</div>'+
+ return '<section class="panel live-panel"><div class="eyebrow accent">'+(m.competition==='cup'?'🏆 NATIONAL CUP':'ROUND '+m.round)+' · '+liveStatus(m)+'</div><div class="live-score" id="live-score">'+CLUBS[m.home].short+' <b>'+score[0]+' – '+score[1]+'</b> '+CLUBS[m.away].short+'</div><div class="match-time"><span id="match-minute">'+gameMinute(m)+'′ / 90′</span><div class="match-progress"><i id="match-progress-fill" style="width:'+m.minute/90*100+'%"></i></div></div>'+matchPitchMarkup(m)+'<div id="goal-announcement" class="goal-announcement" role="alert" aria-live="assertive"></div><div class="commentary" id="live-commentary" aria-live="polite">'+(m.actionText||m.comments[0]?.text||'Kick-off ready')+'</div><div class="live-stat" id="live-stat">Shots '+m.stats.us.shots+'–'+m.stats.them.shots+' · Possession '+Math.round(100*m.stats.us.poss/Math.max(1,m.stats.us.poss+m.stats.them.poss))+'%</div>'+
  '<div class="buttonrow match-actions"><button class="btn '+(m.paused?'':'secondary')+'" data-action="'+(m.paused?'resume-match':'pause-match')+'">'+(m.paused?'▶ Play':'⏸ Pause')+'</button><button class="btn secondary" data-action="sub-panel" '+(m.subs.length>=5?'disabled':'')+'>⇄ Subs '+m.subs.length+'/5</button><button class="btn ghost" data-action="match-speed">Speed: '+m.speed+'</button></div>'+
  '<div class="divider"></div><div class="controls"><label>Formation<select data-action="formation">'+Object.keys(FORMATIONS).map(x=>'<option'+(state.formation===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label><label>Mentality<select data-action="mentality">'+['balanced','attacking','defensive'].map(x=>'<option value="'+x+'"'+(state.mentality===x?' selected':'')+'>'+x+'</option>').join('')+'</select></label></div>'+instructionsUI()+'</section>'+
  (subOpen?'<section class="panel"><h2>Substitution (pause match)</h2><label class="note-line">Player coming off<select class="sub-select" id="sub-out"><option value="">Choose player</option>'+on.map(id=>{let p=state.squad.find(x=>x.id===id);return '<option value="'+id+'"'+(id===subOut?' selected':'')+'>'+p.name+' · '+p.pos+' · '+Math.round(m.fitness[id]||p.fitness)+'%'+(m.hurt.includes(id)?' Injured':'')+'</option>'}).join('')+'</select></label><label class="note-line">Player coming on<select class="sub-select" id="sub-in"><option value="">Choose substitute</option>'+choices.map(p=>'<option value="'+p.id+'"'+(p.id===subIn?' selected':'')+'>'+p.name+' · '+p.pos+' · '+p.fitness+'%</option>').join('')+'</select></label><div class="buttonrow"><button class="btn" data-action="confirm-sub" '+(!outP||!subIn?'disabled':'')+'>Confirm substitution</button><button class="btn ghost" data-action="close-sub">Cancel</button></div></section>':'')+
  '<section class="panel"><h2>Live updates</h2><div id="live-events">'+m.comments.slice(0,7).map(e=>'<div class="result-line"><span>'+e.minute+'′ '+e.text+'</span></div>').join('')+'</div></section>';
 }
-function updateLiveUI(){if(tab!=='match'||!state?.activeMatch)return;const m=state.activeMatch;ensureLiveActors(m);const text=(id,value)=>{let el=root.querySelector('#'+id);if(el)el.textContent=value};const score=currentScore(m);
+function updateLiveUI(){if(tab!=='match'||!state?.activeMatch)return;const m=state.activeMatch;ensureLiveActors(m);displayGoal(m);const text=(id,value)=>{let el=root.querySelector('#'+id);if(el)el.textContent=value};const score=currentScore(m);
  text('live-score',CLUBS[m.home].short+' '+score[0]+' – '+score[1]+' '+CLUBS[m.away].short);
  text('match-minute',gameMinute(m)+'′ / 90′');const progress=root.querySelector('#match-progress-fill');if(progress)progress.style.width=(m.minute/90*100)+'%';
  text('live-commentary',m.actionText||m.comments[0]?.text||'Kick-off');
