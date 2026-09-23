@@ -1122,6 +1122,18 @@ function closestInterceptor(m,side,dest){
  if(!eligible.length)return null;
  return eligible.sort((a,b)=>liveDistance(m.actors[a],dest)-liveDistance(m.actors[b],dest))[0];
 }
+
+function p6PassLane(m,side,start,end){
+ const dx=end.x-start.x,dy=end.y-start.y,len2=Math.max(1,dx*dx+dy*dy);
+ const blockers=liveActiveKeys(m,side).filter(k=>m.actors[k]).map(key=>{
+  const pos=m.actors[key],t=clamp(((pos.x-start.x)*dx+(pos.y-start.y)*dy)/len2,.08,.94);
+  const point={x:start.x+dx*t,y:start.y+dy*t};
+  return {key,point,gap:liveDistance(pos,point),t}
+ }).sort((a,b)=>a.gap-b.gap);
+ return blockers[0]||null;
+}
+function p6KeeperId(m,side){return side==='us'?m.onPitch.find(id=>state.squad.find(p=>p.id===id)?.pos==='GK')?liveKey('us',m.onPitch.find(id=>state.squad.find(p=>p.id===id)?.pos==='GK')):null:'o:0'}
+
 function runLivePass(m){
  ensureLiveActors(m);driftLiveActors(m);
  const side=m.possessionSide,defending=side==='us'?'them':'us',from=m.carrier;
@@ -1129,11 +1141,11 @@ function runLivePass(m){
  const receiver=receiverFor(m,from,side);
  if(!receiver)return;
  const start={...m.actors[from]},target={...m.actors[receiver]};
- const distance=liveDistance(start,target),interceptor=closestInterceptor(m,defending,target);
- const interceptionGap=interceptor?liveDistance(m.actors[interceptor],target):100;
+ const distance=liveDistance(start,target),lane=p6PassLane(m,defending,start,target),interceptor=lane?.key||null;
+ const interceptionGap=lane?.gap??100;
  const ownBonus=side==='us'?clamp((matchLineupRating(m)-CLUBS[m.opp].power)*.004,-.09,.08):0;
  const passPenalty=side==='us'&&state.instructions.passing==='direct'?.05:side==='us'&&state.instructions.passing==='short'?-.035:0;
- const accuracy=clamp(.93-distance*.0035+ownBonus-passPenalty-(interceptionGap<11?.16:interceptionGap<19?.08:0),.42,.94);
+ const accuracy=clamp(.93-distance*.0035+ownBonus-passPenalty-(interceptionGap<8?.24:interceptionGap<15?.12:0),.36,.94);
  const completed=Math.random()<accuracy;
  const attackingStats=m.stats[side];attackingStats.poss++;attackingStats.passes++;
  if(completed){
@@ -1143,11 +1155,15 @@ function runLivePass(m){
   m.lastPass={from,to:receiver,start,end:{...target},completed:true,minute:m.minute};
  }else if(interceptor){
   // The recipient of an interception must actually be at the ball's endpoint.
-  const landing=liveApproach(m.actors[interceptor],target,Math.min(9,liveDistance(m.actors[interceptor],target)));
+  const landing=liveApproach(m.actors[interceptor],lane.point,Math.min(7,liveDistance(m.actors[interceptor],lane.point)));
   m.actors[interceptor]={...landing};m.carrier=interceptor;m.ball={...landing};
   m.possessionSide=defending;m.stats[defending].tackles++;
   m.actionText=livePlayerName(m,interceptor)+' intercepts '+livePlayerName(m,from)+"'s pass";
   m.lastPass={from,to:interceptor,intended:receiver,start,end:{...landing},completed:false,minute:m.minute};
+ }else{
+  restartLivePossession(m,defending);
+  m.lastPass={from,to:m.carrier,intended:receiver,start,end:{...m.ball},completed:false,minute:m.minute};
+  m.actionText=livePlayerName(m,from)+' misplaces a pass; '+livePlayerName(m,m.carrier)+' collects the loose ball.';
  }
  // Advance the ball carrier a few yards at most; the ball ends at the player.
  if(m.carrier&&m.actors[m.carrier]&&completed){
@@ -1176,8 +1192,11 @@ function p5Keepers(m,side,on,chance){
  const keeper=gkId?state.squad.find(p=>p.id===gkId):null;
  const strength=keeper?keeper.rating:CLUBS[m.opp].power;
  const coach=defending==='us'?state.coaches.goalkeeping:1;
- const saveChance=clamp(.27+(strength-72)*.007+(coach-1)*.014-chance*.22,.13,.43);
- if(Math.random()<saveChance){m.saves=m.saves||{us:0,them:0};m.saves[defending]++;if(keeper)m.ratings[keeper.id]=clamp((m.ratings[keeper.id]||6.3)+.08,4,10);return true}
+ const keeperKey=p6KeeperId(m,defending),keeperPos=keeperKey?m.actors?.[keeperKey]:null;
+ const goalX=50,shotX=m.carrier&&m.actors[m.carrier]?m.actors[m.carrier].x:50;
+ const anglePenalty=Math.abs(shotX-goalX)*.0015;
+ const saveChance=clamp(.3+(strength-72)*.007+(coach-1)*.014-chance*.22-anglePenalty+(keeperPos&&Math.abs(keeperPos.x-shotX)<12?.035:0),.12,.49);
+ if(Math.random()<saveChance){m.saves=m.saves||{us:0,them:0};m.saves[defending]++;if(keeperPos){m.actors[keeperKey]=liveApproach(keeperPos,{x:clamp(shotX,25,75),y:defending==='us'?88:12},5)}if(keeper)m.ratings[keeper.id]=clamp((m.ratings[keeper.id]||6.3)+.08,4,10);return true}
  return false;
 }
 
@@ -1209,8 +1228,9 @@ function attemptLiveShot(m){
  }else{
   logMatch(m,who+(on?' forces a save.':' shoots wide.'),'shot');
   m.actionText=who+(on?' forces a save.':' shoots wide.');
-  restartLivePossession(m,ours?'them':'us');
-  if(!ours){const gk=m.onPitch.find(id=>state.squad.find(p=>p.id===id)?.pos==='GK');if(gk&&m.actors['u:'+gk]){m.carrier='u:'+gk;m.ball={...m.actors[m.carrier]};m.possessionSide='us'}}
+  const defending=ours?'them':'us',keeper=p6KeeperId(m,defending);
+  restartLivePossession(m,defending);
+  if(on&&keeper&&m.actors[keeper]){m.carrier=keeper;m.ball={...m.actors[keeper]};m.possessionSide=defending;m.actionText=who+' shoots and '+livePlayerName(m,keeper)+' saves.'}
  }
 }
 
