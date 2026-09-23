@@ -463,13 +463,15 @@ function submitOffer(){
  if(!player){negotiation=null;render();return}
  const v=negotiation,fee=Number(v.fee),wage=Number(v.wage),years=Number(v.years),loan=v.kind==='loan';
  if(!Number.isFinite(fee)||fee<0||!Number.isFinite(wage)||wage<0||!Number.isInteger(years)||years<1||years>5){offerFeedback='Enter a valid fee, weekly wage and contract (1–5 years).';render();return}
- const required=round2(player.fee*(loan?.16:Math.max(.84,1.07-.045*state.finance.scoutLevel)));
- const asking=loan?Math.ceil(player.wage*.6):Math.ceil(player.wage*.88);
+ const rival=state.transferDuels?.find(x=>x.id===player.id&&!x.closed&&x.expires>state.round);
+ const required=round2(Math.max(player.fee*(loan?.16:Math.max(.84,1.07-.045*state.finance.scoutLevel)),rival?(loan?player.fee*.2:rival.fee*1.02):0));
+ const asking=loan?Math.ceil(player.wage*.6):Math.ceil(Math.max(player.wage*.88,rival?.wage||0));
  if(fee>state.cash){offerFeedback='Not enough transfer funds: you have '+price(state.cash)+'.';render();return}
  if(wage>freeWages()){offerFeedback='Wage cap exceeded: '+currencyK(freeWages())+' available.';render();return}
  if(fee+.0001<required){offerFeedback='Offer rejected. The club seeks at least '+price(required)+(loan?' for the loan fee.':'.');render();return}
  if(wage<asking){offerFeedback='Agent rejected the salary. Minimum requested: '+currencyK(asking)+'.';render();return}
  const signed={...player,fee:loan?player.fee:fee,wage,contract:loan?1:years,loan:loan?1:0,scouted:false};
+ if(rival)rival.closed=true;
  state.cash=round2(state.cash-fee);state.squad.push(signed);
  state.market=state.market.filter(p=>p.id!==v.id);autoLineup();
  offerFeedback='';negotiation=null;flash=signed.name+(loan?' arrives on a season-long loan for ':' signed for ')+price(fee)+' · '+currencyK(wage)+'.';
@@ -554,7 +556,7 @@ function p3BoardRound(){const played=leagueTableRow(state.clubId).p,pts=leagueTa
 function p3FinishSeason(){const r=rank(),won=sorted()[0].id===state.clubId,record={year:state.year,club:state.clubId,position:r,points:leagueTableRow(state.clubId).pts,division:state.division,cup:state.cup.winner===state.clubId};state.career.history.push(record);state.career.seasons++;state.career.reputation=clamp(state.career.reputation+(won?14:r<=4?7:r<=10?3:r>=18?-8:-2)+(record.cup?4:0),1,100);if(won){state.career.trophies++;p3Inbox('Board','League champions! Your managerial reputation has risen.')}state.career.offers=CLUBS.map((c,id)=>({id,score:Math.abs(c.power-(70+state.career.reputation*.1))})).filter(x=>x.id!==state.clubId).sort((a,b)=>a.score-b.score).slice(0,3).map(x=>x.id);p3Inbox('Career','Season review: '+r+' of '+state.table.length+', '+record.points+' points. '+state.career.offers.length+' job opportunities available.')}
 function p3StaffPayroll(){return round2(Object.entries(P3_STAFF).reduce((sum,[role,item])=>sum+item.salary*(state.staff[role]||1),0)+Object.values(state.coaches||{}).reduce((sum,level)=>sum+level*.008,0))}
 function p3Hire(role){const item=P3_STAFF[role];if(!item||state.activeMatch||state.staff[role]>=5)return;const cost=round2(item.cost*state.staff[role]);if(state.cash<cost){flash='Upgrade requires '+price(cost)+' transfer funds.';render();return}state.cash=round2(state.cash-cost);state.staff[role]++;p3Inbox('Staff',item.label+' upgraded to level '+state.staff[role]+'. Recruitment: '+price(cost)+'.');flash='Staff upgrade confirmed.';save();render()}
-function p3SwitchClub(id){if(state.activeMatch||state.round<state.fixtures.length||!state.career.offers.includes(id))return;if(state.jobSearch?.invited!==id)return;const previous=CLUBS[state.clubId].name;state.clubId=id;state.career.clubs.push({id,year:state.year+1});state.futureSignings=[];state.roles={};state.rosterImported=false;state.squad=[];for(const [pos,count] of [['GK',2],['DEF',6],['MID',6],['FWD',4]])for(let i=0;i<count;i++)state.squad.push(makePlayer(pos,CLUBS[id].power));state.cash=CLUBS[id].cash;state.finance=upgradesDefault();state.staff={coach:1,medical:1,scout:1};state.youth=Array.from({length:5},()=>academyProspect(CLUBS[id].power));state.shortlist=[];state.apiCount=0;state.playerInstructions={};state.pitchPositions={};state.career.offers=[];state.jobSearch={status:'employed',applications:[],invited:null};state.board={confidence:70,target:CLUBS[id].power>=77?4:CLUBS[id].power>=73?10:17,objective:'league',promotions:0};p3Inbox('Career','You left '+previous+' and accepted the '+CLUBS[id].name+' manager role.');newSeason();syncRealRoster()}
+function p3SwitchClub(id){if(state.activeMatch||state.round<state.fixtures.length||!state.career.offers.includes(id))return;if(state.jobSearch?.invited!==id)return;const previous=CLUBS[state.clubId].name;state.clubId=id;state.career.clubs.push({id,year:state.year+1});state.futureSignings=[];state.roles={};state.rosterImported=false;state.squad=[];for(const [pos,count] of [['GK',2],['DEF',6],['MID',6],['FWD',4]])for(let i=0;i<count;i++)state.squad.push(makePlayer(pos,CLUBS[id].power));state.cash=CLUBS[id].cash;state.finance=upgradesDefault();state.staff={coach:1,medical:1,scout:1};state.youth=Array.from({length:5},()=>academyProspect(CLUBS[id].power));state.shortlist=[];state.apiCount=0;state.playerInstructions={};state.pitchPositions={};state.career.offers=[];state.jobSearch={status:'employed',applications:[],invited:null};state.board={confidence:70,target:CLUBS[id].power>=77?4:CLUBS[id].power>=73?10:17,objective:'league',promotions:0};state.managerContract={until:state.year+3,salary:1.3,danger:0,renewals:0,dismissed:false};p3Inbox('Career','You left '+previous+' and accepted the '+CLUBS[id].name+' manager role.');newSeason();syncRealRoster()}
 function p3Export(){const payload={format:'touchline26-save',version:3,exportedAt:new Date().toISOString(),career:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='touchline26-'+state.year+'-career.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);flash='Career backup exported. Keep the JSON file safe.';render()}
 function p3ValidState(s){return !!(s&&s.version===1&&Number.isInteger(s.clubId)&&s.clubId>=0&&s.clubId<CLUBS.length&&Number.isInteger(s.round)&&s.round>=0&&s.round<=46&&Array.isArray(s.table)&&[20,24].includes(s.table.length)&&Array.isArray(s.squad)&&s.squad.length>=11&&s.squad.length<150&&Array.isArray(s.fixtures)&&s.fixtures.length===(s.table.length-1)*2)}
 function p3Sanitize(data){if(typeof data==='string')return data.replace(/[<>&"'`]/g,'').slice(0,500);if(Array.isArray(data))return data.map(p3Sanitize);if(data&&typeof data==='object'){const clean=Object.create(null);for(const [k,v] of Object.entries(data)){if(['__proto__','constructor','prototype'].includes(k))continue;clean[k]=p3Sanitize(v)}return clean}return data}
@@ -731,14 +733,34 @@ function p5Badge(){
  state.cash=round2(state.cash-cost);state.career.badge=next;state.career.reputation=clamp(state.career.reputation+4,1,100);
  p3Inbox('Career',P5_BADGES[next]+' coaching badge earned.');flash=P5_BADGES[next]+' badge awarded.';save();render();
 }
-function p5MarketRound(){
- const s=state;if(!s||s.activeMatch)return;
- if(s.round%4===0&&s.round<s.fixtures.length&&s.market.length){
-  const pool=s.market.filter(p=>!s.shortlist.includes(p.id));
-  if(pool.length&&Math.random()<.68){const p=pool[n(0,pool.length-1)];s.market=s.market.filter(x=>x.id!==p.id);s.aiMarket.push({round:s.round,player:p.name,club:CLUBS[s.members[s.division][n(0,s.members[s.division].length-1)]].name});p3Inbox('Transfers',p.name+' signed for another club.')}
+
+function p6RivalBid(p){const clubs=state.members[state.division].filter(id=>id!==state.clubId);const id=clubs[p6Hash(p.id+state.round)%clubs.length];return {id:p.id,club:id,fee:round2(p.fee*(1.02+(p.interest??p6MarketInterest(p))/350)),wage:Math.ceil(p.wage*(1.04+(p.interest??p6MarketInterest(p))/500)),round:state.round,expires:state.round+2}}
+function p6RivalMarket(){
+ const s=state;
+ for(const duel of s.transferDuels.filter(x=>!x.closed&&x.expires<=s.round)){
+  const p=s.market.find(x=>x.id===duel.id);duel.closed=true;
+  if(p){s.market=s.market.filter(x=>x.id!==p.id);s.shortlist=s.shortlist.filter(id=>id!==p.id);s.aiMarket.push({round:s.round,player:p.name,club:CLUBS[duel.club].name,fee:duel.fee});p3Inbox('Transfers',CLUBS[duel.club].name+' signed '+p.name+' for a simulated '+price(duel.fee)+'.')}
  }
- if(s.round%8===0&&s.freeAgents.length){const p=s.freeAgents[n(0,s.freeAgents.length-1)];s.freeAgents=s.freeAgents.filter(x=>x.id!==p.id);p3Inbox('Transfers',p.name+' left the free-agent market.')}
+ if(s.round%4!==0||s.round>=s.fixtures.length||!s.market.length)return;
+ const candidates=s.market.filter(p=>!s.transferDuels.some(d=>d.id===p.id&&!d.closed));if(!candidates.length)return;
+ const p=candidates[p6Hash(s.round+'-'+s.year)%candidates.length],duel=p6RivalBid(p);s.transferDuels.push(duel);s.transferDuels=s.transferDuels.slice(-30);
+ p3Inbox('Transfers',CLUBS[duel.club].name+' bid '+price(duel.fee)+' for '+p.name+'. Competing bid expires after week '+duel.expires+'.');
 }
+function p6ContractReview(){
+ const c=state.managerContract;if(!c||c.reviewYear===state.year)return;c.reviewYear=state.year;
+ const bad=state.board.confidence<35&&rank()>state.board.target+3;
+ if(bad||c.danger>=6){
+  c.dismissed=true;state.jobSearch.status='seeking';state.jobSearch.invited=null;
+  state.career.offers=CLUBS.map((_,id)=>id).filter(id=>id!==state.clubId).sort((a,b)=>Math.abs(CLUBS[a].power-70)-Math.abs(CLUBS[b].power-70)).slice(0,8);
+  p3Inbox('Board','Your manager contract has ended after the season review. Apply for another club job.');
+ }else if(c.until<=state.year+1){
+  c.until=state.year+3;c.renewals++;c.salary=round2(c.salary*1.08);
+  p3Inbox('Board','Manager contract renewed until '+c.until+' with an annual simulated salary of '+price(c.salary)+'.');
+ }
+}
+
+function p5MarketRound(){const x=state;if(!x||x.activeMatch)return;p6RivalMarket();if(x.round%8===0&&x.freeAgents.length){const p=x.freeAgents[n(0,x.freeAgents.length-1)];x.freeAgents=x.freeAgents.filter(y=>y.id!==p.id);p3Inbox('Transfers',p.name+' left the free-agent market.')}}
+
 function p5SignFree(id){
  if(state.activeMatch||state.round>=state.fixtures.length)return;
  const p=state.freeAgents.find(p=>p.id===id);if(!p)return;
@@ -996,6 +1018,7 @@ function p5Interview(id){
 function p5CareerPanel(){
  const js=state.jobSearch;
  let h='<section class="panel"><h2>Job market</h2><p class="p3-note">Status: '+(js.status==='seeking'?'Unemployed':'Managing '+CLUBS[state.clubId].name)+' · Badge '+P5_BADGES[state.career.badge]+'. Interviews are simulated.</p>';
+ h+='<div class="p4-record"><div><span>Contract until</span><b>'+state.managerContract.until+'</b></div><div><span>Annual game salary</span><b>'+price(state.managerContract.salary)+'</b></div><div><span>Job warning</span><b>'+state.managerContract.danger+'/8</b></div><div><span>Renewals</span><b>'+state.managerContract.renewals+'</b></div></div>';
  if(state.round>=state.fixtures.length&&js.status!=='seeking')h+='<button class="btn danger sm" data-action="club-resign">Resign between seasons</button>';
  if(js.status==='seeking')h+='<p class="notice">Accept a new job before the next season.</p>';
  if(state.round>=state.fixtures.length)h+=(state.career.offers.length?state.career.offers.map(id=>'<div class="p3-row"><strong>'+CLUBS[id].name+'</strong><button class="btn sm" data-action="'+(js.invited===id?'switch-club':'job-interview')+'" data-id="'+id+'">'+(js.invited===id?'Accept offer':'Interview')+'</button></div>').join(''):'<p class="empty">No vacancies remain.</p>');
@@ -1325,7 +1348,9 @@ function finishLiveMatch(){
  // Preserve scouting and shortlists across matchweeks; restock the fictional transfer market periodically.
  if(state.round%4===0||state.market.length<4){const incoming=createMarket(CLUBS[state.clubId].power).slice(0,3).map(p=>{p.season=state.year;return p});state.market=[...state.market,...incoming].slice(-12)}
  state.shortlist=state.shortlist.filter(id=>state.market.some(p=>p.id===id));
- state.activeMatch=null;p5MarketRound();p5InternationalRound();advanceOtherLeague();p3BoardRound();p3AdvanceCup();if(state.round===state.fixtures.length){p3FinishSeason();completePromotion()}autoLineup();tab='match';flash='Full time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short+' · See the match analysis.';
+ state.activeMatch=null;p5MarketRound();p5InternationalRound();advanceOtherLeague();p3BoardRound();
+ if(state.managerContract&&state.round>=12)state.managerContract.danger=state.board.confidence<32?Math.min(8,state.managerContract.danger+1):Math.max(0,state.managerContract.danger-1);
+ if(state.managerContract&&state.round%6===0&&state.managerContract.danger>=3)p3Inbox('Board','Manager job-security warning: poor results are under review.');p3AdvanceCup();if(state.round===state.fixtures.length){p3FinishSeason();completePromotion();p6ContractReview()}autoLineup();tab='match';flash='Full time · '+CLUBS[m.home].short+' '+score[0]+'–'+score[1]+' '+CLUBS[m.away].short+' · See the match analysis.';
  save();render();
 }
 function statBar(label,a,b,suffix=''){const total=Math.max(1,a+b);return '<div class="analysis-row"><span>'+label+'</span><b>'+a+suffix+'</b><div class="analysis-track"><i style="width:'+(a/total*100).toFixed(1)+'%"></i></div><b>'+b+suffix+'</b></div>'}
@@ -1507,7 +1532,7 @@ function onAction(action,id){
 case 'train':p5TrainSpecialist();return;
 case 'rest':if(state.trained||state.round>=state.fixtures.length)return;state.squad.forEach(p=>p.fitness=clamp(p.fitness+13+3*((state.staff.medical||1)-1),40,100));state.trained=true;flash='Recovery completed: squad fitness improved.';break;
 case 'start':{const p=state.squad.find(x=>x.id===id);if(!p||p.injury||state.starting.includes(id))return;const same=state.squad.filter(x=>x.pos===p.pos&&state.starting.includes(x.id)).sort((a,b)=>lineupScore(a)-lineupScore(b));if(!same.length){flash='There is no selected starter in this position. Try changing the formation.';break}const oldPosition=state.pitchPositions&&state.pitchPositions[same[0].id];state.starting=state.starting.filter(x=>x!==same[0].id);state.starting.push(id);if(oldPosition){delete state.pitchPositions[same[0].id];state.pitchPositions[id]={...oldPosition}}normalisePitch();flash=p.name+' replaces '+same[0].name+' in the starting XI.';break}
-case 'buy':{const i=state.market.findIndex(p=>p.id===id);if(i<0)return;const p=state.market[i];if(state.cash<p.fee){flash='Not enough money to sign '+p.name+'.';break}state.cash=Math.round((state.cash-p.fee)*100)/100;state.squad.push(p);state.market.splice(i,1);autoLineup();flash=p.name+' signed for '+price(p.fee)+'.';state.news.unshift('Transfer news: '+p.name+' joins '+CLUBS[state.clubId].name+'.');break}
+case 'buy':initiateOffer(id);return;
 case 'sell':{const p=state.squad.find(x=>x.id===id);if(!p)return;const limits={GK:2,DEF:4,MID:5,FWD:3};if(state.squad.length<=14||state.squad.filter(x=>x.pos===p.pos).length<=limits[p.pos]){flash='Keep enough squad depth to cover all available formations (including injuries).';break}const fee=Math.round(p.fee*.6*10)/10;state.cash=Math.round((state.cash+fee)*100)/100;state.squad=state.squad.filter(x=>x.id!==id);autoLineup();flash=p.name+' sold for '+price(fee)+'.';state.news.unshift('Transfer news: '+p.name+' leaves the club.');break}
 default:return}save();render()}
 root.addEventListener('click',e=>{let b=e.target.closest('[data-action]');if(b&&root.contains(b)&&b.tagName!=='SELECT'&&!b.disabled)onAction(b.dataset.action,b.dataset.id)});
