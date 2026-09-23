@@ -530,7 +530,7 @@ function phase3Init(s){
  if(!Array.isArray(s.inbox))s.inbox=[{type:'Board',text:'Your board expects a competitive league finish. Good luck.',year:s.year,round:s.round}];
  if(!s.board||typeof s.board!=='object')s.board={confidence:70,target:CLUBS[s.clubId].power>=77?4:CLUBS[s.clubId].power>=73?10:17};
 }
-function p3Inbox(type,text){state.inbox.unshift({type,text,year:state.year,round:state.round});state.inbox=state.inbox.slice(0,32);state.news.unshift(text);state.news=state.news.slice(0,8)}
+function p3Inbox(type,text){state.inbox.unshift({type,text,year:state.year,round:state.round,read:false});state.inbox=state.inbox.slice(0,32);state.news.unshift(text);state.news=state.news.slice(0,8)}
 function p3OpponentResult(a,b){const m=simulate(a,b);const w=m.hg>m.ag?a:m.hg<m.ag?b:(Math.random()<.5?a:b);state.cup.history.push({stage:state.cup.stage,home:a,away:b,hg:m.hg,ag:m.ag,winner:w,penalties:m.hg===m.ag});return w}
 function p3CloseCupRound(winners){const cup=state.cup;cup.pending=null;cup.roundWinners=[];cup.remaining=winners;cup.stage++;if(winners.length===1){cup.winner=winners[0];p3Inbox('Cup',CLUBS[cup.winner].name+' win the Touchline National Cup.');if(cup.winner===state.clubId){state.career.trophies++;state.career.reputation=clamp(state.career.reputation+9,1,100);state.cash=round2(state.cash+8);p3Inbox('Board','Cup champions! £8m prize money added to the transfer budget.')}}}
 function p3AdvanceCup(){
@@ -545,7 +545,7 @@ function p3AdvanceCup(){
 function p3CompleteCupMatch(m,score){const cup=state.cup,penalty=score[0]===score[1],winner=score[0]>score[1]?m.home:score[0]<score[1]?m.away:(Math.random()<.5?m.home:m.away);cup.history.push({stage:cup.stage,home:m.home,away:m.away,hg:score[0],ag:score[1],winner,penalties:penalty});state.lastMatch.penalties=penalty?CLUBS[winner].name+' won on penalties':null;p3Inbox('Cup',(winner===state.clubId?'You progressed':'You were eliminated')+' in cup round '+(cup.stage+1)+(penalty?' after penalties.':'.'));p3CloseCupRound([...cup.roundWinners,winner])}
 function p3BoardRound(){const played=leagueTableRow(state.clubId).p,pts=leagueTableRow(state.clubId).pts,target=state.board.target,expectation=target<=4?1.8:target<=10?1.3:.95,pace=played?pts/played:expectation;state.board.confidence=clamp(Math.round(70+(pace-expectation)*18+(state.finance.balance<0?-7:0)+(state.cup.winner===state.clubId?12:0)),15,98);const b=state.board;if(b.objective==='finance'){b.confidence=clamp(b.confidence+(state.finance.balance>=0?3:-6),15,98)}else if(b.objective==='development'){b.confidence=clamp(b.confidence+(b.promotions?3:-1),15,98)};if(state.round%6===0)p3Inbox('Board','Board confidence '+b.confidence+'%. Objective: '+(target<=4?'top four':target<=10?'top ten':'avoid relegation')+'; extra: '+(b.objective||'league')+'.')}
 function p3FinishSeason(){const r=rank(),won=sorted()[0].id===state.clubId,record={year:state.year,club:state.clubId,position:r,points:leagueTableRow(state.clubId).pts,division:state.division,cup:state.cup.winner===state.clubId};state.career.history.push(record);state.career.seasons++;state.career.reputation=clamp(state.career.reputation+(won?14:r<=4?7:r<=10?3:r>=18?-8:-2)+(record.cup?4:0),1,100);if(won){state.career.trophies++;p3Inbox('Board','League champions! Your managerial reputation has risen.')}state.career.offers=CLUBS.map((c,id)=>({id,score:Math.abs(c.power-(70+state.career.reputation*.1))})).filter(x=>x.id!==state.clubId).sort((a,b)=>a.score-b.score).slice(0,3).map(x=>x.id);p3Inbox('Career','Season review: '+r+' of '+state.table.length+', '+record.points+' points. '+state.career.offers.length+' job opportunities available.')}
-function p3StaffPayroll(){return round2(Object.entries(P3_STAFF).reduce((sum,[role,item])=>sum+item.salary*(state.staff[role]||1),0))}
+function p3StaffPayroll(){return round2(Object.entries(P3_STAFF).reduce((sum,[role,item])=>sum+item.salary*(state.staff[role]||1),0)+Object.values(state.coaches||{}).reduce((sum,level)=>sum+level*.008,0))}
 function p3Hire(role){const item=P3_STAFF[role];if(!item||state.activeMatch||state.staff[role]>=5)return;const cost=round2(item.cost*state.staff[role]);if(state.cash<cost){flash='Upgrade requires '+price(cost)+' transfer funds.';render();return}state.cash=round2(state.cash-cost);state.staff[role]++;p3Inbox('Staff',item.label+' upgraded to level '+state.staff[role]+'. Recruitment: '+price(cost)+'.');flash='Staff upgrade confirmed.';save();render()}
 function p3SwitchClub(id){if(state.activeMatch||state.round<state.fixtures.length||!state.career.offers.includes(id))return;const previous=CLUBS[state.clubId].name;state.clubId=id;state.career.clubs.push({id,year:state.year+1});state.squad=[];for(const [pos,count] of [['GK',2],['DEF',6],['MID',6],['FWD',4]])for(let i=0;i<count;i++)state.squad.push(makePlayer(pos,CLUBS[id].power));state.cash=CLUBS[id].cash;state.finance=upgradesDefault();state.staff={coach:1,medical:1,scout:1};state.youth=Array.from({length:5},()=>academyProspect(CLUBS[id].power));state.shortlist=[];state.apiCount=0;state.playerInstructions={};state.pitchPositions={};state.career.offers=[];state.board={confidence:70,target:CLUBS[id].power>=77?4:CLUBS[id].power>=73?10:17,objective:'league',promotions:0};p3Inbox('Career','You left '+previous+' and accepted the '+CLUBS[id].name+' manager role.');newSeason();syncRealRoster()}
 function p3Export(){const payload={format:'touchline26-save',version:3,exportedAt:new Date().toISOString(),career:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='touchline26-'+state.year+'-career.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);flash='Career backup exported. Keep the JSON file safe.';render()}
@@ -657,6 +657,8 @@ function p5Init(s){
  s.international=Object.assign({nation:null,played:0,w:0,d:0,l:0,fixtures:[],trophies:0,pending:null,year:s.year},s.international||{});
  if(!Array.isArray(s.international.fixtures))s.international.fixtures=[];
  s.jobSearch=Object.assign({status:'employed',applications:[],invited:null},s.jobSearch||{});
+ s.transferPolicy=s.transferPolicy||'open';s.trainingFocus=s.trainingFocus||'attack';
+ for(const m of s.inbox||[])if(m.read===undefined)m.read=true;
  for(const p of s.squad||[])if(!s.roles[p.id])s.roles[p.id]=P5_ROLES[p.pos]?.[0]?.[0]||'central';
 }
 function p5FreeAgents(year,power){
@@ -800,6 +802,52 @@ function internationalUI(){
  h+='<section class="panel"><h2>National XI · '+(i.starting?.length||0)+'/11</h2><div class="p4-depth">'+(i.squad||[]).map(p=>'<button class="p4-profile" data-action="nation-select" data-id="'+p.id+'"><span>'+(i.starting.includes(p.id)?'✓ ':'')+goalEsc(p.name)+' · '+p.pos+'</span><b>'+p.rating+'</b></button>').join('')+'</div></section>';
  h+='<section class="panel"><h2>International fixtures</h2>'+i.fixtures.map(f=>'<div class="result-line"><span>Week '+f.round+' · '+P5_NATIONS[i.nation]+' vs '+P5_NATIONS[f.opponent]+'</span><b>'+(f.score?f.score.ours+'–'+f.score.them:'Upcoming')+'</b></div>').join('')+'<button class="btn danger sm spaced" data-action="nation-resign">Resign national role</button></section>';
  return h;
+}
+
+
+function p5CoachingPanel(){
+ let h='<section class="panel"><h2>Coaching specialists</h2><div class="p4-depth">';
+ h+=Object.entries(P5_COACHES).map(([key,label])=>'<div class="market-card"><strong>'+label+' · level '+state.coaches[key]+'/5</strong><button class="btn secondary sm spaced" data-action="specialist-hire" data-id="'+key+'" '+(state.coaches[key]>=5||state.cash<state.coaches[key]*.35||!!state.activeMatch?'disabled':'')+'>Upgrade · '+price(round2(state.coaches[key]*.35))+'</button></div>').join('');
+ h+='</div><label class="p4-setting">Training focus <select data-p5-training '+(state.activeMatch?'disabled':'')+'>'+Object.entries(P5_COACHES).map(([key,label])=>'<option value="'+key+'"'+((state.trainingFocus||'attack')===key?' selected':'')+'>'+label+'</option>').join('')+'</select></label><p class="p3-note">Choose a focus, then Train squad once per round on Home.</p></section>';
+ h+='<section class="panel"><h2>Manager badge: '+P5_BADGES[state.career.badge]+'</h2><button class="btn secondary" data-action="badge-course" '+(state.career.badge>=3||!!state.activeMatch?'disabled':'')+'>'+(state.career.badge===3?'Gold badge earned':'Study for '+P5_BADGES[state.career.badge+1]+' · '+price([0,.5,1.2,2.5][state.career.badge+1]))+'</button></section>';
+ return h;
+}
+function p5MarketPanel(){
+ let h='<section class="panel"><h2>Free agents</h2><p class="p3-note">Game-generated out-of-contract players: no fee, but wages apply.</p><div class="p4-depth">';
+ h+=(state.freeAgents||[]).map(p=>'<div class="market-card"><strong>'+goalEsc(p.name)+'</strong><p class="p3-note">'+p.pos+' · '+p.rating+' · '+currencyK(p.wage)+'/week</p><button class="btn secondary sm" data-action="free-sign" data-id="'+p.id+'" '+(!!state.activeMatch||!p5TransferWindowOpen()||state.round>=state.fixtures.length?'disabled':'')+'>Sign free agent</button></div>').join('');
+ h+='</div></section><section class="panel"><h2>Buy and loan back</h2><p class="p3-note">Pay now; the player joins you next season.</p><div class="p4-depth">'+state.market.slice(0,6).map(p=>'<div class="market-card"><strong>'+goalEsc(p.name)+'</strong><p class="p3-note">'+p.pos+' · '+price(round2(p.fee*1.15))+'</p><button class="btn ghost sm" data-action="loan-back" data-id="'+p.id+'" '+(!!state.activeMatch||!p5TransferWindowOpen()||state.round>=state.fixtures.length?'disabled':'')+'>Loan-back deal</button></div>').join('')+'</div><p class="p3-note">Arriving next season: '+(state.futureSignings.length?state.futureSignings.map(p=>goalEsc(p.name)).join(', '):'None')+'</p></section>';
+ h+='<section class="panel"><h2>Transfer policy</h2><label class="p4-setting">First five rounds <select data-p5-policy '+(state.round>0||state.year!==2026||state.activeMatch?'disabled':'')+'><option value="open"'+((state.transferPolicy||'open')==='open'?' selected':'')+'>Open</option><option value="no-first"'+(state.transferPolicy==='no-first'?' selected':'')+'>Restrict signings</option></select></label>'+(p5TransferWindowOpen()?'':'<p class="notice">Signings restricted until matchweek 6.</p>')+'</section>';
+ return h;
+}
+function p5TransferWindowOpen(){return !(state.transferPolicy==='no-first'&&state.year===2026&&state.round<5)}
+function p5AssistantPanel(){return '<section class="panel"><h2>Assistant manager report</h2><p class="p3-note">Your squad, finances and the opposition’s simulated style.</p><button class="btn secondary" data-action="assistant-report" '+(!!state.activeMatch?'disabled':'')+'>Generate report</button>'+(state.assistant.lastRound===state.round?state.assistant.reports.map(x=>'<div class="p5-report">'+goalEsc(x)+'</div>').join(''):'<p class="empty">No current report.</p>')+'</section>'}
+function p5InboxPanel(){
+ const types=['all','Board','Transfers','Scouting','Career','International','Other'],unread=state.inbox.filter(m=>!m.read).length;
+ const rows=state.inbox.filter(m=>inboxFilter==='all'||(inboxFilter==='Other'?!types.slice(1,-1).includes(m.type):m.type===inboxFilter)).slice(0,16);
+ return '<section class="panel"><div class="panel-head"><h2>📬 Inbox · '+unread+' unread</h2><button class="btn ghost sm" data-action="inbox-read">Mark read</button></div><div class="buttonrow">'+types.map(t=>'<button class="btn '+(inboxFilter===t?'':'ghost')+' sm" data-action="inbox-filter" data-id="'+t+'">'+t+'</button>').join('')+'</div>'+(rows.length?rows.map(m=>'<div class="p3-inbox'+(!m.read?' p5-unread':'')+'"><b>'+goalEsc(m.type)+' · Round '+m.round+(!m.read?' · NEW':'')+'</b><span>'+goalEsc(m.text)+'</span></div>').join(''):'<p class="empty">No messages in this category.</p>')+'</section>';
+}
+function p5ResignClub(){
+ if(state.activeMatch||state.round<state.fixtures.length){flash='Finish the season before resigning.';render();return}
+ if(!confirm('Resign as club manager? You will need a new job to continue.'))return;
+ state.jobSearch.status='seeking';state.jobSearch.invited=null;
+ if(!state.career.offers.length)state.career.offers=CLUBS.map((_,id)=>id).filter(id=>id!==state.clubId).slice(0,5);
+ p3Inbox('Career','You are unemployed. Interview for a new club role.');save();render();
+}
+function p5Interview(id){
+ if(state.activeMatch||state.round<state.fixtures.length||!state.career.offers.includes(id))return;
+ const good=state.career.reputation+state.career.badge*5+n(-5,5)>=CLUBS[id].power-13;
+ state.jobSearch.applications.push({club:id,year:state.year,accepted:good});
+ if(good){state.jobSearch.invited=id;p3Inbox('Career',CLUBS[id].name+' offered you a manager role.');flash='Interview successful — accept the offer.'}
+ else{state.career.offers=state.career.offers.filter(x=>x!==id);p3Inbox('Career',CLUBS[id].name+' declined your application.');flash='Interview unsuccessful.'}
+ save();render();
+}
+function p5CareerPanel(){
+ const js=state.jobSearch;
+ let h='<section class="panel"><h2>Job market</h2><p class="p3-note">Status: '+(js.status==='seeking'?'Unemployed':'Managing '+CLUBS[state.clubId].name)+' · Badge '+P5_BADGES[state.career.badge]+'. Interviews are simulated.</p>';
+ if(state.round>=state.fixtures.length&&js.status!=='seeking')h+='<button class="btn danger sm" data-action="club-resign">Resign between seasons</button>';
+ if(js.status==='seeking')h+='<p class="notice">Accept a new job before the next season.</p>';
+ if(state.round>=state.fixtures.length)h+=(state.career.offers.length?state.career.offers.map(id=>'<div class="p3-row"><strong>'+CLUBS[id].name+'</strong><button class="btn sm" data-action="'+(js.invited===id?'switch-club':'job-interview')+'" data-id="'+id+'">'+(js.invited===id?'Accept offer':'Interview')+'</button></div>').join(''):'<p class="empty">No vacancies remain.</p>');
+ return h+'</section>';
 }
 
 function ensureUpgrades(){
