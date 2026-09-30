@@ -1,12 +1,9 @@
-# ClearCV
-Accessible CV checker at https://guyorlov.com/projects/cv-checker/.
-Static GitHub Pages app. No backend, credentials or CV storage.
+# ClearCV workspace redesign
 
-- PDF.js 4.10.38 extracts text PDFs; Mammoth 1.9.0 extracts DOCX text. TXT and paste supported. Scanned PDFs need pasted text; no OCR.
-- Basic checks are explicitly labelled deterministic text-pattern checks. Job comparison is a limited keyword list, not a probability or requirements score.
-- Optional WebLLM 0.2.79 runs Llama 3.2 1B locally with WebGPU. Explicit button initiates a large model download. Unsupported devices retain basic checks. No cloud AI fallback.
-- AI reviews/rephrases one section (2,500 characters max). Output never modifies the CV automatically.
-- Editor exports TXT and uses the browser print dialog for PDF. It does not export DOCX or preserve the original layout.
-- No analytics or local CV persistence. Third-party CDNs/model hosts receive connection metadata, not CV content. Model files may be browser-cached.
+Three stages: Upload, Review, Improve. Document evidence highlights, category count bars, three summary cards, explicit accept/keep editing, text-based document preview, print-to-PDF, display controls, and on-device AI are implemented.
 
-Serve this directory over HTTPS or localhost. Verify uploads, keyboard use, text enlargement, clearing, print and AI on supported hardware before advertising a full production AI service. AI quality and full hardware inference need real-device validation.
+Checks are deterministic and explicitly labelled. No hiring probability, grammar score, or genuine requirements assessment is claimed. Evidence highlights indicate text-pattern matches only. Before/after suggestions use simple wording rules unless the user explicitly runs on-device AI.
+
+Hosted AI is NOT enabled. GitHub Pages cannot run a secret-bearing API. No CV is sent to a hosted model. Launching hosted AI requires a separate backend, a configured model provider, server-side keys, abuse limits, a spending cap, and an explicit user-facing consent/privacy update. Do not put a provider key in browser code. The user's existing unrelated Netlify project has not been modified.
+
+Verification: syntax and DOM integration checks covered the step flow, three dashboard cards, editor initialization, rewrite acceptance, final preview, high contrast and clearing. On-device model inference still requires compatible device testing.
