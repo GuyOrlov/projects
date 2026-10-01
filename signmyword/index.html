@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1479f8">
+  <meta name="description" content="SignMyWord turns any name or word into a shareable ASL or BSL fingerspelling sequence.">
+  <meta property="og:title" content="SignMyWord — Fingerspell and share">
+  <meta property="og:description" content="Type a word. See the fingerspelling. Share one link.">
+  <meta property="og:type" content="website">
+  <title>SignMyWord — Fingerspell and share</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="site-shell header">
+    <a class="brand" href="./" aria-label="SignMyWord home">
+      <span class="brand__mark" aria-hidden="true">SM</span>
+      <span>SignMyWord</span>
+    </a>
+
+    <nav class="nav" id="main-nav" aria-label="Main navigation">
+      <a href="#how-it-works">How it works</a>
+      <a href="#education">For Education</a>
+      <a href="#everyone">For Everyone</a>
+      <a href="#about">About</a>
+    </nav>
+
+    <div class="language-switcher" aria-label="Choose fingerspelling alphabet">
+      <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true">🇺🇸 ASL</button>
+      <button class="language-pill" type="button" data-language="bsl" aria-pressed="false">🇬🇧 BSL</button>
+      <button class="language-pill" type="button" id="more-languages">🌐 More</button>
+    </div>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open navigation" aria-controls="main-nav" aria-expanded="false">☰</button>
+  </header>
+
+  <main>
+    <section class="site-shell hero" aria-labelledby="page-title">
+      <h1 id="page-title">Type a word. See the signs. Share one link.</h1>
+      <p class="hero__intro">Turn any name or word into a clear fingerspelling sequence. Switch between ASL, BSL and more sign-language alphabets, then share it anywhere.</p>
+
+      <div class="badges" aria-label="Key benefits">
+        <span class="badge">⚡ Simple</span>
+        <span class="badge">🔗 Shareable</span>
+        <span class="badge">▣ No video</span>
+        <span class="badge">🌍 World alphabets</span>
+      </div>
+
+      <div class="mobile-language-switcher" aria-label="Choose fingerspelling alphabet">
+        <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true">🇺🇸 ASL</button>
+        <button class="language-pill" type="button" data-language="bsl" aria-pressed="false">🇬🇧 BSL</button>
+        <button class="language-pill" type="button" disabled title="More alphabets coming later">More</button>
+      </div>
+    </section>
+
+    <section class="site-shell generator" aria-label="SignMyWord generator">
+      <section class="panel panel--input" aria-labelledby="input-heading">
+        <div class="panel__heading">
+          <span class="step step--1" aria-hidden="true">1</span>
+          <h2 id="input-heading">User input</h2>
+        </div>
+        <p class="panel__copy">Type any word or name.</p>
+
+        <form class="word-form" id="word-form">
+          <label for="word-input">Type any word or name</label>
+          <input
+            class="word-input"
+            id="word-input"
+            name="word"
+            type="text"
+            value="HELLO"
+            maxlength="32"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            inputmode="text"
+            aria-describedby="form-message"
+          >
+          <button class="button button--primary full-width" type="submit">Show Word →</button>
+          <p class="message" id="form-message" aria-live="polite"></p>
+        </form>
+
+        <p class="examples-label">Try an example</p>
+        <div class="examples">
+          <button class="example-chip" type="button" data-example="WORLD">WORLD</button>
+          <button class="example-chip" type="button" data-example="NAME">NAME</button>
+          <button class="example-chip" type="button" data-example="THANKS">THANKS</button>
+        </div>
+      </section>
+
+      <section class="panel panel--output" aria-labelledby="output-heading">
+        <div class="panel__heading">
+          <span class="step step--2" aria-hidden="true">2</span>
+          <h2 id="output-heading">Fingerspelling output</h2>
+        </div>
+
+        <div class="output-meta">
+          <span id="output-meta">HELLO · 5 letters</span>
+          <span class="output-language" id="output-lang">🇺🇸 ASL</span>
+        </div>
+
+        <div class="letter-output" id="letter-output" aria-live="polite" aria-label="Fingerspelling sequence"></div>
+        <p class="source-note" id="source-note"></p>
+      </section>
+
+      <section class="panel panel--share" aria-labelledby="share-heading">
+        <div class="panel__heading">
+          <span class="step step--3" aria-hidden="true">3</span>
+          <h2 id="share-heading">Shareable link</h2>
+        </div>
+        <p class="panel__copy">Anyone with the link can view the word — no account needed.</p>
+
+        <div class="share-stack">
+          <label class="sr-only" for="share-url">Shareable URL</label>
+          <input class="share-url" id="share-url" type="text" readonly>
+          <button class="button button--primary full-width" id="copy-link" type="button">Copy link</button>
+          <a class="button button--whatsapp full-width" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          <button class="button button--secondary full-width" id="share-native" type="button">Share</button>
+          <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
+          <p class="share-caption">Copy · WhatsApp · QR · Share</p>
+        </div>
+      </section>
+    </section>
+
+    <section class="site-shell how" id="how-it-works" aria-labelledby="how-title">
+      <h2 id="how-title">Three simple steps</h2>
+      <div class="how-grid">
+        <article class="how-card">
+          <div class="how-card__title"><span class="step step--1">1</span><span>Type a word</span></div>
+          <p>Enter any name, place or unfamiliar word using letters A–Z.</p>
+        </article>
+        <article class="how-card">
+          <div class="how-card__title"><span class="step step--2">2</span><span>View the letters</span></div>
+          <p>See the fingerspelling sequence in your selected ASL or BSL alphabet.</p>
+        </article>
+        <article class="how-card">
+          <div class="how-card__title"><span class="step step--3">3</span><span>Share one link</span></div>
+          <p>Send the result by link, QR code, WhatsApp or your device share menu.</p>
+        </article>
+      </div>
+      <p class="disclaimer">SignMyWord is a fingerspelling tool, not automatic translation of full spoken-language sentences into sign language.</p>
+    </section>
+
+    <section class="site-shell info-section" aria-label="Who SignMyWord is for">
+      <div class="info-section__grid">
+        <article class="info-card" id="education">
+          <h2>For Education</h2>
+          <p>Create a word, name or classroom vocabulary item once and share the same link or QR code with learners.</p>
+        </article>
+        <article class="info-card" id="everyone">
+          <h2>For Everyone</h2>
+          <p>Useful for names, places, brands and unfamiliar words when you want a quick fingerspelling reference without installing an app.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="about">
+    <div class="site-shell footer__grid">
+      <div>
+        <p><strong>SignMyWord</strong> — type it, fingerspell it, share it.</p>
+        <p>ASL and BSL artwork is loaded from Wikimedia Commons source files. Always check the individual source file page for the current licence and attribution requirements.</p>
+      </div>
+      <div>
+        <p><a href="https://commons.wikimedia.org/wiki/Category:ASL_letters" target="_blank" rel="noopener noreferrer">ASL source category</a></p>
+        <p><a href="https://commons.wikimedia.org/wiki/Category:British_manual_alphabet" target="_blank" rel="noopener noreferrer">BSL source category</a></p>
+        <p><a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
