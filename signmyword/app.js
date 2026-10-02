@@ -274,6 +274,49 @@ async function signImageDataUrl(language, letter) {
   return dataUrl;
 }
 
+function phraseWords(value) {
+  return String(value || '')
+    .split(' ')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function shareFlagSvg(language) {
+  if (language === 'bsl') {
+    return `
+      <svg class="share-flag-svg" viewBox="0 0 60 36" aria-hidden="true" focusable="false">
+        <rect width="60" height="36" fill="#012169"></rect>
+        <path d="M0 0L60 36M60 0L0 36" stroke="#ffffff" stroke-width="7.2"></path>
+        <path d="M0 0L60 36M60 0L0 36" stroke="#C8102E" stroke-width="4.4"></path>
+        <path d="M30 0V36M0 18H60" stroke="#ffffff" stroke-width="12"></path>
+        <path d="M30 0V36M0 18H60" stroke="#C8102E" stroke-width="7.2"></path>
+      </svg>
+    `;
+  }
+
+  return `
+    <svg class="share-flag-svg" viewBox="0 0 60 36" aria-hidden="true" focusable="false">
+      <rect width="60" height="36" fill="#ffffff"></rect>
+      <g fill="#B22234">
+        <rect y="0" width="60" height="2.77"></rect>
+        <rect y="5.54" width="60" height="2.77"></rect>
+        <rect y="11.08" width="60" height="2.77"></rect>
+        <rect y="16.62" width="60" height="2.77"></rect>
+        <rect y="22.16" width="60" height="2.77"></rect>
+        <rect y="27.70" width="60" height="2.77"></rect>
+        <rect y="33.24" width="60" height="2.76"></rect>
+      </g>
+      <rect width="24" height="19.4" fill="#3C3B6E"></rect>
+      <g fill="#ffffff">
+        <circle cx="3.5" cy="3.4" r="1"></circle><circle cx="8" cy="3.4" r="1"></circle><circle cx="12.5" cy="3.4" r="1"></circle><circle cx="17" cy="3.4" r="1"></circle><circle cx="21.5" cy="3.4" r="1"></circle>
+        <circle cx="5.8" cy="7.2" r="1"></circle><circle cx="10.3" cy="7.2" r="1"></circle><circle cx="14.8" cy="7.2" r="1"></circle><circle cx="19.3" cy="7.2" r="1"></circle>
+        <circle cx="3.5" cy="11" r="1"></circle><circle cx="8" cy="11" r="1"></circle><circle cx="12.5" cy="11" r="1"></circle><circle cx="17" cy="11" r="1"></circle><circle cx="21.5" cy="11" r="1"></circle>
+        <circle cx="5.8" cy="14.8" r="1"></circle><circle cx="10.3" cy="14.8" r="1"></circle><circle cx="14.8" cy="14.8" r="1"></circle><circle cx="19.3" cy="14.8" r="1"></circle>
+      </g>
+    </svg>
+  `;
+}
+
 async function shareCardLetter(letter, language) {
   const config = LANGUAGES[language];
 
@@ -315,6 +358,30 @@ async function shareCardLetter(letter, language) {
   return card;
 }
 
+async function shareCardWordGroup(word, language, index) {
+  const group = document.createElement('section');
+  group.className = 'share-card__word-group';
+
+  const heading = document.createElement('h3');
+  heading.className = 'share-card__word-title';
+  heading.textContent = word;
+  heading.id = `share-card-word-${index}`;
+
+  const letters = document.createElement('div');
+  letters.className = 'share-card__word-letters';
+
+  const cards = await Promise.all(
+    [...word]
+      .filter((char) => /[A-Z]/.test(char))
+      .map((letter) => shareCardLetter(letter, language))
+  );
+
+  letters.append(...cards);
+  group.setAttribute('aria-labelledby', heading.id);
+  group.append(heading, letters);
+  return group;
+}
+
 async function renderShareCard() {
   if (!el.shareCard) return;
 
@@ -322,9 +389,14 @@ async function renderShareCard() {
   const config = LANGUAGES[language];
   const word = state.word;
   const count = letterCount(word);
+  const words = phraseWords(word);
+  const isPhrase = words.length > 1;
 
   el.shareCard.className = `share-card share-card--${shareImageState.style}`;
-  if (count <= 4) {
+
+  if (isPhrase) {
+    el.shareCard.classList.add('share-card--phrase');
+  } else if (count <= 4) {
     el.shareCard.classList.add('share-card--short');
   } else if (count > 12) {
     el.shareCard.classList.add('share-card--very-dense');
@@ -333,16 +405,24 @@ async function renderShareCard() {
   }
 
   if (el.shareCardLanguage) {
-    const flagClass = language === 'bsl' ? 'flag-icon--gb' : 'flag-icon--us';
-    el.shareCardLanguage.innerHTML = `<span class="flag-icon ${flagClass}" aria-hidden="true"></span><span>${config.label}</span>`;
+    el.shareCardLanguage.innerHTML = `${shareFlagSvg(language)}<span>${config.label}</span>`;
   }
 
   el.shareCardTitle.textContent = `Fingerspell ${word} in ${config.name} (${config.label}).`;
   el.shareCardLetters.replaceChildren();
+  el.shareCardLetters.className = 'share-card__letters';
 
-  const letters = [...word].filter((char) => /[A-Z]/.test(char));
-  const cards = await Promise.all(letters.map((letter) => shareCardLetter(letter, language)));
-  el.shareCardLetters.append(...cards);
+  if (isPhrase) {
+    el.shareCardLetters.classList.add('share-card__letters--phrase');
+    const groups = await Promise.all(
+      words.map((singleWord, index) => shareCardWordGroup(singleWord, language, index))
+    );
+    el.shareCardLetters.append(...groups);
+  } else {
+    const letters = [...word].filter((char) => /[A-Z]/.test(char));
+    const cards = await Promise.all(letters.map((letter) => shareCardLetter(letter, language)));
+    el.shareCardLetters.append(...cards);
+  }
 
   el.shareCardQr.replaceChildren();
 
