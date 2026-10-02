@@ -19,7 +19,8 @@ const wordsInput = document.querySelector('#classroom-words');
 const preview = document.querySelector('#classroom-preview');
 const generate = document.querySelector('#classroom-generate');
 const printButton = document.querySelector('#classroom-print');
-const quiz = document.querySelector('#classroom-quiz');\nconst classroomStatus = document.querySelector('#classroom-status');
+const quiz = document.querySelector('#classroom-quiz');
+const classroomStatus = document.querySelector('#classroom-status');
 const languageButtons = [...document.querySelectorAll('[data-classroom-language]')];
 
 function isBlockedClassroomInput(value) {
