@@ -154,8 +154,58 @@ async function commonsOriginalFileUrl(language, letter) {
   return fileUrl;
 }
 
+function cropSvgWhitespace(svgText) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgText, 'image/svg+xml');
+  const svg = doc.documentElement;
+
+  if (!svg || svg.nodeName.toLowerCase() !== 'svg' || doc.querySelector('parsererror')) {
+    throw new Error('Invalid SVG artwork.');
+  }
+
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+  const measurementHost = document.createElement('div');
+  measurementHost.setAttribute('aria-hidden', 'true');
+  measurementHost.style.position = 'fixed';
+  measurementHost.style.left = '-12000px';
+  measurementHost.style.top = '0';
+  measurementHost.style.width = '1000px';
+  measurementHost.style.height = '1000px';
+  measurementHost.style.opacity = '0';
+  measurementHost.style.pointerEvents = 'none';
+  measurementHost.style.overflow = 'visible';
+
+  const measurableSvg = document.importNode(svg, true);
+  measurableSvg.style.width = '1000px';
+  measurableSvg.style.height = '1000px';
+  measurableSvg.style.overflow = 'visible';
+  measurementHost.appendChild(measurableSvg);
+  document.body.appendChild(measurementHost);
+
+  try {
+    const bbox = measurableSvg.getBBox();
+
+    if (bbox && bbox.width > 0 && bbox.height > 0) {
+      const padX = Math.max(bbox.width * 0.045, 2);
+      const padY = Math.max(bbox.height * 0.045, 2);
+
+      svg.setAttribute(
+        'viewBox',
+        `${bbox.x - padX} ${bbox.y - padY} ${bbox.width + padX * 2} ${bbox.height + padY * 2}`
+      );
+    }
+  } finally {
+    measurementHost.remove();
+  }
+
+  return new XMLSerializer().serializeToString(svg);
+}
+
 async function signImageDataUrl(language, letter) {
-  const cacheKey = `${language}:${letter}`;
+  const cacheKey = `${language}:${letter}:trim-v1`;
   if (signAssetCache.has(cacheKey)) return signAssetCache.get(cacheKey);
 
   const config = LANGUAGES[language];
@@ -170,7 +220,17 @@ async function signImageDataUrl(language, letter) {
     throw new Error(`Could not load ${config.label} sign for ${letter}.`);
   }
 
-  const dataUrl = await blobToDataUrl(await response.blob());
+  let blob;
+
+  if (language === 'bsl') {
+    const svgText = await response.text();
+    const croppedSvg = cropSvgWhitespace(svgText);
+    blob = new Blob([croppedSvg], { type: 'image/svg+xml' });
+  } else {
+    blob = await response.blob();
+  }
+
+  const dataUrl = await blobToDataUrl(blob);
   signAssetCache.set(cacheKey, dataUrl);
   return dataUrl;
 }
@@ -180,6 +240,7 @@ async function shareCardLetter(letter, language) {
 
   const card = document.createElement('div');
   card.className = 'share-card__letter';
+  if (language === 'bsl') card.classList.add('share-card__letter--bsl');
 
   const label = document.createElement('p');
   label.className = 'share-card__letter-name';
@@ -641,6 +702,19 @@ function letterCard(letter) {
   image.alt = `${config.name} fingerspelling for the letter ${letter}`;
   image.loading = 'lazy';
   image.decoding = 'async';
+
+  if (state.lang === 'bsl') {
+    card.classList.add('letter-card--bsl');
+    image.classList.add('sign-image--cropped');
+
+    signImageDataUrl('bsl', letter)
+      .then((croppedSrc) => {
+        if (image.isConnected) image.src = croppedSrc;
+      })
+      .catch(() => {
+        // Keep the original Wikimedia image if trimming is unavailable.
+      });
+  }
 
   const fallback = document.createElement('span');
   fallback.className = 'letter-card__fallback';
