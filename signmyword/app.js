@@ -34,7 +34,8 @@ const el = {
   output: document.querySelector('#letter-output'),
   outputMeta: document.querySelector('#output-meta'),
   outputLang: document.querySelector('#output-lang'),
-  mobileOutputHeading: document.querySelector('#mobile-output-heading'),
+  mobileOutputName: document.querySelector('#mobile-output-name'),
+  mobileOutputMeta: document.querySelector('#mobile-output-meta'),
   shareUrl: document.querySelector('#share-url'),
   copy: document.querySelector('#copy-link'),
   whatsapp: document.querySelector('#share-whatsapp'),
@@ -156,8 +157,14 @@ function renderWord() {
   });
 
   el.outputMeta.textContent = `${state.word} · ${count} ${count === 1 ? 'letter' : 'letters'}`;
-  if (el.mobileOutputHeading) {
-    el.mobileOutputHeading.textContent = `2 ${state.word} · ${LANGUAGES[state.lang].label}`;
+
+  if (el.mobileOutputName) {
+    el.mobileOutputName.textContent = state.word;
+  }
+
+  if (el.mobileOutputMeta) {
+    const config = LANGUAGES[state.lang];
+    el.mobileOutputMeta.textContent = `${config.flag} ${config.label} · ${count} ${count === 1 ? 'letter' : 'letters'}`;
   }
 }
 
