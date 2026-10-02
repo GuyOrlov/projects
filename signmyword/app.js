@@ -647,7 +647,6 @@ async function downloadShareImage() {
 async function shareGeneratedImage() {
   try {
     const blob = await ensureShareImageBlob();
-    trackMetric('image_shared', { format: shareImageState.format, style: shareImageState.style });
     const file = new File([blob], imageFileName(), { type: 'image/png' });
     const data = {
       title: `How to fingerspell ${state.word}`,
@@ -658,6 +657,7 @@ async function shareGeneratedImage() {
     if (navigator.canShare?.({ files: [file] }) && navigator.share) {
       try {
         await navigator.share(data);
+        trackMetric('image_shared', { format: shareImageState.format, style: shareImageState.style });
         return;
       } catch (error) {
         if (error?.name === 'AbortError') return;
