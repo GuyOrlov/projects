@@ -2182,3 +2182,100 @@ body.modal-open {
     min-height: 180px;
   }
 }
+
+
+/* Share-image phrase layout and reliable inline language flags */
+.share-flag-svg {
+  width: 36px;
+  height: 22px;
+  display: block;
+  flex: 0 0 36px;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(16, 42, 86, 0.12);
+}
+
+.share-card__language {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.share-card--phrase .share-card__title {
+  margin-bottom: 20px;
+  font-size: 46px;
+}
+
+.share-card__letters--phrase {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+  width: 100%;
+  align-content: start;
+}
+
+.share-card__word-group {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(16, 42, 86, 0.10);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.share-card--dark .share-card__word-group {
+  border-color: rgba(255,255,255,.18);
+  background: rgba(255,255,255,.07);
+}
+
+.share-card--colourful .share-card__word-group {
+  border-color: rgba(255,255,255,.34);
+  background: rgba(255,255,255,.14);
+}
+
+.share-card__word-title {
+  margin: 0 0 10px;
+  color: inherit;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: .04em;
+}
+
+.share-card__word-letters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.share-card__word-letters .share-card__letter {
+  min-width: 0;
+  padding: 9px;
+  border-radius: 15px;
+}
+
+.share-card__word-letters .share-card__letter-name {
+  margin-bottom: 5px;
+  font-size: 22px;
+}
+
+.share-card__word-letters .share-card__letter-box {
+  min-height: 105px;
+  padding: 4px;
+  border-radius: 11px;
+}
+
+.share-card__word-letters .share-card__letter-box img {
+  max-height: 98px;
+}
+
+.share-card__word-letters .share-card__letter--bsl .share-card__letter-box img {
+  max-height: 106px;
+}
+
+.share-card__word-group:first-child .share-card__word-letters {
+  grid-template-columns: repeat(auto-fit, minmax(145px, 190px));
+}
+
+.share-card--phrase .share-card__footer {
+  margin-top: 16px;
+}
