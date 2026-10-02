@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: signmyword-assets
+  cancel-in-progress: true
+
 jobs:
   sync-assets:
     runs-on: ubuntu-latest
@@ -27,14 +31,19 @@ jobs:
           set -euo pipefail
           mkdir -p signmyword/assets/bsl signmyword/assets/asl
 
-          for letter in {A..Z}; do
-            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:FilePath/BSL_letter_${letter}.svg"               -o "signmyword/assets/bsl/${letter}.svg"
+          download_letter() {
+            letter="$1"
 
-            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:FilePath/Sign_language_${letter}.svg"               -o "signmyword/assets/asl/${letter}.svg"
+            curl -L --fail --retry 2 --retry-delay 1               --connect-timeout 10 --max-time 60               -A "SignMyWord/1.0 (https://guyorlov.com/)"               "https://commons.wikimedia.org/wiki/Special:FilePath/BSL_letter_${letter}.svg"               -o "signmyword/assets/bsl/${letter}.svg"
+
+            curl -L --fail --retry 2 --retry-delay 1               --connect-timeout 10 --max-time 60               -A "SignMyWord/1.0 (https://guyorlov.com/)"               "https://commons.wikimedia.org/wiki/Special:FilePath/Sign_language_${letter}.svg"               -o "signmyword/assets/asl/${letter}.svg"
 
             test -s "signmyword/assets/bsl/${letter}.svg"
             test -s "signmyword/assets/asl/${letter}.svg"
-          done
+          }
+
+          export -f download_letter
+          printf '%s\n' {A..Z} | xargs -n1 -P6 bash -c 'download_letter "$1"' _
 
       - name: Commit updated artwork
         shell: bash
