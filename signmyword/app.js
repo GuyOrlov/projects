@@ -717,7 +717,7 @@ function recordRecentSearch(word) {
 
 function renderRecentSearches() {
   if (!el.recentSection || !el.recentChips) return;
-  const recent = readRecentSearches().slice(0, 6);
+  const recent = readRecentSearches().filter((item) => !isBlockedInput(item?.word)).slice(0, 6);
   el.recentChips.replaceChildren();
 
   if (!recent.length) {
@@ -796,7 +796,7 @@ const POPULAR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const POPULAR_API_URL = window.SIGNMYWORD_POPULAR_API || '';
 
 function eligiblePopularWord(word) {
-  return /^[A-Z]+(?: [A-Z]+){0,4}$/.test(word) && word.length <= 32;
+  return /^[A-Z]+(?: [A-Z]+){0,4}$/.test(word) && word.length <= 32 && !isBlockedInput(word);
 }
 
 function readLocalPopularEvents() {
@@ -973,6 +973,10 @@ async function recordPopularSearch(word) {
   }
 
   await refreshPopularSearches();
+}
+
+function isBlockedInput(value) {
+  return Boolean(window.SignMyWordModeration?.check(value)?.blocked);
 }
 
 function cleanWord(value) {
@@ -1192,6 +1196,13 @@ function render() {
 }
 
 function setWord(value, options = {}) {
+  if (isBlockedInput(value)) {
+    el.message.textContent = 'That word or phrase isn’t available on SignMyWord. Try another.';
+    el.input.focus();
+    trackMetric('blocked_search', { lang: state.lang });
+    return;
+  }
+
   const next = cleanWord(value);
   if (!next) {
     el.message.textContent = 'Please enter at least one letter A–Z.';
@@ -1257,12 +1268,17 @@ async function nativeShare() {
 function loadFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const lang = params.get('lang');
-  const word = cleanWord(params.get('word') || '');
+  const rawWord = params.get('word') || '';
+  const blockedWord = isBlockedInput(rawWord);
+  const word = blockedWord ? '' : cleanWord(rawWord);
 
   if (LANGUAGES[lang]) state.lang = lang;
   if (word) state.word = word;
 
   el.input.value = state.word;
+  if (blockedWord) {
+    el.message.textContent = 'That word or phrase isn’t available on SignMyWord. Try another.';
+  }
 }
 
 el.form.addEventListener('submit', (event) => {
