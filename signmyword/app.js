@@ -59,6 +59,10 @@ const el = {
   shareCardTitle: document.querySelector('#share-card-title'),
   shareCardLetters: document.querySelector('#share-card-letters'),
   shareCardQr: document.querySelector('#share-card-qr'),
+  popularSection: document.querySelector('#popular-searches'),
+  popularCloud: document.querySelector('#popular-word-cloud'),
+  popularSubtitle: document.querySelector('#popular-searches-subtitle'),
+  popularTotal: document.querySelector('#popular-searches-total'),
 };
 
 const shareImageState = {
@@ -392,6 +396,178 @@ async function shareGeneratedImage() {
   }
 }
 
+
+const POPULAR_STORAGE_KEY = 'signmyword-popular-searches-v1';
+const POPULAR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const POPULAR_API_URL = window.SIGNMYWORD_POPULAR_API || '';
+
+function eligiblePopularWord(word) {
+  return /^[A-Z]{2,20}$/.test(word);
+}
+
+function readLocalPopularEvents() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(POPULAR_STORAGE_KEY) || '[]');
+    if (!Array.isArray(raw)) return [];
+    const cutoff = Date.now() - POPULAR_WINDOW_MS;
+    return raw
+      .filter((item) => item && typeof item.word === 'string' && Number(item.at) >= cutoff)
+      .slice(-500);
+  } catch {
+    return [];
+  }
+}
+
+function writeLocalPopularEvents(events) {
+  try {
+    localStorage.setItem(POPULAR_STORAGE_KEY, JSON.stringify(events.slice(-500)));
+  } catch {
+    // Popularity data is optional; the generator must keep working without storage.
+  }
+}
+
+function localPopularSummary() {
+  const events = readLocalPopularEvents();
+  const counts = new Map();
+
+  events.forEach(({ word }) => {
+    if (!eligiblePopularWord(word)) return;
+    counts.set(word, (counts.get(word) || 0) + 1);
+  });
+
+  const words = [...counts.entries()]
+    .map(([word, count]) => ({ word, count }))
+    .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
+    .slice(0, 24);
+
+  return {
+    words,
+    total: events.length,
+    source: 'local',
+  };
+}
+
+async function remotePopularSummary() {
+  if (!POPULAR_API_URL) return null;
+
+  try {
+    const response = await fetch(POPULAR_API_URL, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      credentials: 'omit',
+      cache: 'no-store',
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    if (!Array.isArray(data?.words)) return null;
+
+    return {
+      words: data.words
+        .filter((item) => eligiblePopularWord(String(item?.word || '').toUpperCase()) && Number(item?.count) > 0)
+        .map((item) => ({ word: String(item.word).toUpperCase(), count: Number(item.count) }))
+        .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
+        .slice(0, 24),
+      total: Number(data.total) || 0,
+      source: 'site',
+    };
+  } catch {
+    return null;
+  }
+}
+
+function cloudSize(count, min, max) {
+  if (max <= min) return 24;
+  const ratio = (count - min) / (max - min);
+  return Math.round(16 + ratio * 22);
+}
+
+function renderPopularSummary(summary) {
+  if (!el.popularSection || !el.popularCloud || !el.popularTotal || !el.popularSubtitle) return;
+
+  const words = summary?.words || [];
+  if (!words.length) {
+    el.popularSection.hidden = true;
+    return;
+  }
+
+  const counts = words.map((item) => item.count);
+  const min = Math.min(...counts);
+  const max = Math.max(...counts);
+
+  el.popularCloud.replaceChildren();
+
+  words.forEach(({ word, count }) => {
+    const button = document.createElement('button');
+    button.className = 'popular-word';
+    button.type = 'button';
+    button.style.setProperty('--popular-size', `${cloudSize(count, min, max)}px`);
+    button.style.setProperty('--popular-weight', count === max ? '800' : '700');
+    button.title = `${word}: ${count} ${count === 1 ? 'search' : 'searches'} in the last 7 days`;
+    button.setAttribute('aria-label', `${word}, ${count} ${count === 1 ? 'search' : 'searches'}`);
+
+    const label = document.createElement('span');
+    label.textContent = word;
+
+    const countLabel = document.createElement('span');
+    countLabel.className = 'popular-word__count';
+    countLabel.textContent = count;
+    countLabel.setAttribute('aria-hidden', 'true');
+
+    button.append(label, countLabel);
+    button.addEventListener('click', () => {
+      setWord(word, { track: false });
+      document.querySelector('.generator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    el.popularCloud.appendChild(button);
+  });
+
+  if (summary.source === 'site') {
+    el.popularSubtitle.textContent = 'Based on anonymous aggregate searches across SignMyWord over the last 7 days.';
+    el.popularTotal.textContent = `${summary.total.toLocaleString()} searches this week`;
+  } else {
+    el.popularSubtitle.textContent = 'Based on genuine searches from this browser over the last 7 days.';
+    el.popularTotal.textContent = `${summary.total.toLocaleString()} ${summary.total === 1 ? 'search' : 'searches'} this week on this browser`;
+  }
+
+  el.popularSection.hidden = false;
+}
+
+async function refreshPopularSearches() {
+  const remote = await remotePopularSummary();
+  renderPopularSummary(remote || localPopularSummary());
+}
+
+async function recordPopularSearch(word) {
+  if (!eligiblePopularWord(word)) return;
+
+  let remoteRecorded = false;
+
+  if (POPULAR_API_URL) {
+    try {
+      const response = await fetch(POPULAR_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'omit',
+        body: JSON.stringify({ word }),
+      });
+      remoteRecorded = response.ok;
+    } catch {
+      remoteRecorded = false;
+    }
+  }
+
+  if (!remoteRecorded) {
+    const events = readLocalPopularEvents();
+    events.push({ word, at: Date.now() });
+    writeLocalPopularEvents(events);
+  }
+
+  await refreshPopularSearches();
+}
+
 function cleanWord(value) {
   return value
     .toUpperCase()
@@ -540,7 +716,7 @@ function render() {
   invalidateShareImage();
 }
 
-function setWord(value) {
+function setWord(value, options = {}) {
   const next = cleanWord(value);
   if (!next) {
     el.message.textContent = 'Please enter at least one letter A–Z.';
@@ -551,6 +727,10 @@ function setWord(value) {
   el.input.value = next;
   el.message.textContent = '';
   render();
+
+  if (options.track !== false) {
+    recordPopularSearch(next);
+  }
 }
 
 function setLanguage(language) {
@@ -648,3 +828,4 @@ document.addEventListener('keydown', (event) => {
 
 loadFromUrl();
 render();
+refreshPopularSearches();
