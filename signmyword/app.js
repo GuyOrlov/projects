@@ -614,15 +614,23 @@ function renderPopularSummary(summary) {
     button.title = `${word}: ${count} ${count === 1 ? 'search' : 'searches'} in the last 7 days`;
     button.setAttribute('aria-label', `${word}, ${count} ${count === 1 ? 'search' : 'searches'}`);
 
-    const label = document.createElement('span');
-    label.textContent = word;
+    const tier =
+      count >= max * 0.66 ? 'high' :
+      count >= max * 0.33 ? 'medium' :
+      'low';
+
+    button.dataset.tier = tier;
 
     const countLabel = document.createElement('span');
     countLabel.className = 'popular-word__count';
     countLabel.textContent = count;
     countLabel.setAttribute('aria-hidden', 'true');
 
-    button.append(label, countLabel);
+    const label = document.createElement('span');
+    label.className = 'popular-word__label';
+    label.textContent = word;
+
+    button.append(countLabel, label);
     button.addEventListener('click', () => {
       setWord(word, { track: false });
       document.querySelector('.generator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
