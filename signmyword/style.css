@@ -433,6 +433,19 @@ a {
   height: auto;
 }
 
+.letter-card--bsl .letter-card__image {
+  padding: 3px;
+}
+
+.letter-card--bsl .letter-card__image img {
+  max-width: 100%;
+  max-height: 102px;
+}
+
+.sign-image--cropped {
+  object-fit: contain;
+}
+
 .letter-card__fallback {
   color: var(--smw-text-secondary);
   font-size: 11px;
@@ -897,6 +910,15 @@ body.modal-open {
   max-height: 155px;
   width: auto;
   height: auto;
+}
+
+.share-card__letter--bsl .share-card__letter-box {
+  padding: 3px;
+}
+
+.share-card__letter--bsl .share-card__letter-box img {
+  max-width: 100%;
+  max-height: 175px;
 }
 
 .share-card__footer {
@@ -1401,6 +1423,14 @@ body.modal-open {
 
   .letter-card__image img {
     max-height: 92px;
+  }
+
+  .letter-card--bsl .letter-card__image {
+    padding: 3px;
+  }
+
+  .letter-card--bsl .letter-card__image img {
+    max-height: 112px;
   }
 
   .letter-separator {
