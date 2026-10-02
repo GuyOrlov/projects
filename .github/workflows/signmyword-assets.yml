@@ -1,0 +1,44 @@
+name: Sync SignMyWord alphabet assets
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 1 * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/signmyword-assets.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download BSL and ASL SVGs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p signmyword/assets/bsl signmyword/assets/asl
+
+          for letter in {A..Z}; do
+            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:Redirect/file/BSL_letter_${letter}.svg"               -o "signmyword/assets/bsl/${letter}.svg"
+
+            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sign_language_${letter}.svg"               -o "signmyword/assets/asl/${letter}.svg"
+          done
+
+      - name: Commit updated artwork
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add signmyword/assets/bsl signmyword/assets/asl
+          if git diff --cached --quiet; then
+            echo "Alphabet assets are already current."
+          else
+            git commit -m "Sync SignMyWord alphabet SVG assets [skip ci]"
+            git push
+          fi
