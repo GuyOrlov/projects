@@ -19,9 +19,9 @@
     <a class="brand" href="./" aria-label="SignMyWord home">SignMyWord</a>
 
     <div class="language-switcher" aria-label="Choose fingerspelling alphabet">
-      <button class="language-pill" type="button" data-language="bsl" aria-pressed="false">🇬🇧 BSL</button>
-      <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true">🇺🇸 ASL</button>
-      <button class="language-pill" type="button" id="more-languages">🌐 More</button>
+      <button class="language-pill" type="button" data-language="bsl" aria-pressed="false"><span class="language-flag" aria-hidden="true">🇬🇧</span><span>BSL</span></button>
+      <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true"><span class="language-flag" aria-hidden="true">🇺🇸</span><span>ASL</span></button>
+      <button class="language-pill" type="button" id="more-languages">More</button>
     </div>
   </header>
 
@@ -109,6 +109,12 @@
 
   </main>
 
+  <footer class="legal-footer">
+    <div class="site-shell legal-footer__inner">
+      <span>© 2026 Guy Orlov</span>
+      <a href="./terms.html">Terms</a>
+    </div>
+  </footer>
 
   <div class="image-modal" id="image-modal" hidden>
     <div class="image-modal__backdrop" data-close-image-modal></div>
