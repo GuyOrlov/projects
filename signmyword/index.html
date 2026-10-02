@@ -29,8 +29,8 @@
     </nav>
 
     <div class="language-switcher" aria-label="Choose fingerspelling alphabet">
-      <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true">🇺🇸 ASL</button>
       <button class="language-pill" type="button" data-language="bsl" aria-pressed="false">🇬🇧 BSL</button>
+      <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true">🇺🇸 ASL</button>
       <button class="language-pill" type="button" id="more-languages">🌐 More</button>
     </div>
 
@@ -40,7 +40,7 @@
   <main>
     <section class="site-shell hero" aria-labelledby="page-title">
       <h1 id="page-title">Type a word. See the signs. Share one link.</h1>
-      <p class="hero__intro"><span class="hero__intro-desktop">Turn any name or word into a clear fingerspelling sequence. Switch between ASL, BSL and more sign-language alphabets, then share it anywhere.</span><span class="hero__intro-mobile">Fast fingerspelling for names and words, with ASL, BSL and more alphabets.</span></p>
+      <p class="hero__intro"><span class="hero__intro-desktop">Turn any name or word into a clear fingerspelling sequence. Switch between BSL, ASL and more sign-language alphabets, then share it anywhere.</span><span class="hero__intro-mobile">Fast fingerspelling for names and words, with BSL, ASL and more alphabets.</span></p>
 
       <div class="badges" aria-label="Key benefits">
         <span class="badge">⚡ Simple</span>
@@ -50,8 +50,8 @@
       </div>
 
       <div class="mobile-language-switcher" aria-label="Choose fingerspelling alphabet">
-        <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true">🇺🇸 ASL</button>
         <button class="language-pill" type="button" data-language="bsl" aria-pressed="false">🇬🇧 BSL</button>
+        <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true">🇺🇸 ASL</button>
         <button class="language-pill" type="button" disabled title="More alphabets coming later">More</button>
       </div>
     </section>
@@ -117,9 +117,11 @@
         <div class="share-stack">
           <label class="sr-only" for="share-url">Shareable URL</label>
           <input class="share-url" id="share-url" type="text" readonly>
-          <button class="button button--primary full-width" id="copy-link" type="button">Copy link</button>
-          <a class="button button--whatsapp full-width" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-          <button class="button button--secondary full-width" id="share-native" type="button">Share</button>
+          <div class="share-actions">
+            <button class="button button--primary full-width" id="copy-link" type="button">Copy link</button>
+            <a class="button button--whatsapp full-width" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <button class="button button--secondary full-width" id="share-native" type="button">Share</button>
+          </div>
           <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
           <p class="share-caption">Copy · WhatsApp · QR · Email</p>
         </div>
