@@ -34,7 +34,7 @@ const el = {
   output: document.querySelector('#letter-output'),
   outputMeta: document.querySelector('#output-meta'),
   outputLang: document.querySelector('#output-lang'),
-  mobileOutputName: document.querySelector('#mobile-output-name'),
+  mobileOutputTitle: document.querySelector('#mobile-output-title'),
   mobileOutputMeta: document.querySelector('#mobile-output-meta'),
   shareUrl: document.querySelector('#share-url'),
   copy: document.querySelector('#copy-link'),
@@ -59,8 +59,7 @@ const el = {
   downloadShareImage: document.querySelector('#download-share-image'),
   shareImageFile: document.querySelector('#share-image-file'),
   shareCard: document.querySelector('#share-card'),
-  shareCardWord: document.querySelector('#share-card-word'),
-  shareCardLanguage: document.querySelector('#share-card-language'),
+  shareCardTitle: document.querySelector('#share-card-title'),
   shareCardLetters: document.querySelector('#share-card-letters'),
   shareCardQr: document.querySelector('#share-card-qr'),
 };
@@ -70,6 +69,8 @@ const shareImageState = {
   blob: null,
   previewUrl: null,
 };
+
+const signAssetCache = new Map();
 
 function revokeShareImagePreview() {
   if (shareImageState.previewUrl) {
@@ -106,8 +107,37 @@ function setImageModalStatus(message = '') {
   if (el.imageModalStatus) el.imageModalStatus.textContent = message;
 }
 
-function shareCardLetter(letter) {
-  const config = LANGUAGES[state.lang];
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener('load', () => resolve(reader.result), { once: true });
+    reader.addEventListener('error', () => reject(reader.error || new Error('Could not read sign image.')), { once: true });
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function signImageDataUrl(language, letter) {
+  const cacheKey = `${language}:${letter}`;
+  if (signAssetCache.has(cacheKey)) return signAssetCache.get(cacheKey);
+
+  const config = LANGUAGES[language];
+  const response = await fetch(config.file(letter), {
+    mode: 'cors',
+    credentials: 'omit',
+    cache: 'force-cache',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Could not load ${config.label} sign for ${letter}.`);
+  }
+
+  const dataUrl = await blobToDataUrl(await response.blob());
+  signAssetCache.set(cacheKey, dataUrl);
+  return dataUrl;
+}
+
+async function shareCardLetter(letter, language) {
+  const config = LANGUAGES[language];
 
   const card = document.createElement('div');
   card.className = 'share-card__letter';
@@ -120,29 +150,39 @@ function shareCardLetter(letter) {
   box.className = 'share-card__letter-box';
 
   const image = document.createElement('img');
-  image.crossOrigin = 'anonymous';
-  image.src = config.file(letter);
   image.alt = `${config.name} fingerspelling for the letter ${letter}`;
 
-  image.addEventListener('error', () => {
-    box.replaceChildren();
-    const fallback = document.createElement('strong');
-    fallback.textContent = letter;
-    fallback.style.fontSize = '54px';
-    fallback.style.lineHeight = '1';
-    box.appendChild(fallback);
-  });
+  try {
+    image.src = await signImageDataUrl(language, letter);
+    box.appendChild(image);
+  } catch (error) {
+    const visibleImage = [...el.output.querySelectorAll('.letter-card')].find(
+      (item) => item.querySelector('.letter-card__letter')?.textContent?.trim() === letter
+    )?.querySelector('.letter-card__image img');
 
-  box.appendChild(image);
+    if (visibleImage?.currentSrc || visibleImage?.src) {
+      image.src = visibleImage.currentSrc || visibleImage.src;
+      box.appendChild(image);
+    } else {
+      const fallback = document.createElement('strong');
+      fallback.textContent = letter;
+      fallback.style.fontSize = '54px';
+      fallback.style.lineHeight = '1';
+      box.appendChild(fallback);
+    }
+  }
+
   card.append(label, box);
   return card;
 }
 
-function renderShareCard() {
+async function renderShareCard() {
   if (!el.shareCard) return;
 
-  const config = LANGUAGES[state.lang];
-  const count = letterCount(state.word);
+  const language = state.lang;
+  const config = LANGUAGES[language];
+  const word = state.word;
+  const count = letterCount(word);
 
   el.shareCard.className = `share-card share-card--${shareImageState.style}`;
   if (count > 12) {
@@ -151,15 +191,12 @@ function renderShareCard() {
     el.shareCard.classList.add('share-card--dense');
   }
 
-  el.shareCardWord.textContent = state.word;
-  el.shareCardLanguage.textContent = `in ${config.label} ${config.flag}`;
+  el.shareCardTitle.textContent = `How to fingerspell ${word} in ${config.label} ${config.flag}`;
   el.shareCardLetters.replaceChildren();
 
-  [...state.word].forEach((char) => {
-    if (/[A-Z]/.test(char)) {
-      el.shareCardLetters.appendChild(shareCardLetter(char));
-    }
-  });
+  const letters = [...word].filter((char) => /[A-Z]/.test(char));
+  const cards = await Promise.all(letters.map((letter) => shareCardLetter(letter, language)));
+  el.shareCardLetters.append(...cards);
 
   el.shareCardQr.replaceChildren();
 
@@ -205,7 +242,7 @@ async function generateShareImageBlob() {
   if (el.imagePreview) el.imagePreview.hidden = true;
   setImageModalStatus('');
 
-  renderShareCard();
+  await renderShareCard();
 
   if (document.fonts?.ready) {
     await document.fonts.ready;
@@ -428,12 +465,13 @@ function renderWord() {
 
   el.outputMeta.textContent = `${state.word} · ${count} ${count === 1 ? 'letter' : 'letters'}`;
 
-  if (el.mobileOutputName) {
-    el.mobileOutputName.textContent = state.word;
+  const config = LANGUAGES[state.lang];
+
+  if (el.mobileOutputTitle) {
+    el.mobileOutputTitle.textContent = `How to fingerspell ${state.word} in ${config.label} ${config.flag}`;
   }
 
   if (el.mobileOutputMeta) {
-    const config = LANGUAGES[state.lang];
     el.mobileOutputMeta.textContent = `${config.flag} ${config.label} · ${count} ${count === 1 ? 'letter' : 'letters'}`;
   }
 }
