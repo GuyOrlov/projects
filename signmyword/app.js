@@ -116,12 +116,50 @@ function blobToDataUrl(blob) {
   });
 }
 
+function commonsFileName(language, letter) {
+  return language === 'bsl'
+    ? `BSL_letter_${letter}.svg`
+    : `Sign_language_${letter}.svg`;
+}
+
+async function commonsOriginalFileUrl(language, letter) {
+  const filename = commonsFileName(language, letter);
+  const apiUrl = new URL('https://commons.wikimedia.org/w/api.php');
+  apiUrl.searchParams.set('action', 'query');
+  apiUrl.searchParams.set('format', 'json');
+  apiUrl.searchParams.set('origin', '*');
+  apiUrl.searchParams.set('prop', 'imageinfo');
+  apiUrl.searchParams.set('iiprop', 'url');
+  apiUrl.searchParams.set('titles', `File:${filename}`);
+
+  const response = await fetch(apiUrl, {
+    mode: 'cors',
+    credentials: 'omit',
+    cache: 'force-cache',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Could not resolve ${LANGUAGES[language].label} sign for ${letter}.`);
+  }
+
+  const data = await response.json();
+  const page = Object.values(data?.query?.pages || {})[0];
+  const fileUrl = page?.imageinfo?.[0]?.url;
+
+  if (!fileUrl) {
+    throw new Error(`No Wikimedia image was found for ${letter}.`);
+  }
+
+  return fileUrl;
+}
+
 async function signImageDataUrl(language, letter) {
   const cacheKey = `${language}:${letter}`;
   if (signAssetCache.has(cacheKey)) return signAssetCache.get(cacheKey);
 
   const config = LANGUAGES[language];
-  const response = await fetch(config.file(letter), {
+  const fileUrl = await commonsOriginalFileUrl(language, letter);
+  const response = await fetch(fileUrl, {
     mode: 'cors',
     credentials: 'omit',
     cache: 'force-cache',
