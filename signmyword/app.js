@@ -44,7 +44,6 @@ const el = {
   message: document.querySelector('#form-message'),
   languageButtons: [...document.querySelectorAll('[data-language]')],
   exampleButtons: [...document.querySelectorAll('[data-example]')],
-  more: document.querySelector('#more-languages'),
   sourceNote: document.querySelector('#source-note'),
   openImageMaker: document.querySelector('#open-image-maker'),
   imageModal: document.querySelector('#image-modal'),
@@ -616,10 +615,6 @@ el.exampleButtons.forEach((button) => {
 
 el.copy.addEventListener('click', copyLink);
 el.share.addEventListener('click', nativeShare);
-
-el.more.addEventListener('click', () => {
-  el.message.textContent = 'More fingerspelling alphabets are planned. ASL and BSL are available now.';
-});
 
 el.openImageMaker?.addEventListener('click', openImageMaker);
 el.closeImageModal?.addEventListener('click', closeImageMaker);
