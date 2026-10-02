@@ -1116,36 +1116,69 @@ body.modal-open {
 
 .popular-word-cloud {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px 18px;
+  gap: 12px 14px;
   min-height: 50px;
 }
 
 .popular-word {
-  border: 0;
-  padding: 2px 4px;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(20, 121, 248, 0.14);
+  border-radius: 14px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.86);
   color: var(--smw-text-primary);
   cursor: pointer;
   font-size: var(--popular-size, 18px);
   font-weight: var(--popular-weight, 700);
-  line-height: 1.05;
+  line-height: 1;
   letter-spacing: -0.025em;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 
 .popular-word:hover,
 .popular-word:focus-visible {
-  color: var(--smw-blue);
+  border-color: rgba(20, 121, 248, 0.38);
+  box-shadow: 0 8px 24px rgba(16, 42, 86, 0.08);
+  transform: translateY(-1px);
+}
+
+.popular-word__label {
+  color: #102a56;
+  font-weight: 800;
 }
 
 .popular-word__count {
-  margin-left: 4px;
-  color: var(--smw-text-secondary);
-  font-size: 10px;
-  font-weight: 700;
-  vertical-align: super;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.popular-word[data-tier="high"] .popular-word__count {
+  background: #ffe3d2;
+  color: #9a3412;
+}
+
+.popular-word[data-tier="medium"] .popular-word__count {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.popular-word[data-tier="low"] .popular-word__count {
+  background: #dcfce7;
+  color: #166534;
 }
 
 .legal-footer {
@@ -1798,12 +1831,6 @@ body.modal-open {
   color: #d46012;
 }
 
-.popular-word {
-  padding: 9px 13px;
-  border: 1px solid rgba(20,121,248,.12);
-  border-radius: 13px;
-  background: rgba(255,255,255,.65);
-}
 
 .share-card__topline {
   display: flex;
