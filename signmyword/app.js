@@ -9,6 +9,9 @@ const LANGUAGES = {
     flag: '🇺🇸',
     name: 'American Sign Language',
     file(letter) {
+      return `./assets/asl/${letter}.svg`;
+    },
+    remoteFile(letter) {
       return `https://commons.wikimedia.org/wiki/Special:Redirect/file/Sign_language_${letter}.svg`;
     },
     source(letter) {
@@ -20,6 +23,9 @@ const LANGUAGES = {
     flag: '🇬🇧',
     name: 'British Sign Language',
     file(letter) {
+      return `./assets/bsl/${letter}.svg`;
+    },
+    remoteFile(letter) {
       return `https://commons.wikimedia.org/wiki/Special:Redirect/file/BSL_letter_${letter}.svg`;
     },
     source(letter) {
@@ -64,13 +70,59 @@ const el = {
   popularCloud: document.querySelector('#popular-word-cloud'),
   popularSubtitle: document.querySelector('#popular-searches-subtitle'),
   popularTotal: document.querySelector('#popular-searches-total'),
+  surpriseWord: document.querySelector('#surprise-word'),
+  recentSection: document.querySelector('#recent-searches'),
+  recentChips: document.querySelector('#recent-searches-chips'),
+  practiceMode: document.querySelector('#practice-mode'),
+  classroomLink: document.querySelector('#classroom-link'),
+  copyEmbed: document.querySelector('#copy-embed'),
+  imageFormatButtons: [...document.querySelectorAll('[data-card-format]')],
+  copyImage: document.querySelector('#copy-image'),
 };
 
 const shareImageState = {
   style: 'light',
+  format: 'portrait',
   blob: null,
   previewUrl: null,
 };
+
+const SHARE_FORMATS = {
+  portrait: { width: 1080, height: 1350, label: 'portrait' },
+  square: { width: 1080, height: 1080, label: 'square' },
+  story: { width: 1080, height: 1920, label: 'story' },
+};
+
+const SURPRISE_WORDS = [
+  'GOOD MORNING',
+  'HAPPY BIRTHDAY',
+  'I LOVE YOU',
+  'THANK YOU',
+  'BEST FRIEND',
+  'WELCOME',
+  'FAMILY',
+  'SMILE',
+  'WEEKEND',
+  'YOU ARE AMAZING',
+];
+
+const RECENT_STORAGE_KEY = 'signmyword-recent-v1';
+const METRICS_STORAGE_KEY = 'signmyword-metrics-v1';
+let practiceModeActive = false;
+
+function trackMetric(name, detail = {}) {
+  try {
+    const metrics = JSON.parse(localStorage.getItem(METRICS_STORAGE_KEY) || '{}');
+    metrics[name] = (Number(metrics[name]) || 0) + 1;
+    localStorage.setItem(METRICS_STORAGE_KEY, JSON.stringify(metrics));
+  } catch {
+    // Metrics are optional and stay anonymous on this device.
+  }
+
+  if (Array.isArray(window.dataLayer)) {
+    window.dataLayer.push({ event: `signmyword_${name}`, ...detail });
+  }
+}
 
 const signAssetCache = new Map();
 
@@ -102,7 +154,7 @@ function imageFileName() {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'word';
 
-  return `signmyword-${state.lang}-${safeWord}.png`;
+  return `signmyword-${state.lang}-${safeWord}-${shareImageState.format}.png`;
 }
 
 function setImageModalStatus(message = '') {
@@ -254,18 +306,28 @@ async function rasterizeSignArtworkDataUrl(blob, { crop = false } = {}) {
 }
 
 async function signImageDataUrl(language, letter) {
-  const cacheKey = `${language}:${letter}:png-v3`;
+  const cacheKey = `${language}:${letter}:local-png-v4`;
   if (signAssetCache.has(cacheKey)) return signAssetCache.get(cacheKey);
 
   const config = LANGUAGES[language];
-  const fileUrl = await commonsOriginalFileUrl(language, letter);
-  const response = await fetch(fileUrl, {
-    mode: 'cors',
-    credentials: 'omit',
-    cache: 'force-cache',
-  });
+  let response;
 
-  if (!response.ok) {
+  try {
+    response = await fetch(config.file(letter), { cache: 'force-cache' });
+  } catch {
+    response = null;
+  }
+
+  if (!response?.ok) {
+    const fileUrl = await commonsOriginalFileUrl(language, letter);
+    response = await fetch(fileUrl, {
+      mode: 'cors',
+      credentials: 'omit',
+      cache: 'force-cache',
+    });
+  }
+
+  if (!response?.ok) {
     throw new Error(`Could not load ${config.label} sign for ${letter}.`);
   }
 
@@ -404,7 +466,11 @@ async function renderShareCard() {
   const words = phraseWords(word);
   const isPhrase = words.length > 1;
 
-  el.shareCard.className = `share-card share-card--${shareImageState.style}`;
+  const format = SHARE_FORMATS[shareImageState.format] || SHARE_FORMATS.portrait;
+  el.shareCard.className = `share-card share-card--${shareImageState.style} share-card--format-${shareImageState.format}`;
+  el.shareCard.style.width = `${format.width}px`;
+  el.shareCard.style.height = `${format.height}px`;
+  el.shareCard.parentElement.style.width = `${format.width}px`;
 
   if (isPhrase) {
     el.shareCard.classList.add('share-card--phrase');
@@ -496,14 +562,15 @@ async function generateShareImageBlob() {
   await waitForShareCardImages();
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
+  const format = SHARE_FORMATS[shareImageState.format] || SHARE_FORMATS.portrait;
   const canvas = await html2canvas(el.shareCard, {
     backgroundColor: null,
     scale: 1,
     useCORS: true,
     allowTaint: false,
     logging: false,
-    width: 1080,
-    height: 1350,
+    width: format.width,
+    height: format.height,
   });
 
   const blob = await new Promise((resolve, reject) => {
@@ -533,6 +600,7 @@ async function ensureShareImageBlob() {
 async function openImageMaker() {
   if (!el.imageModal) return;
 
+  trackMetric('image_maker_opened', { lang: state.lang });
   el.imageModal.hidden = false;
   document.body.classList.add('modal-open');
   setImageModalStatus('');
@@ -561,6 +629,7 @@ function closeImageMaker() {
 async function downloadShareImage() {
   try {
     const blob = await ensureShareImageBlob();
+    trackMetric('image_downloaded', { format: shareImageState.format, style: shareImageState.style });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -578,6 +647,7 @@ async function downloadShareImage() {
 async function shareGeneratedImage() {
   try {
     const blob = await ensureShareImageBlob();
+    trackMetric('image_shared', { format: shareImageState.format, style: shareImageState.style });
     const file = new File([blob], imageFileName(), { type: 'image/png' });
     const data = {
       title: `How to fingerspell ${state.word}`,
@@ -603,12 +673,130 @@ async function shareGeneratedImage() {
 }
 
 
+
+async function copyGeneratedImage() {
+  try {
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
+      throw new Error('Copy image is not supported in this browser.');
+    }
+
+    const blob = await ensureShareImageBlob();
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'image/png': blob }),
+    ]);
+    trackMetric('image_copied', { format: shareImageState.format });
+    setImageModalStatus('Image copied ✓');
+  } catch (error) {
+    setImageModalStatus(error?.message || 'Could not copy the image.');
+  }
+}
+
+function readRecentSearches() {
+  try {
+    const recent = JSON.parse(localStorage.getItem(RECENT_STORAGE_KEY) || '[]');
+    return Array.isArray(recent) ? recent : [];
+  } catch {
+    return [];
+  }
+}
+
+function recordRecentSearch(word) {
+  const entry = { word, lang: state.lang, at: Date.now() };
+  const recent = readRecentSearches()
+    .filter((item) => item && !(item.word === word && item.lang === state.lang));
+  recent.unshift(entry);
+
+  try {
+    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, 8)));
+  } catch {
+    // Recent searches are optional and remain on this device.
+  }
+
+  renderRecentSearches();
+}
+
+function renderRecentSearches() {
+  if (!el.recentSection || !el.recentChips) return;
+  const recent = readRecentSearches().slice(0, 6);
+  el.recentChips.replaceChildren();
+
+  if (!recent.length) {
+    el.recentSection.hidden = true;
+    return;
+  }
+
+  recent.forEach((item) => {
+    if (!LANGUAGES[item.lang]) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'recent-search-chip';
+    button.textContent = `${LANGUAGES[item.lang].label} · ${item.word}`;
+    button.addEventListener('click', () => {
+      state.lang = item.lang;
+      setWord(item.word, { track: false, recent: false });
+      document.querySelector('.result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    el.recentChips.appendChild(button);
+  });
+
+  el.recentSection.hidden = !el.recentChips.children.length;
+}
+
+function updatePracticeMode() {
+  document.body.classList.toggle('practice-mode', practiceModeActive);
+  if (!el.practiceMode) return;
+  el.practiceMode.setAttribute('aria-pressed', String(practiceModeActive));
+  el.practiceMode.textContent = practiceModeActive ? 'Reveal answer' : 'Practice mode';
+}
+
+function togglePracticeMode() {
+  practiceModeActive = !practiceModeActive;
+  updatePracticeMode();
+  trackMetric(practiceModeActive ? 'practice_started' : 'practice_revealed');
+}
+
+function classroomUrl() {
+  const url = new URL('./classroom.html', window.location.href);
+  url.searchParams.set('lang', state.lang);
+  url.searchParams.set('words', state.word);
+  return url.toString();
+}
+
+function updateClassroomLink() {
+  if (el.classroomLink) el.classroomLink.href = classroomUrl();
+}
+
+async function copyEmbedCode() {
+  const url = new URL(window.location.href);
+  url.searchParams.set('lang', state.lang);
+  url.searchParams.set('word', state.word);
+  url.searchParams.set('embed', '1');
+  const snippet = `<iframe src="${url.toString()}" title="SignMyWord fingerspelling for ${state.word}" loading="lazy" style="width:100%;max-width:900px;height:560px;border:0;border-radius:20px"></iframe>`;
+
+  try {
+    await navigator.clipboard.writeText(snippet);
+    const previous = el.copyEmbed?.textContent;
+    if (el.copyEmbed) el.copyEmbed.textContent = 'Embed copied ✓';
+    setTimeout(() => {
+      if (el.copyEmbed) el.copyEmbed.textContent = previous || 'Copy embed';
+    }, 1600);
+    trackMetric('embed_copied');
+  } catch {
+    // Clipboard access can be blocked by browser permissions.
+  }
+}
+
+function applyEmbedMode() {
+  const params = new URLSearchParams(window.location.search);
+  document.body.classList.toggle('embed-mode', params.get('embed') === '1');
+}
+
 const POPULAR_STORAGE_KEY = 'signmyword-popular-searches-v1';
 const POPULAR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const POPULAR_API_URL = window.SIGNMYWORD_POPULAR_API || '';
 
 function eligiblePopularWord(word) {
-  return /^[A-Z]{2,20}$/.test(word);
+  return /^[A-Z]+(?: [A-Z]+){0,4}$/.test(word) && word.length <= 32;
 }
 
 function readLocalPopularEvents() {
@@ -765,7 +953,7 @@ async function recordPopularSearch(word) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         credentials: 'omit',
-        body: JSON.stringify({ word }),
+        body: JSON.stringify({ word, lang: state.lang }),
       });
       remoteRecorded = response.ok;
     } catch {
@@ -822,8 +1010,8 @@ function renderLanguage() {
   el.outputLang.textContent = `${config.name} (${config.label})`;
   el.sourceNote.innerHTML =
     state.lang === 'asl'
-      ? 'ASL artwork is loaded from Wikimedia Commons. Open any sign to view its source and reuse information.'
-      : 'BSL artwork is loaded from Wikimedia Commons. Open any sign to view its source and licence information.';
+      ? 'ASL artwork is stored locally when available, with Wikimedia Commons as the source fallback. Open any sign for source information.'
+      : 'BSL artwork is stored locally when available, with Wikimedia Commons as the source fallback. Open any sign for source and licence information.';
 }
 
 function separatorCard(char) {
@@ -855,6 +1043,7 @@ function letterCard(letter) {
   image.alt = `${config.name} fingerspelling for the letter ${letter}`;
   image.loading = 'lazy';
   image.decoding = 'async';
+  image.dataset.assetFallback = 'local';
 
   if (state.lang === 'bsl') {
     card.classList.add('letter-card--bsl');
@@ -875,6 +1064,12 @@ function letterCard(letter) {
   fallback.textContent = `${letter} image unavailable`;
 
   image.addEventListener('error', () => {
+    if (image.dataset.assetFallback === 'local') {
+      image.dataset.assetFallback = 'remote';
+      image.src = config.remoteFile(letter);
+      return;
+    }
+
     image.hidden = true;
     fallback.hidden = false;
   });
@@ -986,6 +1181,8 @@ function render() {
   renderWord();
   updateUrl();
   renderShare();
+  updateClassroomLink();
+  renderRecentSearches();
   invalidateShareImage();
 }
 
@@ -999,10 +1196,17 @@ function setWord(value, options = {}) {
   state.word = next;
   el.input.value = next;
   el.message.textContent = '';
+  practiceModeActive = false;
+  updatePracticeMode();
   render();
+
+  if (options.recent !== false) {
+    recordRecentSearch(next);
+  }
 
   if (options.track !== false) {
     recordPopularSearch(next);
+    trackMetric('word_generated', { lang: state.lang, letters: letterCount(next), words: phraseWords(next).length });
   }
 }
 
@@ -1010,11 +1214,13 @@ function setLanguage(language) {
   if (!LANGUAGES[language]) return;
   state.lang = language;
   render();
+  trackMetric('language_selected', { lang: language });
 }
 
 async function copyLink() {
   try {
     await navigator.clipboard.writeText(shareLink());
+    trackMetric('link_copied', { lang: state.lang });
     const previous = el.copy.textContent;
     el.copy.textContent = 'Copied ✓';
     setTimeout(() => (el.copy.textContent = previous), 1600);
@@ -1066,6 +1272,16 @@ el.exampleButtons.forEach((button) => {
   button.addEventListener('click', () => setWord(button.dataset.example));
 });
 
+el.surpriseWord?.addEventListener('click', () => {
+  const choices = SURPRISE_WORDS.filter((item) => item !== state.word);
+  const word = choices[Math.floor(Math.random() * choices.length)] || 'HELLO';
+  setWord(word);
+  trackMetric('surprise_used');
+});
+
+el.practiceMode?.addEventListener('click', togglePracticeMode);
+el.copyEmbed?.addEventListener('click', copyEmbedCode);
+
 el.copy.addEventListener('click', copyLink);
 el.share.addEventListener('click', nativeShare);
 
@@ -1074,6 +1290,27 @@ el.closeImageModal?.addEventListener('click', closeImageMaker);
 el.imageModalBackdrop?.addEventListener('click', closeImageMaker);
 el.downloadShareImage?.addEventListener('click', downloadShareImage);
 el.shareImageFile?.addEventListener('click', shareGeneratedImage);
+el.copyImage?.addEventListener('click', copyGeneratedImage);
+
+el.imageFormatButtons.forEach((button) => {
+  button.addEventListener('click', async () => {
+    shareImageState.format = button.dataset.cardFormat || 'portrait';
+
+    el.imageFormatButtons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('image-format-pill--active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+
+    invalidateShareImage();
+
+    try {
+      await generateShareImageBlob();
+    } catch (error) {
+      setImageModalStatus(error?.message || 'Could not create this image size.');
+    }
+  });
+});
 
 el.imageStyleButtons.forEach((button) => {
   button.addEventListener('click', async () => {
@@ -1100,5 +1337,8 @@ document.addEventListener('keydown', (event) => {
 });
 
 loadFromUrl();
+applyEmbedMode();
 render();
+renderRecentSearches();
+updatePracticeMode();
 refreshPopularSearches();
