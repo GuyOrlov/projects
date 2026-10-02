@@ -19,30 +19,22 @@
     <a class="brand" href="./" aria-label="SignMyWord home">SignMyWord</a>
 
     <div class="language-switcher" aria-label="Choose fingerspelling alphabet">
-      <button class="language-pill" type="button" data-language="bsl" aria-pressed="false"><span class="flag-icon flag-icon--gb" aria-hidden="true"></span><span>BSL</span></button>
-      <button class="language-pill language-pill--active" type="button" data-language="asl" aria-pressed="true"><span class="flag-icon flag-icon--us" aria-hidden="true"></span><span>ASL</span></button>
+      <button class="language-pill language-pill--active" type="button" data-language="bsl" aria-pressed="true"><span class="flag-icon flag-icon--gb" aria-hidden="true"></span><span>BSL</span></button>
+      <button class="language-pill" type="button" data-language="asl" aria-pressed="false"><span class="flag-icon flag-icon--us" aria-hidden="true"></span><span>ASL</span></button>
     </div>
   </header>
 
   <main>
-    <section class="site-shell hero" aria-labelledby="page-title">
-      <h1 id="page-title">Type a word. See the signs. Share one link.</h1>
-      <p class="hero__intro"><span class="hero__intro-desktop">Turn any word or name into a clear fingerspelling sequence. Choose British Sign Language (BSL) or American Sign Language (ASL), then share it anywhere.</span><span class="hero__intro-mobile">Turn any word or name into a clear fingerspelling sequence using British Sign Language (BSL) or American Sign Language (ASL).</span></p>
+    <section class="marketing-hero" aria-labelledby="page-title">
+      <div class="site-shell marketing-hero__inner">
+        <p class="marketing-hero__eyebrow">Fingerspell it. Share it.</p>
+        <h1 id="page-title">See any word or name in sign language fingerspelling.</h1>
+        <p class="marketing-hero__intro">Choose British Sign Language (BSL) or American Sign Language (ASL), type a word, and see every letter clearly.</p>
 
-    </section>
-
-    <section class="site-shell generator" aria-label="SignMyWord generator">
-      <section class="panel panel--input" aria-labelledby="input-heading">
-        <div class="panel__heading">
-          <span class="step step--1" aria-hidden="true">1</span>
-          <h2 id="input-heading"><span class="desktop-only-title">User input</span><span class="mobile-only-title">Type a word</span></h2>
-        </div>
-        <p class="panel__copy">Type any word or name.</p>
-
-        <form class="word-form" id="word-form">
-          <label for="word-input">Type any word or name</label>
+        <form class="hero-word-form" id="word-form">
+          <label class="sr-only" for="word-input">Type any word or name</label>
           <input
-            class="word-input"
+            class="word-input hero-word-input"
             id="word-input"
             name="word"
             type="text"
@@ -53,61 +45,57 @@
             spellcheck="false"
             inputmode="text"
             aria-describedby="form-message"
+            placeholder="Type a word or name..."
           >
-          <button class="button button--primary full-width" type="submit">Show Word →</button>
-          <p class="message" id="form-message" aria-live="polite"></p>
+          <button class="button button--primary hero-go" type="submit">Show signs</button>
         </form>
+        <p class="message hero-message" id="form-message" aria-live="polite"></p>
 
-        <p class="examples-label">Try an example</p>
-        <div class="examples">
-          <button class="example-chip" type="button" data-example="WORLD">WORLD</button>
+        <div class="hero-examples" aria-label="Example words">
+          <span>Try:</span>
           <button class="example-chip" type="button" data-example="NAME">NAME</button>
+          <button class="example-chip" type="button" data-example="HELLO">HELLO</button>
           <button class="example-chip" type="button" data-example="THANKS">THANKS</button>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="panel panel--output" aria-labelledby="output-heading">
-        <div class="panel__heading">
-          <span class="step step--2" aria-hidden="true">2</span>
-          <h2 id="output-heading"><span class="desktop-only-title">Fingerspelling output</span><span class="mobile-only-title mobile-output-title" id="mobile-output-title">Learn how to fingerspell HELLO in American Sign Language (ASL).</span></h2>
+    <section class="site-shell result-section" aria-labelledby="output-heading">
+      <div class="result-section__heading">
+        <div>
+          <p class="result-section__eyebrow">Your result</p>
+          <h2 id="output-heading"><span class="desktop-only-title">Your fingerspelling</span><span class="mobile-only-title mobile-output-title" id="mobile-output-title">Learn how to fingerspell HELLO in British Sign Language (BSL).</span></h2>
         </div>
+        <span class="output-language" id="output-lang">British Sign Language (BSL)</span>
+      </div>
 
-        <div class="output-meta">
-          <span id="output-meta">HELLO · 5 letters</span>
-          <span class="output-language" id="output-lang">🇺🇸 ASL</span>
-        </div>
+      <div class="output-meta">
+        <span id="output-meta">HELLO · 5 letters</span>
+      </div>
 
-        <div class="letter-output" id="letter-output" aria-live="polite" aria-label="Fingerspelling sequence"></div>
-        <p class="mobile-output-meta" id="mobile-output-meta">🇺🇸 ASL · 5 letters</p>
-        <p class="source-note" id="source-note"></p>
-      </section>
+      <div class="letter-output" id="letter-output" aria-live="polite" aria-label="Fingerspelling sequence"></div>
+      <p class="mobile-output-meta" id="mobile-output-meta">British Sign Language (BSL) · 5 letters</p>
+      <p class="source-note" id="source-note"></p>
 
-      <section class="panel panel--share" aria-labelledby="share-heading">
-        <div class="panel__heading">
-          <span class="step step--3" aria-hidden="true">3</span>
-          <h2 id="share-heading"><span class="desktop-only-title">Shareable link</span><span class="mobile-only-title">Share this word</span></h2>
-        </div>
-        <p class="panel__copy">Anyone with the link can view the word — no account needed.</p>
+      <div class="primary-share-actions">
+        <button class="button button--image primary-share-actions__image" id="open-image-maker" type="button">Create shareable image</button>
+        <button class="button button--secondary" id="copy-link" type="button">Copy link</button>
+        <a class="button button--whatsapp" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <button class="button button--secondary" id="share-native" type="button">Share</button>
+      </div>
 
-        <div class="share-stack">
-          <label class="sr-only" for="share-url">Shareable URL</label>
-          <input class="share-url" id="share-url" type="text" readonly>
-          <div class="share-actions">
-            <button class="button button--primary full-width" id="copy-link" type="button">Copy link</button>
-            <a class="button button--whatsapp full-width" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-            <button class="button button--secondary full-width" id="share-native" type="button">Share</button>
-            <button class="button button--image full-width" id="open-image-maker" type="button">🖼️ Create image</button>
-          </div>
-          <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
-        </div>
-      </section>
+      <div class="share-utility" aria-label="Share link and QR code">
+        <label class="sr-only" for="share-url">Shareable URL</label>
+        <input class="share-url" id="share-url" type="text" readonly>
+        <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
+      </div>
     </section>
 
     <section class="site-shell popular-searches" id="popular-searches" aria-labelledby="popular-searches-title" hidden>
       <div class="popular-searches__header">
         <div>
-          <p class="popular-searches__eyebrow">Trending words</p>
-          <h2 id="popular-searches-title">Popular fingerspelling searches</h2>
+          <p class="popular-searches__eyebrow">Trending on SignMyWord</p>
+          <h2 id="popular-searches-title">What people are fingerspelling</h2>
           <p class="popular-searches__subtitle" id="popular-searches-subtitle">Based on genuine searches from this browser over the last 7 days.</p>
         </div>
         <p class="popular-searches__total" id="popular-searches-total"></p>
@@ -116,7 +104,6 @@
     </section>
 
     <p class="site-shell mobile-disclaimer">Fingerspelling tool · not full sign-language translation</p>
-
   </main>
 
   <footer class="legal-footer">
@@ -159,18 +146,21 @@
 
   <div class="share-card-capture" aria-hidden="true">
     <article class="share-card share-card--light" id="share-card">
-      <div class="share-card__brand">
-        <span class="share-card__brand-name">SignMyWord</span>
+      <div class="share-card__topline">
+        <div class="share-card__brand">
+          <span class="share-card__brand-name">SignMyWord</span>
+        </div>
+        <div class="share-card__language" id="share-card-language"><span class="flag-icon flag-icon--gb" aria-hidden="true"></span><span>BSL</span></div>
       </div>
 
-      <h2 class="share-card__title" id="share-card-title">Learn how to fingerspell HELLO in American Sign Language (ASL).</h2>
+      <h2 class="share-card__title" id="share-card-title">Fingerspell HELLO in British Sign Language (BSL).</h2>
 
       <div class="share-card__letters" id="share-card-letters"></div>
 
       <div class="share-card__footer">
         <div class="share-card__footer-copy">
           <strong>SignMyWord.com</strong>
-          <span>Type a word. See the signs. Share it.</span>
+          <span>Type a word. See the signs. Make yours.</span>
         </div>
         <div class="share-card__qr" id="share-card-qr" aria-hidden="true"></div>
       </div>
