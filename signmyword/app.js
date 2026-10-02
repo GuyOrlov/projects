@@ -1245,6 +1245,7 @@ async function nativeShare() {
   if (navigator.share) {
     try {
       await navigator.share(data);
+      trackMetric('native_shared', { lang: state.lang });
       return;
     } catch (error) {
       if (error?.name === 'AbortError') return;
