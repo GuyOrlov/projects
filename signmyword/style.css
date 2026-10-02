@@ -85,57 +85,33 @@ a {
 }
 
 .header {
-  min-height: 88px;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  min-height: 118px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  gap: 14px;
+  padding: 22px 0 10px;
+  text-align: center;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
   text-decoration: none;
-  font-size: 28px;
+  color: var(--smw-text-primary);
+  font-size: 30px;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  justify-self: start;
-}
-
-.brand__mark {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--smw-radius-md);
-  display: grid;
-  place-items: center;
-  background: var(--smw-blue);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.nav a {
-  text-decoration: none;
-}
-
-.nav a:hover {
-  color: var(--smw-blue);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
 }
 
 .language-switcher {
   display: flex;
   align-items: center;
-  justify-self: end;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -162,20 +138,8 @@ a {
   border-color: var(--smw-blue);
 }
 
-.nav-toggle {
-  display: none;
-  width: 42px;
-  height: 42px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--smw-bg-subtle);
-  color: var(--smw-text-primary);
-  cursor: pointer;
-  font-size: 18px;
-}
-
 .hero {
-  padding: 52px 0 38px;
+  padding: 34px 0 38px;
   text-align: center;
 }
 
@@ -1044,22 +1008,6 @@ body.modal-open {
 }
 
 @media (max-width: 1100px) {
-  .header {
-    grid-template-columns: 1fr auto;
-  }
-
-  .nav {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    justify-content: center;
-    padding-bottom: 16px;
-  }
-
-  .language-switcher {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
   .generator {
     grid-template-columns: 1fr 1.7fr;
   }
@@ -1079,78 +1027,31 @@ body.modal-open {
   }
 
   .header {
-    min-height: 68px;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    min-height: 0;
+    padding: 18px 0 8px;
     gap: 12px;
-    position: relative;
   }
 
   .brand {
-    min-width: 0;
-    gap: 10px;
-    font-size: 22px;
-    line-height: 1.1;
-    letter-spacing: -0.035em;
+    font-size: 26px;
+    line-height: 1.05;
   }
 
-  .brand__mark {
-    width: 36px;
-    height: 36px;
-    flex: 0 0 36px;
-    border-radius: 10px;
-    font-size: 12px;
-  }
-
-  .nav-toggle {
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
-  }
-
-  .nav {
-    display: none;
-    position: absolute;
-    z-index: 20;
-    top: 56px;
-    right: 0;
-    left: auto;
-    width: min(230px, calc(100vw - 32px));
-    padding: 8px;
-    border: 1px solid var(--smw-border);
-    border-radius: 16px;
-    background: #fff;
-    box-shadow: var(--smw-shadow);
-    flex-direction: column;
-    align-items: stretch;
-    gap: 2px;
-  }
-
-  .nav a {
-    padding: 10px 12px;
-    border-radius: 10px;
-    text-align: left;
-    font-size: 14px;
-    line-height: 1.25;
-  }
-
-  .nav a:hover,
-  .nav a:focus-visible {
-    background: var(--smw-bg-subtle);
-  }
-
-  .nav--open {
+  .language-switcher {
     display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 8px;
   }
 
-  .header > .language-switcher {
-    display: none;
+  .language-switcher .language-pill {
+    padding: 8px 13px;
+    font-size: 13px;
+    line-height: 17px;
   }
 
   .hero {
-    margin-top: 8px;
+    margin-top: 0;
     padding: 18px 0 22px;
     text-align: left;
   }
@@ -1181,25 +1082,6 @@ body.modal-open {
   .hero__intro-mobile,
   .mobile-only-title {
     display: inline;
-  }
-
-  .badges {
-    display: none;
-  }
-
-  .mobile-language-switcher {
-    display: flex !important;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-  }
-
-  .mobile-language-switcher .language-pill {
-    padding: 8px 13px;
-    font-size: 13px;
-    line-height: 17px;
   }
 
   /* Phone order: result first, then input, then sharing. */
@@ -1412,12 +1294,6 @@ body.modal-open {
     font-size: 11px;
     font-weight: 500;
     line-height: 1.45;
-  }
-}
-
-@media (min-width: 761px) {
-  .mobile-language-switcher {
-    display: none !important;
   }
 }
 
