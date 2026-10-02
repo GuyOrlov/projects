@@ -2725,6 +2725,27 @@ select {
     justify-content: flex-start;
   }
 
+  /* Keep every quick example, including Surprise me, on one mobile row. */
+  .hero-examples {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .hero-examples > span {
+    flex: 0 0 auto;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .hero-examples .example-chip {
+    flex: 0 0 auto;
+    min-width: 0;
+    padding: 7px 7px;
+    font-size: 11px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
   .result-tools {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
