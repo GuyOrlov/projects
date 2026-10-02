@@ -121,6 +121,7 @@
             <button class="button button--primary full-width" id="copy-link" type="button">Copy link</button>
             <a class="button button--whatsapp full-width" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
             <button class="button button--secondary full-width" id="share-native" type="button">Share</button>
+            <button class="button button--image full-width" id="open-image-maker" type="button">🖼️ Create image</button>
           </div>
           <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
           <p class="share-caption">Copy · WhatsApp · QR · Email</p>
@@ -177,7 +178,63 @@
     </div>
   </footer>
 
+
+  <div class="image-modal" id="image-modal" hidden>
+    <div class="image-modal__backdrop" data-close-image-modal></div>
+    <section class="image-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="image-modal-title">
+      <div class="image-modal__header">
+        <div>
+          <p class="image-modal__eyebrow">Shareable image</p>
+          <h2 id="image-modal-title">Share your fingerspelling</h2>
+        </div>
+        <button class="image-modal__close" id="close-image-modal" type="button" aria-label="Close image maker">×</button>
+      </div>
+
+      <div class="image-style-picker" aria-label="Choose image style">
+        <button class="image-style-pill image-style-pill--active" type="button" data-card-style="light" aria-pressed="true">Light</button>
+        <button class="image-style-pill" type="button" data-card-style="dark" aria-pressed="false">Dark</button>
+        <button class="image-style-pill" type="button" data-card-style="colourful" aria-pressed="false">Colourful</button>
+      </div>
+
+      <div class="share-image-preview-wrap">
+        <div class="share-image-loading" id="share-image-loading">Creating preview…</div>
+        <img class="share-image-preview" id="share-image-preview" alt="Preview of your SignMyWord share image" hidden>
+      </div>
+
+      <p class="image-modal__status" id="image-modal-status" aria-live="polite"></p>
+
+      <div class="image-modal__actions">
+        <button class="button button--primary" id="download-share-image" type="button">Download image</button>
+        <button class="button button--secondary" id="share-image-file" type="button">Share image</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="share-card-capture" aria-hidden="true">
+    <article class="share-card share-card--light" id="share-card">
+      <div class="share-card__brand">
+        <span class="share-card__logo">SM</span>
+        <span class="share-card__brand-name">SignMyWord</span>
+      </div>
+
+      <p class="share-card__kicker">How to fingerspell</p>
+      <h2 class="share-card__word" id="share-card-word">HELLO</h2>
+      <p class="share-card__language" id="share-card-language">in ASL 🇺🇸</p>
+
+      <div class="share-card__letters" id="share-card-letters"></div>
+
+      <div class="share-card__footer">
+        <div class="share-card__footer-copy">
+          <strong>SignMyWord.com</strong>
+          <span>Type a word. See the signs. Share it.</span>
+        </div>
+        <div class="share-card__qr" id="share-card-qr" aria-hidden="true"></div>
+      </div>
+    </article>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="./app.js" defer></script>
 </body>
 </html>
