@@ -2443,3 +2443,429 @@ select {
     font-size: 15px;
   }
 }
+
+
+/* SignMyWord product tools: recent searches, practice, embed and richer sharing */
+.example-chip--surprise {
+  border-color: rgba(123, 63, 242, .24);
+  background: var(--smw-bg-purple-soft);
+  color: #5b27c8;
+}
+
+.recent-searches {
+  width: min(720px, 100%);
+  margin: 16px auto 0;
+  text-align: center;
+}
+
+.recent-searches[hidden] {
+  display: none;
+}
+
+.recent-searches h2 {
+  margin: 0 0 8px;
+  color: var(--smw-text-secondary);
+  font-family: "Atkinson Hyperlegible Next", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.recent-searches__chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.recent-search-chip,
+.result-tool {
+  border: 1px solid var(--smw-border);
+  border-radius: var(--smw-radius-full);
+  padding: 8px 12px;
+  background: #fff;
+  color: var(--smw-text-primary);
+  cursor: pointer;
+  font: 700 12px/1.2 "Atkinson Hyperlegible Next", Arial, sans-serif;
+  text-decoration: none;
+}
+
+.recent-search-chip:hover,
+.result-tool:hover {
+  border-color: var(--smw-blue);
+  color: var(--smw-blue);
+}
+
+.result-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.result-tool[aria-pressed="true"] {
+  border-color: var(--smw-purple);
+  background: var(--smw-bg-purple-soft);
+  color: #5b27c8;
+}
+
+.practice-mode .result-section .letter-card__letter,
+.practice-mode .result-section .word-sign-group__title,
+.practice-mode .result-section .output-meta,
+.practice-mode .result-section .mobile-output-meta,
+.practice-mode .result-section .mobile-output-title {
+  visibility: hidden;
+}
+
+.practice-mode .result-section .letter-card__image {
+  border-color: rgba(20, 121, 248, .25);
+}
+
+.image-format-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -2px 0 16px;
+}
+
+.image-format-picker__label {
+  margin-right: 2px;
+  color: var(--smw-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.image-format-pill {
+  border: 1px solid var(--smw-border);
+  border-radius: var(--smw-radius-full);
+  padding: 8px 12px;
+  background: #fff;
+  color: var(--smw-text-primary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.image-format-pill--active {
+  border-color: var(--smw-blue);
+  background: var(--smw-bg-blue-soft);
+  color: var(--smw-blue);
+}
+
+.image-modal__actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.image-attribution {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 11px;
+}
+
+.image-attribution a {
+  color: var(--smw-text-secondary);
+}
+
+/* Extra share-card themes */
+.share-card--love {
+  background:
+    radial-gradient(circle at 86% 10%, rgba(255,255,255,.32), transparent 24%),
+    linear-gradient(145deg, #ff5f8f 0%, #8b48e8 48%, #5132d4 100%);
+  color: #fff;
+}
+
+.share-card--birthday {
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255,255,255,.38), transparent 18%),
+    radial-gradient(circle at 88% 18%, rgba(255,255,255,.24), transparent 20%),
+    linear-gradient(145deg, #ffb347 0%, #ff7d74 44%, #7056ef 100%);
+  color: #fff;
+}
+
+.share-card--school {
+  background:
+    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px),
+    linear-gradient(145deg, #123d73 0%, #1479f8 52%, #0fa7a0 100%);
+  background-size: 34px 34px, 34px 34px, auto;
+  color: #fff;
+}
+
+.share-card--love .share-card__title,
+.share-card--birthday .share-card__title,
+.share-card--school .share-card__title {
+  color: #fff;
+}
+
+.share-card--love .share-card__language,
+.share-card--birthday .share-card__language,
+.share-card--school .share-card__language {
+  background: rgba(255,255,255,.92);
+}
+
+/* Share output sizes */
+.share-card--format-square {
+  height: 1080px;
+  padding: 50px;
+}
+
+.share-card--format-square .share-card__topline {
+  margin-bottom: 18px;
+}
+
+.share-card--format-square .share-card__title {
+  margin-bottom: 18px;
+  font-size: 44px;
+}
+
+.share-card--format-square .share-card__letters {
+  gap: 10px;
+}
+
+.share-card--format-square .share-card__letter {
+  padding: 10px;
+}
+
+.share-card--format-square .share-card__letter-box {
+  min-height: 105px;
+}
+
+.share-card--format-square .share-card__letter-box img {
+  max-height: 98px;
+}
+
+.share-card--format-square .share-card__footer {
+  margin-top: 14px;
+}
+
+.share-card--format-square.share-card--phrase .share-card__word-group {
+  padding: 10px 12px 12px;
+}
+
+.share-card--format-square.share-card--phrase .share-card__word-title {
+  font-size: 20px;
+  margin-bottom: 7px;
+}
+
+.share-card--format-square.share-card--phrase .share-card__word-letters .share-card__letter-box {
+  min-height: 72px;
+}
+
+.share-card--format-square.share-card--phrase .share-card__word-letters .share-card__letter-box img {
+  max-height: 68px;
+}
+
+.share-card--format-story {
+  height: 1920px;
+  padding: 74px 64px;
+}
+
+.share-card--format-story .share-card__title {
+  max-width: 900px;
+  font-size: 62px;
+  margin-bottom: 42px;
+}
+
+.share-card--format-story .share-card__letters {
+  align-content: center;
+}
+
+.share-card--format-story .share-card__footer {
+  margin-top: auto;
+  padding-top: 36px;
+}
+
+.share-card--format-story.share-card--phrase .share-card__word-group {
+  padding: 22px;
+}
+
+.share-card--format-story.share-card--phrase .share-card__word-title {
+  font-size: 30px;
+}
+
+.share-card--format-story.share-card--phrase .share-card__word-letters .share-card__letter-box {
+  min-height: 150px;
+}
+
+.share-card--format-story.share-card--phrase .share-card__word-letters .share-card__letter-box img {
+  max-height: 145px;
+}
+
+/* Embed mode: a clean result widget for third-party sites */
+.embed-mode {
+  background: transparent;
+}
+
+.embed-mode .header,
+.embed-mode .marketing-hero,
+.embed-mode .popular-searches,
+.embed-mode .legal-footer,
+.embed-mode .mobile-disclaimer,
+.embed-mode .primary-share-actions,
+.embed-mode .result-tools,
+.embed-mode .share-utility,
+.embed-mode .source-note {
+  display: none !important;
+}
+
+.embed-mode .result-section {
+  width: min(100% - 20px, 900px);
+  margin: 10px auto;
+  box-shadow: none;
+}
+
+@media (max-width: 760px) {
+  .recent-searches {
+    text-align: left;
+  }
+
+  .recent-searches__chips {
+    justify-content: flex-start;
+  }
+
+  .result-tools {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .result-tool {
+    padding-inline: 8px;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .image-modal__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Classroom worksheet */
+.classroom-page {
+  background: #f7faff;
+}
+
+.classroom-shell {
+  width: min(1060px, calc(100% - 32px));
+  margin: 24px auto 60px;
+}
+
+.classroom-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 22px;
+  padding: 22px;
+  border: 1px solid var(--smw-border);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.classroom-toolbar h1 {
+  margin: 0 0 7px;
+  font-family: Inter, sans-serif;
+  font-size: 32px;
+}
+
+.classroom-toolbar p {
+  margin: 0 0 14px;
+  color: var(--smw-text-secondary);
+}
+
+.classroom-textarea {
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  border: 1px solid var(--smw-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  color: var(--smw-text-primary);
+  font: 600 16px/1.45 "Atkinson Hyperlegible Next", Arial, sans-serif;
+}
+
+.classroom-controls {
+  display: grid;
+  gap: 9px;
+  min-width: 210px;
+}
+
+.classroom-preview {
+  display: grid;
+  gap: 20px;
+}
+
+.classroom-word {
+  break-inside: avoid;
+  padding: 18px;
+  border: 1px solid var(--smw-border);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.classroom-word h2 {
+  margin: 0 0 12px;
+  font-family: Inter, sans-serif;
+  font-size: 22px;
+}
+
+.classroom-word__letters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.classroom-letter {
+  min-height: 128px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--smw-bg-blue-soft);
+}
+
+.classroom-letter strong {
+  font-size: 18px;
+}
+
+.classroom-letter img {
+  width: 100%;
+  height: 92px;
+  object-fit: contain;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.classroom-page.quiz-mode .classroom-word h2,
+.classroom-page.quiz-mode .classroom-letter strong {
+  visibility: hidden;
+}
+
+@media print {
+  .classroom-page {
+    background: #fff;
+  }
+
+  .classroom-page .header,
+  .classroom-toolbar,
+  .legal-footer {
+    display: none !important;
+  }
+
+  .classroom-shell {
+    width: 100%;
+    margin: 0;
+  }
+
+  .classroom-preview {
+    gap: 12px;
+  }
+
+  .classroom-word {
+    border-color: #bbb;
+    box-shadow: none;
+  }
+}
