@@ -651,7 +651,7 @@ async function shareGeneratedImage() {
     const file = new File([blob], imageFileName(), { type: 'image/png' });
     const data = {
       title: `How to fingerspell ${state.word}`,
-      text: `How to fingerspell ${state.word} in ${LANGUAGES[state.lang].label}.`,
+      text: `How to fingerspell “${state.word}” in ${LANGUAGES[state.lang].name} (${LANGUAGES[state.lang].label})`,
       files: [file],
     };
 
@@ -824,8 +824,9 @@ function localPopularSummary() {
   const events = readLocalPopularEvents();
   const counts = new Map();
 
-  events.forEach(({ word }) => {
+  events.forEach(({ word, lang }) => {
     if (!eligiblePopularWord(word)) return;
+    if (lang && lang !== state.lang) return;
     counts.set(word, (counts.get(word) || 0) + 1);
   });
 
@@ -859,7 +860,11 @@ async function remotePopularSummary() {
 
     return {
       words: data.words
-        .filter((item) => eligiblePopularWord(String(item?.word || '').toUpperCase()) && Number(item?.count) > 0)
+        .filter((item) =>
+          eligiblePopularWord(String(item?.word || '').toUpperCase()) &&
+          Number(item?.count) > 0 &&
+          (!item?.lang || item.lang === state.lang)
+        )
         .map((item) => ({ word: String(item.word).toUpperCase(), count: Number(item.count) }))
         .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
         .slice(0, 24),
@@ -927,10 +932,10 @@ function renderPopularSummary(summary) {
   });
 
   if (summary.source === 'site') {
-    el.popularSubtitle.textContent = 'Based on anonymous aggregate searches across SignMyWord over the last 7 days.';
+    el.popularSubtitle.textContent = `Anonymous aggregate ${LANGUAGES[state.lang].label} searches across SignMyWord over the last 7 days.`;
     el.popularTotal.textContent = `${summary.total.toLocaleString()} searches this week`;
   } else {
-    el.popularSubtitle.textContent = 'Based on genuine searches from this browser over the last 7 days.';
+    el.popularSubtitle.textContent = `Based on genuine ${LANGUAGES[state.lang].label} searches from this browser over the last 7 days.`;
     el.popularTotal.textContent = `${summary.total.toLocaleString()} ${summary.total === 1 ? 'search' : 'searches'} this week on this browser`;
   }
 
@@ -963,7 +968,7 @@ async function recordPopularSearch(word) {
 
   if (!remoteRecorded) {
     const events = readLocalPopularEvents();
-    events.push({ word, at: Date.now() });
+    events.push({ word, lang: state.lang, at: Date.now() });
     writeLocalPopularEvents(events);
   }
 
@@ -1284,6 +1289,7 @@ el.copyEmbed?.addEventListener('click', copyEmbedCode);
 
 el.copy.addEventListener('click', copyLink);
 el.share.addEventListener('click', nativeShare);
+el.whatsapp?.addEventListener('click', () => trackMetric('whatsapp_clicked', { lang: state.lang }));
 
 el.openImageMaker?.addEventListener('click', openImageMaker);
 el.closeImageModal?.addEventListener('click', closeImageMaker);
