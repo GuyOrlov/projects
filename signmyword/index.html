@@ -40,7 +40,7 @@
   <main>
     <section class="site-shell hero" aria-labelledby="page-title">
       <h1 id="page-title">Type a word. See the signs. Share one link.</h1>
-      <p class="hero__intro">Turn any name or word into a clear fingerspelling sequence. Switch between ASL, BSL and more sign-language alphabets, then share it anywhere.</p>
+      <p class="hero__intro"><span class="hero__intro-desktop">Turn any name or word into a clear fingerspelling sequence. Switch between ASL, BSL and more sign-language alphabets, then share it anywhere.</span><span class="hero__intro-mobile">Fast fingerspelling for names and words, with ASL, BSL and more alphabets.</span></p>
 
       <div class="badges" aria-label="Key benefits">
         <span class="badge">⚡ Simple</span>
@@ -60,7 +60,7 @@
       <section class="panel panel--input" aria-labelledby="input-heading">
         <div class="panel__heading">
           <span class="step step--1" aria-hidden="true">1</span>
-          <h2 id="input-heading">User input</h2>
+          <h2 id="input-heading"><span class="desktop-only-title">User input</span><span class="mobile-only-title">1 Type a word</span></h2>
         </div>
         <p class="panel__copy">Type any word or name.</p>
 
@@ -94,7 +94,7 @@
       <section class="panel panel--output" aria-labelledby="output-heading">
         <div class="panel__heading">
           <span class="step step--2" aria-hidden="true">2</span>
-          <h2 id="output-heading">Fingerspelling output</h2>
+          <h2 id="output-heading"><span class="desktop-only-title">Fingerspelling output</span><span class="mobile-only-title" id="mobile-output-heading">2 HELLO · ASL</span></h2>
         </div>
 
         <div class="output-meta">
@@ -109,7 +109,7 @@
       <section class="panel panel--share" aria-labelledby="share-heading">
         <div class="panel__heading">
           <span class="step step--3" aria-hidden="true">3</span>
-          <h2 id="share-heading">Shareable link</h2>
+          <h2 id="share-heading"><span class="desktop-only-title">Shareable link</span><span class="mobile-only-title">3 Share this word</span></h2>
         </div>
         <p class="panel__copy">Anyone with the link can view the word — no account needed.</p>
 
@@ -120,10 +120,12 @@
           <a class="button button--whatsapp full-width" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
           <button class="button button--secondary full-width" id="share-native" type="button">Share</button>
           <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
-          <p class="share-caption">Copy · WhatsApp · QR · Share</p>
+          <p class="share-caption">Copy · WhatsApp · QR · Email</p>
         </div>
       </section>
     </section>
+
+    <p class="site-shell mobile-disclaimer">Fingerspelling tool · not full sign-language translation</p>
 
     <section class="site-shell how" id="how-it-works" aria-labelledby="how-title">
       <h2 id="how-title">Three simple steps</h2>
@@ -134,11 +136,11 @@
         </article>
         <article class="how-card">
           <div class="how-card__title"><span class="step step--2">2</span><span>View the letters</span></div>
-          <p>See the fingerspelling sequence in your selected ASL or BSL alphabet.</p>
+          <p>See the fingerspelling sequence in your selected alphabet.</p>
         </article>
         <article class="how-card">
           <div class="how-card__title"><span class="step step--3">3</span><span>Share one link</span></div>
-          <p>Send the result by link, QR code, WhatsApp or your device share menu.</p>
+          <p>Send the result by link, QR code, WhatsApp or email.</p>
         </article>
       </div>
       <p class="disclaimer">SignMyWord is a fingerspelling tool, not automatic translation of full spoken-language sentences into sign language.</p>
