@@ -447,8 +447,7 @@ a {
   grid-template-columns: minmax(0, 1fr) 126px;
   grid-template-areas:
     "url url"
-    "actions qr"
-    "caption caption";
+    "actions qr";
   gap: 14px 12px;
   align-items: start;
 }
@@ -1310,8 +1309,7 @@ body.modal-open {
     grid-template-areas:
       "url"
       "actions"
-      "qr"
-      "caption";
+      "qr";
     gap: 12px;
   }
 
