@@ -2071,3 +2071,114 @@ body.modal-open {
     display: none !important;
   }
 }
+
+
+/* Multi-word phrases: keep each word together instead of using space separators. */
+.result-section .letter-output--phrase {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+.word-sign-group {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #dbe8f6;
+  border-radius: 20px;
+  background: #f9fcff;
+}
+
+.word-sign-group__title {
+  margin: 0 0 14px;
+  color: var(--smw-text-primary);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: .04em;
+}
+
+.word-sign-group__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.result-section .word-sign-group__cards .letter-card {
+  width: 100%;
+  height: 220px;
+}
+
+.result-section .word-sign-group__cards .letter-card__image {
+  min-height: 145px;
+}
+
+.result-section .word-sign-group__cards .letter-card__image img {
+  max-height: 140px;
+}
+
+.result-section .word-sign-group__cards .letter-card--bsl .letter-card__image img {
+  max-height: 154px;
+}
+
+.result-section .word-sign-group__cards .letter-separator {
+  width: 100%;
+  min-height: 220px;
+}
+
+@media (min-width: 761px) {
+  .word-sign-group__cards {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 190px));
+  }
+
+  .word-sign-group__cards:has(.letter-card:only-child) {
+    grid-template-columns: minmax(150px, 190px);
+  }
+}
+
+@media (max-width: 760px) {
+  .result-section .letter-output--phrase {
+    gap: 14px;
+  }
+
+  .word-sign-group {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .word-sign-group__title {
+    margin-bottom: 11px;
+    font-size: 16px;
+  }
+
+  .word-sign-group__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .word-sign-group__cards:has(.letter-card:only-child) {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 150px;
+  }
+
+  .result-section .word-sign-group__cards .letter-card {
+    height: 180px;
+    padding: 11px;
+  }
+
+  .result-section .word-sign-group__cards .letter-card__image {
+    min-height: 116px;
+  }
+
+  .result-section .word-sign-group__cards .letter-card__image img {
+    max-height: 112px;
+  }
+
+  .result-section .word-sign-group__cards .letter-card--bsl .letter-card__image img {
+    max-height: 124px;
+  }
+
+  .result-section .word-sign-group__cards .letter-separator {
+    min-height: 180px;
+  }
+}
