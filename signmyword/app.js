@@ -276,10 +276,24 @@ el.more.addEventListener('click', () => {
   el.message.textContent = 'More fingerspelling alphabets are planned. ASL and BSL are available now.';
 });
 
+function setNavigationOpen(open) {
+  el.navToggle.setAttribute('aria-expanded', String(open));
+  el.navToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  el.navToggle.textContent = open ? '×' : '☰';
+  el.nav.classList.toggle('nav--open', open);
+}
+
 el.navToggle.addEventListener('click', () => {
   const open = el.navToggle.getAttribute('aria-expanded') === 'true';
-  el.navToggle.setAttribute('aria-expanded', String(!open));
-  el.nav.classList.toggle('nav--open', !open);
+  setNavigationOpen(!open);
+});
+
+el.nav.querySelectorAll('a').forEach((link) => {
+  link.addEventListener('click', () => setNavigationOpen(false));
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') setNavigationOpen(false);
 });
 
 loadFromUrl();
