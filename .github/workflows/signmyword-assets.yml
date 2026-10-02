@@ -1,5 +1,7 @@
 name: Sync SignMyWord alphabet assets
 
+# Local copies keep SignMyWord fast and reliable.
+
 on:
   workflow_dispatch:
   schedule:
