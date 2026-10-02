@@ -1,5 +1,5 @@
 const state = {
-  lang: 'asl',
+  lang: 'bsl',
   word: 'HELLO',
 };
 
@@ -59,6 +59,7 @@ const el = {
   shareCardTitle: document.querySelector('#share-card-title'),
   shareCardLetters: document.querySelector('#share-card-letters'),
   shareCardQr: document.querySelector('#share-card-qr'),
+  shareCardLanguage: document.querySelector('#share-card-language'),
   popularSection: document.querySelector('#popular-searches'),
   popularCloud: document.querySelector('#popular-word-cloud'),
   popularSubtitle: document.querySelector('#popular-searches-subtitle'),
@@ -323,13 +324,20 @@ async function renderShareCard() {
   const count = letterCount(word);
 
   el.shareCard.className = `share-card share-card--${shareImageState.style}`;
-  if (count > 12) {
+  if (count <= 4) {
+    el.shareCard.classList.add('share-card--short');
+  } else if (count > 12) {
     el.shareCard.classList.add('share-card--very-dense');
   } else if (count > 6) {
     el.shareCard.classList.add('share-card--dense');
   }
 
-  el.shareCardTitle.textContent = `Learn how to fingerspell ${word} in ${config.name} (${config.label}).`;
+  if (el.shareCardLanguage) {
+    const flagClass = language === 'bsl' ? 'flag-icon--gb' : 'flag-icon--us';
+    el.shareCardLanguage.innerHTML = `<span class="flag-icon ${flagClass}" aria-hidden="true"></span><span>${config.label}</span>`;
+  }
+
+  el.shareCardTitle.textContent = `Fingerspell ${word} in ${config.name} (${config.label}).`;
   el.shareCardLetters.replaceChildren();
 
   const letters = [...word].filter((char) => /[A-Z]/.test(char));
@@ -704,7 +712,7 @@ function renderLanguage() {
   });
 
   const config = LANGUAGES[state.lang];
-  el.outputLang.textContent = `${config.flag} ${config.label}`;
+  el.outputLang.textContent = `${config.name} (${config.label})`;
   el.sourceNote.innerHTML =
     state.lang === 'asl'
       ? 'ASL artwork is loaded from Wikimedia Commons. Open any sign to view its source and reuse information.'
@@ -772,6 +780,15 @@ function letterCard(letter) {
 function renderWord() {
   const count = letterCount(state.word);
   el.output.replaceChildren();
+  el.output.className = 'letter-output';
+
+  if (count <= 4) {
+    el.output.classList.add('letter-output--short');
+  } else if (count <= 8) {
+    el.output.classList.add('letter-output--medium');
+  } else {
+    el.output.classList.add('letter-output--long');
+  }
 
   if (!count) {
     el.outputMeta.textContent = 'Type a word to begin';
@@ -795,7 +812,7 @@ function renderWord() {
   }
 
   if (el.mobileOutputMeta) {
-    el.mobileOutputMeta.textContent = `${config.flag} ${config.label} · ${count} ${count === 1 ? 'letter' : 'letters'}`;
+    el.mobileOutputMeta.textContent = `${config.name} (${config.label}) · ${count} ${count === 1 ? 'letter' : 'letters'}`;
   }
 }
 
