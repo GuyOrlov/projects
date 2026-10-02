@@ -2279,3 +2279,56 @@ body.modal-open {
 .share-card--phrase .share-card__footer {
   margin-top: 16px;
 }
+
+
+/* Stronger phrase grouping for exported share images */
+.share-card--phrase .share-card__letters--phrase {
+  display: flex !important;
+  flex-direction: column;
+  gap: 16px !important;
+}
+
+.share-card--phrase .share-card__word-group {
+  display: block;
+  width: 100%;
+  padding: 14px 16px 16px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 18px;
+  background: rgba(255,255,255,.12);
+}
+
+.share-card--light.share-card--phrase .share-card__word-group {
+  border-color: rgba(16,42,86,.10);
+  background: rgba(255,255,255,.72);
+}
+
+.share-card--phrase .share-card__word-title {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.share-card--phrase .share-card__word-letters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.share-card--phrase .share-card__word-group:first-child .share-card__word-letters,
+.share-card--phrase .share-card__word-group:last-child .share-card__word-letters {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 190px));
+}
+
+.share-card--phrase .share-card__word-letters .share-card__letter {
+  min-height: 0;
+}
+
+.share-card--phrase .share-card__word-letters .share-card__letter-box {
+  min-height: 92px;
+}
+
+.share-card--phrase .share-card__word-letters .share-card__letter-box img {
+  max-height: 88px;
+}
