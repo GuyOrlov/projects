@@ -1,6 +1,7 @@
 name: Sync SignMyWord alphabet assets
 
 # Local copies keep SignMyWord fast and reliable.
+# Sources are Wikimedia Commons; see signmyword/assets/README.md for licensing notes.
 
 on:
   workflow_dispatch:
@@ -27,9 +28,12 @@ jobs:
           mkdir -p signmyword/assets/bsl signmyword/assets/asl
 
           for letter in {A..Z}; do
-            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:Redirect/file/BSL_letter_${letter}.svg"               -o "signmyword/assets/bsl/${letter}.svg"
+            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:FilePath/BSL_letter_${letter}.svg"               -o "signmyword/assets/bsl/${letter}.svg"
 
-            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sign_language_${letter}.svg"               -o "signmyword/assets/asl/${letter}.svg"
+            curl -L --fail --retry 4 --retry-delay 2               "https://commons.wikimedia.org/wiki/Special:FilePath/Sign_language_${letter}.svg"               -o "signmyword/assets/asl/${letter}.svg"
+
+            test -s "signmyword/assets/bsl/${letter}.svg"
+            test -s "signmyword/assets/asl/${letter}.svg"
           done
 
       - name: Commit updated artwork
