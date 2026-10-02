@@ -85,13 +85,13 @@ a {
 }
 
 .header {
-  min-height: 118px;
+  min-height: 86px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 22px 0 10px;
+  gap: 24px;
+  padding: 16px 0 10px;
   text-align: center;
 }
 
@@ -1109,27 +1109,41 @@ body.modal-open {
   }
 
   .header {
-    min-height: 0;
-    padding: 18px 0 8px;
-    gap: 12px;
+    min-height: 64px;
+    padding: 12px 0 8px;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    text-align: left;
   }
 
   .brand {
-    font-size: 26px;
+    flex: 0 1 auto;
+    min-width: 0;
+    font-size: 21px;
     line-height: 1.05;
+    white-space: nowrap;
   }
 
   .language-switcher {
     display: flex;
-    justify-content: center;
-    width: 100%;
-    gap: 8px;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    width: auto;
+    gap: 6px;
   }
 
   .language-switcher .language-pill {
-    padding: 8px 13px;
-    font-size: 13px;
-    line-height: 17px;
+    min-height: 34px;
+    padding: 7px 10px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .language-switcher .flag-icon {
+    width: 17px;
+    height: 12px;
+    flex-basis: 17px;
   }
 
   .hero {
