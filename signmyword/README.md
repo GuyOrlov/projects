@@ -52,6 +52,14 @@ Sitemap:
 https://guyorlov.com/projects/signmyword/sitemap.xml
 ```
 
+Local testing insights:
+
+```
+https://guyorlov.com/projects/signmyword/stats.html
+```
+
+The insights page is intentionally `noindex` and reports only metrics stored in that browser.
+
 ## Local alphabet artwork
 
 The app now tries these local files first:
