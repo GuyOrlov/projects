@@ -45,8 +45,6 @@ const el = {
   languageButtons: [...document.querySelectorAll('[data-language]')],
   exampleButtons: [...document.querySelectorAll('[data-example]')],
   more: document.querySelector('#more-languages'),
-  navToggle: document.querySelector('#nav-toggle'),
-  nav: document.querySelector('#main-nav'),
   sourceNote: document.querySelector('#source-note'),
   openImageMaker: document.querySelector('#open-image-maker'),
   imageModal: document.querySelector('#image-modal'),
@@ -435,8 +433,8 @@ function renderLanguage() {
   el.outputLang.textContent = `${config.flag} ${config.label}`;
   el.sourceNote.innerHTML =
     state.lang === 'asl'
-      ? 'ASL artwork is loaded from Wikimedia Commons. Check each source file page for its reuse status.'
-      : 'BSL artwork is loaded from Wikimedia Commons. Checked files use CC BY-SA 3.0; attribution is provided below.';
+      ? 'ASL artwork is loaded from Wikimedia Commons. Open any sign to view its source and reuse information.'
+      : 'BSL artwork is loaded from Wikimedia Commons. Open any sign to view its source and licence information.';
 }
 
 function separatorCard(char) {
@@ -649,26 +647,8 @@ el.imageStyleButtons.forEach((button) => {
   });
 });
 
-function setNavigationOpen(open) {
-  el.navToggle.setAttribute('aria-expanded', String(open));
-  el.navToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-  el.navToggle.textContent = open ? '×' : '☰';
-  el.nav.classList.toggle('nav--open', open);
-}
-
-el.navToggle.addEventListener('click', () => {
-  const open = el.navToggle.getAttribute('aria-expanded') === 'true';
-  setNavigationOpen(!open);
-});
-
-el.nav.querySelectorAll('a').forEach((link) => {
-  link.addEventListener('click', () => setNavigationOpen(false));
-});
-
 document.addEventListener('keydown', (event) => {
-  if (event.key !== 'Escape') return;
-  setNavigationOpen(false);
-  if (!el.imageModal?.hidden) closeImageMaker();
+  if (event.key === 'Escape' && !el.imageModal?.hidden) closeImageMaker();
 });
 
 loadFromUrl();
