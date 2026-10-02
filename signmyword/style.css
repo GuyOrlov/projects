@@ -119,17 +119,26 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  column-gap: 10px;
   border: 1px solid var(--smw-border);
   background: #fff;
   color: var(--smw-text-primary);
   border-radius: var(--smw-radius-full);
-  padding: 9px 14px;
+  padding: 9px 16px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
   line-height: 17px;
   white-space: nowrap;
+}
+
+.language-pill .flag-icon {
+  margin-right: 2px;
+}
+
+.language-pill > span:last-child {
+  display: inline-block;
+  line-height: 1;
 }
 
 .language-pill:hover {
@@ -1139,8 +1148,8 @@ body.modal-open {
 
   .language-switcher .language-pill {
     min-height: 36px;
-    gap: 7px;
-    padding: 7px 12px;
+    column-gap: 9px;
+    padding: 7px 13px;
     font-size: 12px;
     line-height: 16px;
   }
@@ -1149,6 +1158,7 @@ body.modal-open {
     width: 18px;
     height: 12px;
     flex-basis: 18px;
+    margin-right: 2px;
   }
 
   .hero {
