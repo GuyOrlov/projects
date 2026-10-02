@@ -116,6 +116,10 @@ a {
 }
 
 .language-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 1px solid var(--smw-border);
   background: #fff;
   color: var(--smw-text-primary);
@@ -1134,16 +1138,17 @@ body.modal-open {
   }
 
   .language-switcher .language-pill {
-    min-height: 34px;
-    padding: 7px 10px;
+    min-height: 36px;
+    gap: 7px;
+    padding: 7px 12px;
     font-size: 12px;
     line-height: 16px;
   }
 
   .language-switcher .flag-icon {
-    width: 17px;
+    width: 18px;
     height: 12px;
-    flex-basis: 17px;
+    flex-basis: 18px;
   }
 
   .hero {
