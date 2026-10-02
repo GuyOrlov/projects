@@ -165,7 +165,7 @@ function loadImageFromDataUrl(dataUrl) {
   });
 }
 
-async function cropSignArtworkDataUrl(blob) {
+async function rasterizeSignArtworkDataUrl(blob, { crop = false } = {}) {
   const originalDataUrl = await blobToDataUrl(blob);
   const image = await loadImageFromDataUrl(originalDataUrl);
 
@@ -180,11 +180,15 @@ async function cropSignArtworkDataUrl(blob) {
   sourceCanvas.width = width;
   sourceCanvas.height = height;
 
-  const sourceContext = sourceCanvas.getContext('2d', { willReadFrequently: true });
+  const sourceContext = sourceCanvas.getContext('2d', { willReadFrequently: crop });
   if (!sourceContext) throw new Error('Could not prepare sign artwork.');
 
   sourceContext.clearRect(0, 0, width, height);
   sourceContext.drawImage(image, 0, 0, width, height);
+
+  if (!crop) {
+    return sourceCanvas.toDataURL('image/png');
+  }
 
   const pixels = sourceContext.getImageData(0, 0, width, height).data;
   let minX = width;
@@ -211,7 +215,7 @@ async function cropSignArtworkDataUrl(blob) {
   }
 
   if (maxX < minX || maxY < minY) {
-    return originalDataUrl;
+    return sourceCanvas.toDataURL('image/png');
   }
 
   const contentWidth = maxX - minX + 1;
@@ -231,7 +235,7 @@ async function cropSignArtworkDataUrl(blob) {
   croppedCanvas.height = cropHeight;
 
   const croppedContext = croppedCanvas.getContext('2d');
-  if (!croppedContext) return originalDataUrl;
+  if (!croppedContext) return sourceCanvas.toDataURL('image/png');
 
   croppedContext.clearRect(0, 0, cropWidth, cropHeight);
   croppedContext.drawImage(
@@ -250,7 +254,7 @@ async function cropSignArtworkDataUrl(blob) {
 }
 
 async function signImageDataUrl(language, letter) {
-  const cacheKey = `${language}:${letter}:trim-v2`;
+  const cacheKey = `${language}:${letter}:png-v3`;
   if (signAssetCache.has(cacheKey)) return signAssetCache.get(cacheKey);
 
   const config = LANGUAGES[language];
@@ -266,9 +270,9 @@ async function signImageDataUrl(language, letter) {
   }
 
   const blob = await response.blob();
-  const dataUrl = language === 'bsl'
-    ? await cropSignArtworkDataUrl(blob)
-    : await blobToDataUrl(blob);
+  const dataUrl = await rasterizeSignArtworkDataUrl(blob, {
+    crop: language === 'bsl',
+  });
 
   signAssetCache.set(cacheKey, dataUrl);
   return dataUrl;
@@ -337,6 +341,14 @@ async function shareCardLetter(letter, language) {
   try {
     image.src = await signImageDataUrl(language, letter);
     box.appendChild(image);
+
+    if (image.decode) {
+      try {
+        await image.decode();
+      } catch {
+        // The load/error fallback below still protects export if decode is unavailable.
+      }
+    }
   } catch (error) {
     const visibleImage = [...el.output.querySelectorAll('.letter-card')].find(
       (item) => item.querySelector('.letter-card__letter')?.textContent?.trim() === letter
@@ -440,20 +452,27 @@ async function waitForShareCardImages() {
   if (!el.shareCard) return;
 
   const images = [...el.shareCard.querySelectorAll('img')];
-  await Promise.all(
-    images.map(
-      (image) =>
-        new Promise((resolve) => {
-          if (image.complete) {
-            resolve();
-            return;
-          }
 
+  await Promise.all(
+    images.map(async (image) => {
+      if (!image.complete) {
+        await new Promise((resolve) => {
           image.addEventListener('load', resolve, { once: true });
           image.addEventListener('error', resolve, { once: true });
-        })
-    )
+        });
+      }
+
+      if (image.decode && image.naturalWidth > 0) {
+        try {
+          await image.decode();
+        } catch {
+          // A loaded image can still be safely captured if decode() is unsupported.
+        }
+      }
+    })
   );
+
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 }
 
 async function generateShareImageBlob() {
