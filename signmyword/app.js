@@ -633,7 +633,7 @@ function renderPopularSummary(summary) {
     button.append(countLabel, label);
     button.addEventListener('click', () => {
       setWord(word, { track: false });
-      document.querySelector('.generator')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelector('.result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
     el.popularCloud.appendChild(button);
@@ -785,12 +785,42 @@ function letterCard(letter) {
   return card;
 }
 
+function renderWordGroup(word, index) {
+  const group = document.createElement('section');
+  group.className = 'word-sign-group';
+  group.setAttribute('aria-labelledby', `word-sign-group-${index}`);
+
+  const heading = document.createElement('h3');
+  heading.className = 'word-sign-group__title';
+  heading.id = `word-sign-group-${index}`;
+  heading.textContent = word;
+
+  const cards = document.createElement('div');
+  cards.className = 'word-sign-group__cards';
+
+  [...word].forEach((char) => {
+    if (/[A-Z]/.test(char)) {
+      cards.appendChild(letterCard(char));
+    } else {
+      cards.appendChild(separatorCard(char));
+    }
+  });
+
+  group.append(heading, cards);
+  return group;
+}
+
 function renderWord() {
   const count = letterCount(state.word);
+  const words = state.word.split(' ').filter(Boolean);
+  const isPhrase = words.length > 1;
+
   el.output.replaceChildren();
   el.output.className = 'letter-output';
 
-  if (count <= 4) {
+  if (isPhrase) {
+    el.output.classList.add('letter-output--phrase');
+  } else if (count <= 4) {
     el.output.classList.add('letter-output--short');
   } else if (count <= 8) {
     el.output.classList.add('letter-output--medium');
@@ -803,15 +833,22 @@ function renderWord() {
     return;
   }
 
-  [...state.word].forEach((char) => {
-    if (/[A-Z]/.test(char)) {
-      el.output.appendChild(letterCard(char));
-    } else {
-      el.output.appendChild(separatorCard(char));
-    }
-  });
+  if (isPhrase) {
+    words.forEach((word, index) => {
+      el.output.appendChild(renderWordGroup(word, index));
+    });
+  } else {
+    [...state.word].forEach((char) => {
+      if (/[A-Z]/.test(char)) {
+        el.output.appendChild(letterCard(char));
+      } else {
+        el.output.appendChild(separatorCard(char));
+      }
+    });
+  }
 
-  el.outputMeta.textContent = `${state.word} · ${count} ${count === 1 ? 'letter' : 'letters'}`;
+  const wordSummary = isPhrase ? ` · ${words.length} words` : '';
+  el.outputMeta.textContent = `${state.word} · ${count} ${count === 1 ? 'letter' : 'letters'}${wordSummary}`;
 
   const config = LANGUAGES[state.lang];
 
@@ -820,7 +857,7 @@ function renderWord() {
   }
 
   if (el.mobileOutputMeta) {
-    el.mobileOutputMeta.textContent = `${config.name} (${config.label}) · ${count} ${count === 1 ? 'letter' : 'letters'}`;
+    el.mobileOutputMeta.textContent = `${config.name} (${config.label}) · ${count} ${count === 1 ? 'letter' : 'letters'}${wordSummary}`;
   }
 }
 
