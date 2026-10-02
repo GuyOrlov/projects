@@ -3149,3 +3149,238 @@ select {
   }
 }
 /* End classroom mobile layout fix */
+
+
+/* SEO landing pages */
+.seo-page {
+  padding: 28px 0 72px;
+}
+
+.seo-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 28px;
+  color: var(--smw-text-secondary);
+  font-size: 0.92rem;
+}
+
+.seo-breadcrumb a {
+  color: var(--smw-blue);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.seo-eyebrow {
+  margin: 0 0 8px;
+  color: var(--smw-blue);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+
+.seo-page h1 {
+  max-width: 900px;
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.seo-lead {
+  max-width: 820px;
+  margin: 20px 0 0;
+  color: var(--smw-text-secondary);
+  font-family: "Atkinson Hyperlegible Next", Inter, sans-serif;
+  font-size: clamp(1.08rem, 2vw, 1.3rem);
+  line-height: 1.7;
+}
+
+.seo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 28px 0 42px;
+}
+
+.seo-page section {
+  margin-top: 42px;
+}
+
+.seo-page section > h2,
+.seo-home h2 {
+  margin: 0 0 16px;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  letter-spacing: -0.025em;
+}
+
+.alphabet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(126px, 1fr));
+  gap: 14px;
+}
+
+.alphabet-letter {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--smw-border);
+  border-radius: var(--smw-radius-lg);
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(16, 42, 86, 0.04);
+  text-align: center;
+  text-decoration: none;
+}
+
+.alphabet-letter:hover {
+  border-color: var(--smw-blue);
+  transform: translateY(-2px);
+}
+
+.alphabet-letter img {
+  width: 100%;
+  height: 126px;
+  object-fit: contain;
+}
+
+.alphabet-letter strong {
+  font-size: 1.08rem;
+}
+
+.seo-copy {
+  max-width: 860px;
+}
+
+.seo-copy p {
+  color: var(--smw-text-secondary);
+  font-family: "Atkinson Hyperlegible Next", Inter, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.72;
+}
+
+.seo-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.seo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 142px;
+  padding: 22px;
+  border: 1px solid var(--smw-border);
+  border-radius: var(--smw-radius-lg);
+  background: var(--smw-bg-subtle);
+  text-decoration: none;
+}
+
+.seo-card strong {
+  font-size: 1.05rem;
+}
+
+.seo-card span {
+  color: var(--smw-text-secondary);
+  font-family: "Atkinson Hyperlegible Next", Inter, sans-serif;
+}
+
+.seo-note {
+  margin-top: 38px;
+  padding: 18px 20px;
+  border-radius: var(--smw-radius-md);
+  background: var(--smw-bg-blue-soft);
+  color: var(--smw-text-secondary);
+  font-family: "Atkinson Hyperlegible Next", Inter, sans-serif;
+}
+
+.seo-example-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.seo-example-links a {
+  padding: 10px 14px;
+  border: 1px solid var(--smw-border);
+  border-radius: var(--smw-radius-full);
+  color: var(--smw-blue);
+  background: #fff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.seo-word-letters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(126px, 150px));
+  gap: 14px;
+}
+
+.seo-letter-card {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--smw-border);
+  border-radius: var(--smw-radius-lg);
+  text-align: center;
+  background: #fff;
+}
+
+.seo-letter-card img {
+  width: 100%;
+  height: 126px;
+  object-fit: contain;
+}
+
+.seo-letter-card figcaption {
+  margin-top: 6px;
+  font-weight: 800;
+}
+
+.seo-home {
+  padding: 44px 0 24px;
+}
+
+.seo-home__intro {
+  max-width: 760px;
+  margin: 0 0 24px;
+  color: var(--smw-text-secondary);
+  font-family: "Atkinson Hyperlegible Next", Inter, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 760px) {
+  .seo-page {
+    padding-top: 18px;
+  }
+
+  .seo-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .alphabet-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .alphabet-letter {
+    min-height: 160px;
+  }
+
+  .alphabet-letter img,
+  .seo-letter-card img {
+    height: 112px;
+  }
+
+  .seo-actions {
+    display: grid;
+  }
+
+  .seo-actions .button {
+    width: 100%;
+  }
+}
