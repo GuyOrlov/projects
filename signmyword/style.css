@@ -2332,3 +2332,50 @@ body.modal-open {
 .share-card--phrase .share-card__word-letters .share-card__letter-box img {
   max-height: 88px;
 }
+
+
+/* SignMyWord two-colour wordmark + GoHenry-inspired adjacent navigation layout */
+.header {
+  justify-content: flex-start;
+  gap: 30px;
+}
+
+.brand {
+  flex: 0 0 auto;
+  gap: 0;
+  font-weight: 800;
+}
+
+.brand__accent {
+  color: var(--smw-blue);
+}
+
+.brand__word {
+  color: var(--smw-text-primary);
+}
+
+.header .language-switcher {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .header {
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .brand {
+    font-size: 20px;
+  }
+
+  .header .language-switcher {
+    margin-left: 0;
+    gap: 5px;
+  }
+
+  .header .language-switcher .language-pill {
+    padding-inline: 10px;
+  }
+}
