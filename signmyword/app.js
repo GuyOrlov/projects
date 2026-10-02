@@ -154,58 +154,102 @@ async function commonsOriginalFileUrl(language, letter) {
   return fileUrl;
 }
 
-function cropSvgWhitespace(svgText) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(svgText, 'image/svg+xml');
-  const svg = doc.documentElement;
+function loadImageFromDataUrl(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.addEventListener('load', () => resolve(image), { once: true });
+    image.addEventListener('error', () => reject(new Error('Could not decode sign artwork.')), { once: true });
+    image.src = dataUrl;
+  });
+}
 
-  if (!svg || svg.nodeName.toLowerCase() !== 'svg' || doc.querySelector('parsererror')) {
-    throw new Error('Invalid SVG artwork.');
-  }
+async function cropSignArtworkDataUrl(blob) {
+  const originalDataUrl = await blobToDataUrl(blob);
+  const image = await loadImageFromDataUrl(originalDataUrl);
 
-  svg.removeAttribute('width');
-  svg.removeAttribute('height');
-  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  const naturalWidth = image.naturalWidth || 1000;
+  const naturalHeight = image.naturalHeight || 1000;
+  const maxDimension = 1400;
+  const scale = Math.min(1, maxDimension / Math.max(naturalWidth, naturalHeight));
+  const width = Math.max(1, Math.round(naturalWidth * scale));
+  const height = Math.max(1, Math.round(naturalHeight * scale));
 
-  const measurementHost = document.createElement('div');
-  measurementHost.setAttribute('aria-hidden', 'true');
-  measurementHost.style.position = 'fixed';
-  measurementHost.style.left = '-12000px';
-  measurementHost.style.top = '0';
-  measurementHost.style.width = '1000px';
-  measurementHost.style.height = '1000px';
-  measurementHost.style.opacity = '0';
-  measurementHost.style.pointerEvents = 'none';
-  measurementHost.style.overflow = 'visible';
+  const sourceCanvas = document.createElement('canvas');
+  sourceCanvas.width = width;
+  sourceCanvas.height = height;
 
-  const measurableSvg = document.importNode(svg, true);
-  measurableSvg.style.width = '1000px';
-  measurableSvg.style.height = '1000px';
-  measurableSvg.style.overflow = 'visible';
-  measurementHost.appendChild(measurableSvg);
-  document.body.appendChild(measurementHost);
+  const sourceContext = sourceCanvas.getContext('2d', { willReadFrequently: true });
+  if (!sourceContext) throw new Error('Could not prepare sign artwork.');
 
-  try {
-    const bbox = measurableSvg.getBBox();
+  sourceContext.clearRect(0, 0, width, height);
+  sourceContext.drawImage(image, 0, 0, width, height);
 
-    if (bbox && bbox.width > 0 && bbox.height > 0) {
-      const padX = Math.max(bbox.width * 0.045, 2);
-      const padY = Math.max(bbox.height * 0.045, 2);
+  const pixels = sourceContext.getImageData(0, 0, width, height).data;
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
 
-      svg.setAttribute(
-        'viewBox',
-        `${bbox.x - padX} ${bbox.y - padY} ${bbox.width + padX * 2} ${bbox.height + padY * 2}`
-      );
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4;
+      const red = pixels[index];
+      const green = pixels[index + 1];
+      const blue = pixels[index + 2];
+      const alpha = pixels[index + 3];
+
+      const visibleInk = alpha > 12 && (red < 247 || green < 247 || blue < 247);
+      if (!visibleInk) continue;
+
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
     }
-  } finally {
-    measurementHost.remove();
   }
 
-  return new XMLSerializer().serializeToString(svg);
+  if (maxX < minX || maxY < minY) {
+    return originalDataUrl;
+  }
+
+  const contentWidth = maxX - minX + 1;
+  const contentHeight = maxY - minY + 1;
+  const paddingX = Math.max(6, Math.round(contentWidth * 0.055));
+  const paddingY = Math.max(6, Math.round(contentHeight * 0.055));
+
+  const cropX = Math.max(0, minX - paddingX);
+  const cropY = Math.max(0, minY - paddingY);
+  const cropRight = Math.min(width, maxX + paddingX + 1);
+  const cropBottom = Math.min(height, maxY + paddingY + 1);
+  const cropWidth = cropRight - cropX;
+  const cropHeight = cropBottom - cropY;
+
+  const croppedCanvas = document.createElement('canvas');
+  croppedCanvas.width = cropWidth;
+  croppedCanvas.height = cropHeight;
+
+  const croppedContext = croppedCanvas.getContext('2d');
+  if (!croppedContext) return originalDataUrl;
+
+  croppedContext.clearRect(0, 0, cropWidth, cropHeight);
+  croppedContext.drawImage(
+    sourceCanvas,
+    cropX,
+    cropY,
+    cropWidth,
+    cropHeight,
+    0,
+    0,
+    cropWidth,
+    cropHeight
+  );
+
+  return croppedCanvas.toDataURL('image/png');
 }
 
 async function signImageDataUrl(language, letter) {
-  const cacheKey = `${language}:${letter}:trim-v1`;
+  const cacheKey = `${language}:${letter}:trim-v2`;
   if (signAssetCache.has(cacheKey)) return signAssetCache.get(cacheKey);
 
   const config = LANGUAGES[language];
@@ -220,17 +264,11 @@ async function signImageDataUrl(language, letter) {
     throw new Error(`Could not load ${config.label} sign for ${letter}.`);
   }
 
-  let blob;
+  const blob = await response.blob();
+  const dataUrl = language === 'bsl'
+    ? await cropSignArtworkDataUrl(blob)
+    : await blobToDataUrl(blob);
 
-  if (language === 'bsl') {
-    const svgText = await response.text();
-    const croppedSvg = cropSvgWhitespace(svgText);
-    blob = new Blob([croppedSvg], { type: 'image/svg+xml' });
-  } else {
-    blob = await response.blob();
-  }
-
-  const dataUrl = await blobToDataUrl(blob);
   signAssetCache.set(cacheKey, dataUrl);
   return dataUrl;
 }
