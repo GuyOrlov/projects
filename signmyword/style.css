@@ -2974,3 +2974,78 @@ select {
     font-size: 12px;
   }
 }
+
+/* Mobile alignment polish — 2026-10-02 */
+@media (max-width: 760px) {
+  /* Use the phone width properly while keeping a comfortable edge. */
+  .site-shell {
+    width: calc(100% - 24px);
+    max-width: none;
+  }
+
+  .header {
+    width: calc(100% - 24px);
+    gap: 10px;
+  }
+
+  .marketing-hero__inner {
+    padding-block: 28px 26px;
+    text-align: left;
+  }
+
+  /* A slightly smaller headline prevents the copy feeling squeezed. */
+  .marketing-hero h1 {
+    width: 100%;
+    max-width: none;
+    font-size: clamp(32px, 8.9vw, 36px);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+    text-align: left;
+  }
+
+  .marketing-hero__intro {
+    width: 100%;
+    max-width: none;
+    margin-top: 14px;
+    font-size: 16px;
+    line-height: 1.45;
+    text-align: left;
+  }
+
+  /* Avoid squeezing the input beside the CTA on a phone. */
+  .hero-word-form {
+    width: 100%;
+    margin-top: 22px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .hero-word-input {
+    width: 100%;
+    height: 54px;
+    padding-inline: 16px;
+    font-size: 16px;
+  }
+
+  .hero-go {
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    padding-inline: 16px;
+    font-size: 15px;
+  }
+
+  /* Keep examples and recent searches on the same left/right alignment. */
+  .hero-examples,
+  .recent-searches {
+    width: 100%;
+    margin-inline: 0;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .recent-searches__chips {
+    justify-content: flex-start;
+  }
+}
+/* End mobile alignment polish */
