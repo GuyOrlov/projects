@@ -226,7 +226,7 @@ async function renderShareCard() {
     el.shareCard.classList.add('share-card--dense');
   }
 
-  el.shareCardTitle.textContent = `How to fingerspell ${word} in ${config.label} ${config.flag}`;
+  el.shareCardTitle.textContent = `Learn how to fingerspell ${word} in ${config.name} (${config.label}).`;
   el.shareCardLetters.replaceChildren();
 
   const letters = [...word].filter((char) => /[A-Z]/.test(char));
@@ -503,7 +503,7 @@ function renderWord() {
   const config = LANGUAGES[state.lang];
 
   if (el.mobileOutputTitle) {
-    el.mobileOutputTitle.textContent = `How to fingerspell ${state.word} in ${config.label} ${config.flag}`;
+    el.mobileOutputTitle.textContent = `Learn how to fingerspell ${state.word} in ${config.name} (${config.label}).`;
   }
 
   if (el.mobileOutputMeta) {
