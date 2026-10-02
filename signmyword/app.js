@@ -48,7 +48,277 @@ const el = {
   navToggle: document.querySelector('#nav-toggle'),
   nav: document.querySelector('#main-nav'),
   sourceNote: document.querySelector('#source-note'),
+  openImageMaker: document.querySelector('#open-image-maker'),
+  imageModal: document.querySelector('#image-modal'),
+  closeImageModal: document.querySelector('#close-image-modal'),
+  imageModalBackdrop: document.querySelector('[data-close-image-modal]'),
+  imageStyleButtons: [...document.querySelectorAll('[data-card-style]')],
+  imagePreview: document.querySelector('#share-image-preview'),
+  imageLoading: document.querySelector('#share-image-loading'),
+  imageModalStatus: document.querySelector('#image-modal-status'),
+  downloadShareImage: document.querySelector('#download-share-image'),
+  shareImageFile: document.querySelector('#share-image-file'),
+  shareCard: document.querySelector('#share-card'),
+  shareCardWord: document.querySelector('#share-card-word'),
+  shareCardLanguage: document.querySelector('#share-card-language'),
+  shareCardLetters: document.querySelector('#share-card-letters'),
+  shareCardQr: document.querySelector('#share-card-qr'),
 };
+
+const shareImageState = {
+  style: 'light',
+  blob: null,
+  previewUrl: null,
+};
+
+function revokeShareImagePreview() {
+  if (shareImageState.previewUrl) {
+    URL.revokeObjectURL(shareImageState.previewUrl);
+    shareImageState.previewUrl = null;
+  }
+}
+
+function invalidateShareImage() {
+  shareImageState.blob = null;
+  revokeShareImagePreview();
+
+  if (el.imagePreview) {
+    el.imagePreview.removeAttribute('src');
+    el.imagePreview.hidden = true;
+  }
+
+  if (el.imageLoading) {
+    el.imageLoading.hidden = false;
+    el.imageLoading.textContent = 'Creating preview…';
+  }
+}
+
+function imageFileName() {
+  const safeWord = state.word
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'word';
+
+  return `signmyword-${state.lang}-${safeWord}.png`;
+}
+
+function setImageModalStatus(message = '') {
+  if (el.imageModalStatus) el.imageModalStatus.textContent = message;
+}
+
+function shareCardLetter(letter) {
+  const config = LANGUAGES[state.lang];
+
+  const card = document.createElement('div');
+  card.className = 'share-card__letter';
+
+  const label = document.createElement('p');
+  label.className = 'share-card__letter-name';
+  label.textContent = letter;
+
+  const box = document.createElement('div');
+  box.className = 'share-card__letter-box';
+
+  const image = document.createElement('img');
+  image.crossOrigin = 'anonymous';
+  image.src = config.file(letter);
+  image.alt = `${config.name} fingerspelling for the letter ${letter}`;
+
+  image.addEventListener('error', () => {
+    box.replaceChildren();
+    const fallback = document.createElement('strong');
+    fallback.textContent = letter;
+    fallback.style.fontSize = '54px';
+    fallback.style.lineHeight = '1';
+    box.appendChild(fallback);
+  });
+
+  box.appendChild(image);
+  card.append(label, box);
+  return card;
+}
+
+function renderShareCard() {
+  if (!el.shareCard) return;
+
+  const config = LANGUAGES[state.lang];
+  const count = letterCount(state.word);
+
+  el.shareCard.className = `share-card share-card--${shareImageState.style}`;
+  if (count > 12) {
+    el.shareCard.classList.add('share-card--very-dense');
+  } else if (count > 6) {
+    el.shareCard.classList.add('share-card--dense');
+  }
+
+  el.shareCardWord.textContent = state.word;
+  el.shareCardLanguage.textContent = `in ${config.label} ${config.flag}`;
+  el.shareCardLetters.replaceChildren();
+
+  [...state.word].forEach((char) => {
+    if (/[A-Z]/.test(char)) {
+      el.shareCardLetters.appendChild(shareCardLetter(char));
+    }
+  });
+
+  el.shareCardQr.replaceChildren();
+
+  if (window.QRCode) {
+    new QRCode(el.shareCardQr, {
+      text: shareLink(),
+      width: 126,
+      height: 126,
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  }
+}
+
+async function waitForShareCardImages() {
+  if (!el.shareCard) return;
+
+  const images = [...el.shareCard.querySelectorAll('img')];
+  await Promise.all(
+    images.map(
+      (image) =>
+        new Promise((resolve) => {
+          if (image.complete) {
+            resolve();
+            return;
+          }
+
+          image.addEventListener('load', resolve, { once: true });
+          image.addEventListener('error', resolve, { once: true });
+        })
+    )
+  );
+}
+
+async function generateShareImageBlob() {
+  if (!window.html2canvas) {
+    throw new Error('Image generator is still loading. Please try again.');
+  }
+
+  if (el.imageLoading) {
+    el.imageLoading.hidden = false;
+    el.imageLoading.textContent = 'Creating preview…';
+  }
+  if (el.imagePreview) el.imagePreview.hidden = true;
+  setImageModalStatus('');
+
+  renderShareCard();
+
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+
+  await waitForShareCardImages();
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+  const canvas = await html2canvas(el.shareCard, {
+    backgroundColor: null,
+    scale: 1,
+    useCORS: true,
+    allowTaint: false,
+    logging: false,
+    width: 1080,
+    height: 1350,
+  });
+
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((result) => {
+      if (result) resolve(result);
+      else reject(new Error('Could not create the image.'));
+    }, 'image/png');
+  });
+
+  shareImageState.blob = blob;
+  revokeShareImagePreview();
+  shareImageState.previewUrl = URL.createObjectURL(blob);
+
+  if (el.imagePreview) {
+    el.imagePreview.src = shareImageState.previewUrl;
+    el.imagePreview.hidden = false;
+  }
+  if (el.imageLoading) el.imageLoading.hidden = true;
+
+  return blob;
+}
+
+async function ensureShareImageBlob() {
+  return shareImageState.blob || generateShareImageBlob();
+}
+
+async function openImageMaker() {
+  if (!el.imageModal) return;
+
+  el.imageModal.hidden = false;
+  document.body.classList.add('modal-open');
+  setImageModalStatus('');
+  invalidateShareImage();
+
+  try {
+    await generateShareImageBlob();
+  } catch (error) {
+    if (el.imageLoading) {
+      el.imageLoading.hidden = false;
+      el.imageLoading.textContent = 'Preview unavailable';
+    }
+    setImageModalStatus(error?.message || 'Could not create the share image.');
+  }
+}
+
+function closeImageMaker() {
+  if (!el.imageModal) return;
+
+  el.imageModal.hidden = true;
+  document.body.classList.remove('modal-open');
+  setImageModalStatus('');
+  el.openImageMaker?.focus();
+}
+
+async function downloadShareImage() {
+  try {
+    const blob = await ensureShareImageBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = imageFileName();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setImageModalStatus('Image downloaded ✓');
+  } catch (error) {
+    setImageModalStatus(error?.message || 'Could not download the image.');
+  }
+}
+
+async function shareGeneratedImage() {
+  try {
+    const blob = await ensureShareImageBlob();
+    const file = new File([blob], imageFileName(), { type: 'image/png' });
+    const data = {
+      title: `How to fingerspell ${state.word}`,
+      text: `How to fingerspell ${state.word} in ${LANGUAGES[state.lang].label}.`,
+      files: [file],
+    };
+
+    if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+      try {
+        await navigator.share(data);
+        return;
+      } catch (error) {
+        if (error?.name === 'AbortError') return;
+        throw error;
+      }
+    }
+
+    await downloadShareImage();
+    setImageModalStatus('Your browser cannot share image files directly, so the image was downloaded instead.');
+  } catch (error) {
+    setImageModalStatus(error?.message || 'Could not share the image.');
+  }
+}
 
 function cleanWord(value) {
   return value
@@ -194,6 +464,7 @@ function render() {
   renderWord();
   updateUrl();
   renderShare();
+  invalidateShareImage();
 }
 
 function setWord(value) {
@@ -276,6 +547,32 @@ el.more.addEventListener('click', () => {
   el.message.textContent = 'More fingerspelling alphabets are planned. ASL and BSL are available now.';
 });
 
+el.openImageMaker?.addEventListener('click', openImageMaker);
+el.closeImageModal?.addEventListener('click', closeImageMaker);
+el.imageModalBackdrop?.addEventListener('click', closeImageMaker);
+el.downloadShareImage?.addEventListener('click', downloadShareImage);
+el.shareImageFile?.addEventListener('click', shareGeneratedImage);
+
+el.imageStyleButtons.forEach((button) => {
+  button.addEventListener('click', async () => {
+    shareImageState.style = button.dataset.cardStyle || 'light';
+
+    el.imageStyleButtons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('image-style-pill--active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+
+    invalidateShareImage();
+
+    try {
+      await generateShareImageBlob();
+    } catch (error) {
+      setImageModalStatus(error?.message || 'Could not create this image style.');
+    }
+  });
+});
+
 function setNavigationOpen(open) {
   el.navToggle.setAttribute('aria-expanded', String(open));
   el.navToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
@@ -293,7 +590,9 @@ el.nav.querySelectorAll('a').forEach((link) => {
 });
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') setNavigationOpen(false);
+  if (event.key !== 'Escape') return;
+  setNavigationOpen(false);
+  if (!el.imageModal?.hidden) closeImageMaker();
 });
 
 loadFromUrl();
