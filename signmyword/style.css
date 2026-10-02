@@ -851,33 +851,20 @@ body.modal-open {
   letter-spacing: -0.035em;
 }
 
-.share-card__kicker {
-  margin: 0 0 6px;
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 1.05;
-}
-
-.share-card__word {
-  margin: 0;
-  color: #1479f8;
-  font-size: 94px;
+.share-card__title {
+  max-width: 940px;
+  margin: 0 0 30px;
+  color: #102a56;
+  font-size: 58px;
   font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: -0.055em;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
   overflow-wrap: anywhere;
 }
 
-.share-card--dark .share-card__word,
-.share-card--colourful .share-card__word {
+.share-card--dark .share-card__title,
+.share-card--colourful .share-card__title {
   color: #fff;
-}
-
-.share-card__language {
-  margin: 12px 0 30px;
-  font-size: 34px;
-  font-weight: 700;
-  line-height: 1.1;
 }
 
 .share-card__letters {
@@ -978,17 +965,9 @@ body.modal-open {
   margin-bottom: 20px;
 }
 
-.share-card--dense .share-card__kicker {
-  font-size: 30px;
-}
-
-.share-card--dense .share-card__word {
-  font-size: 72px;
-}
-
-.share-card--dense .share-card__language {
+.share-card--dense .share-card__title {
   margin-bottom: 20px;
-  font-size: 28px;
+  font-size: 44px;
 }
 
 .share-card--dense .share-card__letters {
@@ -1021,17 +1000,9 @@ body.modal-open {
   margin-bottom: 14px;
 }
 
-.share-card--very-dense .share-card__kicker {
-  font-size: 25px;
-}
-
-.share-card--very-dense .share-card__word {
-  font-size: 56px;
-}
-
-.share-card--very-dense .share-card__language {
-  margin: 7px 0 14px;
-  font-size: 23px;
+.share-card--very-dense .share-card__title {
+  margin-bottom: 14px;
+  font-size: 34px;
 }
 
 .share-card--very-dense .share-card__letter {
@@ -1275,30 +1246,12 @@ body.modal-open {
   }
 
   .mobile-output-title {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    width: 100%;
-  }
-
-  .mobile-output-kicker {
-    display: block;
-    color: var(--smw-teal);
-    font-size: 12px;
-    font-weight: 800;
-    line-height: 1.25;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-  }
-
-  #mobile-output-name {
     display: block;
     width: 100%;
     color: var(--smw-text-primary);
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 800;
-    line-height: 1.12;
+    line-height: 1.25;
     letter-spacing: -0.025em;
     overflow-wrap: anywhere;
   }
