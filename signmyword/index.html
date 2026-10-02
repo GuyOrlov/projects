@@ -8,7 +8,20 @@
   <meta property="og:title" content="SignMyWord — Fingerspell and share">
   <meta property="og:description" content="Type a word. See the fingerspelling. Share one link.">
   <meta property="og:type" content="website">
-  <title>SignMyWord — Fingerspell and share</title>
+  <title>SignMyWord — Type it. Fingerspell it. Share it.</title>
+  <link rel="canonical" href="https://guyorlov.com/projects/signmyword/">
+  <meta property="og:url" content="https://guyorlov.com/projects/signmyword/">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebApplication",
+    "name":"SignMyWord",
+    "url":"https://guyorlov.com/projects/signmyword/",
+    "applicationCategory":"EducationalApplication",
+    "description":"Create clear British Sign Language (BSL) or American Sign Language (ASL) fingerspelling for a word or phrase and share the result.",
+    "operatingSystem":"Any modern web browser"
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -56,7 +69,13 @@
           <button class="example-chip" type="button" data-example="I LOVE YOU">I LOVE YOU</button>
           <button class="example-chip" type="button" data-example="HELLO">HELLO</button>
           <button class="example-chip" type="button" data-example="THANK YOU">THANK YOU</button>
+          <button class="example-chip example-chip--surprise" id="surprise-word" type="button">Surprise me</button>
         </div>
+
+        <section class="recent-searches" id="recent-searches" aria-labelledby="recent-searches-title" hidden>
+          <h2 id="recent-searches-title">Recent on this device</h2>
+          <div class="recent-searches__chips" id="recent-searches-chips"></div>
+        </section>
       </div>
     </section>
 
@@ -82,6 +101,12 @@
         <button class="button button--secondary" id="copy-link" type="button">Copy link</button>
         <a class="button button--whatsapp" id="share-whatsapp" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a>
         <button class="button button--secondary" id="share-native" type="button">Share</button>
+      </div>
+
+      <div class="result-tools" aria-label="More SignMyWord tools">
+        <button class="result-tool" id="practice-mode" type="button" aria-pressed="false">Practice mode</button>
+        <a class="result-tool" id="classroom-link" href="./classroom.html">Classroom sheet</a>
+        <button class="result-tool" id="copy-embed" type="button">Copy embed</button>
       </div>
 
       <div class="share-utility" aria-label="Share link and QR code">
@@ -128,6 +153,16 @@
         <button class="image-style-pill image-style-pill--active" type="button" data-card-style="light" aria-pressed="true">Light</button>
         <button class="image-style-pill" type="button" data-card-style="dark" aria-pressed="false">Dark</button>
         <button class="image-style-pill" type="button" data-card-style="colourful" aria-pressed="false">Colourful</button>
+        <button class="image-style-pill" type="button" data-card-style="love" aria-pressed="false">Love</button>
+        <button class="image-style-pill" type="button" data-card-style="birthday" aria-pressed="false">Birthday</button>
+        <button class="image-style-pill" type="button" data-card-style="school" aria-pressed="false">School</button>
+      </div>
+
+      <div class="image-format-picker" aria-label="Choose image size">
+        <span class="image-format-picker__label">Size</span>
+        <button class="image-format-pill image-format-pill--active" type="button" data-card-format="portrait" aria-pressed="true">Portrait</button>
+        <button class="image-format-pill" type="button" data-card-format="square" aria-pressed="false">Square</button>
+        <button class="image-format-pill" type="button" data-card-format="story" aria-pressed="false">Story</button>
       </div>
 
       <div class="share-image-preview-wrap">
@@ -140,7 +175,9 @@
       <div class="image-modal__actions">
         <button class="button button--primary" id="download-share-image" type="button">Download image</button>
         <button class="button button--secondary" id="share-image-file" type="button">Share image</button>
+        <button class="button button--secondary" id="copy-image" type="button">Copy image</button>
       </div>
+      <p class="image-attribution"><a href="./terms.html#artwork">Artwork source &amp; licence information</a></p>
     </section>
   </div>
 
