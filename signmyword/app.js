@@ -408,7 +408,7 @@ async function renderShareCard() {
     el.shareCardLanguage.innerHTML = `${shareFlagSvg(language)}<span>${config.label}</span>`;
   }
 
-  el.shareCardTitle.textContent = `Fingerspell ${word} in ${config.name} (${config.label}).`;
+  el.shareCardTitle.textContent = `How to fingerspell “${word}” in ${config.name} (${config.label})`;
   el.shareCardLetters.replaceChildren();
   el.shareCardLetters.className = 'share-card__letters';
 
@@ -944,7 +944,7 @@ function renderWord() {
 function renderShare() {
   const url = shareLink();
   el.shareUrl.value = url;
-  el.whatsapp.href = `https://wa.me/?text=${encodeURIComponent(`SignMyWord: ${state.word} — ${url}`)}`;
+  el.whatsapp.href = `https://wa.me/?text=${encodeURIComponent(`How to fingerspell “${state.word}” in ${LANGUAGES[state.lang].name} (${LANGUAGES[state.lang].label}) — ${url}`)}`;
 
   el.qr.replaceChildren();
   if (window.QRCode) {
@@ -1008,7 +1008,7 @@ async function copyLink() {
 async function nativeShare() {
   const data = {
     title: `SignMyWord — ${state.word}`,
-    text: `See ${state.word} fingerspelled in ${LANGUAGES[state.lang].label}.`,
+    text: `How to fingerspell “${state.word}” in ${LANGUAGES[state.lang].name} (${LANGUAGES[state.lang].label})`,
     url: shareLink(),
   };
 
