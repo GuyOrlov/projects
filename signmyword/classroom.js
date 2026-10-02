@@ -3,13 +3,13 @@ const CLASSROOM_LANGUAGES = {
     label: 'BSL',
     name: 'British Sign Language',
     local(letter) { return `./assets/bsl/${letter}.svg`; },
-    remote(letter) { return `https://commons.wikimedia.org/wiki/Special:Redirect/file/BSL_letter_${letter}.svg`; },
+    remote(letter) { return `https://commons.wikimedia.org/wiki/Special:FilePath/BSL_letter_${letter}.svg`; },
   },
   asl: {
     label: 'ASL',
     name: 'American Sign Language',
     local(letter) { return `./assets/asl/${letter}.svg`; },
-    remote(letter) { return `https://commons.wikimedia.org/wiki/Special:Redirect/file/Sign_language_${letter}.svg`; },
+    remote(letter) { return `https://commons.wikimedia.org/wiki/Special:FilePath/Sign_language_${letter}.svg`; },
   },
 };
 
@@ -19,8 +19,12 @@ const wordsInput = document.querySelector('#classroom-words');
 const preview = document.querySelector('#classroom-preview');
 const generate = document.querySelector('#classroom-generate');
 const printButton = document.querySelector('#classroom-print');
-const quiz = document.querySelector('#classroom-quiz');
+const quiz = document.querySelector('#classroom-quiz');\nconst classroomStatus = document.querySelector('#classroom-status');
 const languageButtons = [...document.querySelectorAll('[data-classroom-language]')];
+
+function isBlockedClassroomInput(value) {
+  return Boolean(window.SignMyWordModeration?.check(value)?.blocked);
+}
 
 function cleanClassroomText(value) {
   return value
@@ -30,11 +34,16 @@ function cleanClassroomText(value) {
     .trim();
 }
 
-function classroomItems() {
-  return cleanClassroomText(wordsInput.value)
+function classroomLines(value) {
+  return cleanClassroomText(value)
     .split(/\n+/)
     .map((item) => item.trim())
-    .filter(Boolean)
+    .filter(Boolean);
+}
+
+function classroomItems() {
+  return classroomLines(wordsInput.value)
+    .filter((item) => !isBlockedClassroomInput(item))
     .slice(0, 10);
 }
 
@@ -86,8 +95,16 @@ function phraseBlock(value) {
 }
 
 function renderClassroom() {
+  const allItems = classroomLines(wordsInput.value);
+  const blockedCount = allItems.filter(isBlockedClassroomInput).length;
   const items = classroomItems();
   preview.replaceChildren(...items.map(phraseBlock));
+
+  if (classroomStatus) {
+    classroomStatus.textContent = blockedCount
+      ? `${blockedCount} ${blockedCount === 1 ? 'word or phrase was' : 'words or phrases were'} not added because ${blockedCount === 1 ? 'it is' : 'they are'} blocked.`
+      : '';
+  }
 }
 
 function setClassroomLanguage(language) {
