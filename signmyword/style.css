@@ -2379,3 +2379,67 @@ body.modal-open {
     padding-inline: 10px;
   }
 }
+
+
+/* Accessible typography system: distinctive headings + highly readable UI copy */
+body {
+  font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.52;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", Arial, sans-serif;
+}
+
+.brand,
+.marketing-hero h1,
+.result-section__heading h2,
+.mobile-output-title,
+.popular-searches h2,
+.image-modal__header h2,
+.share-card__brand-name,
+.share-card__title,
+.terms-page h1,
+.terms-page h2 {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.brand {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.marketing-hero__intro,
+.popular-searches__subtitle,
+.source-note,
+.terms-page p {
+  letter-spacing: 0.005em;
+}
+
+.language-pill,
+.button,
+.example-chip,
+.output-language,
+.popular-word,
+.popular-word__count {
+  font-weight: 700;
+}
+
+.word-input {
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 760px) {
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .marketing-hero__intro {
+    font-size: 15px;
+  }
+}
