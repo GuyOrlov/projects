@@ -12,7 +12,7 @@ const LANGUAGES = {
       return `./assets/asl/${letter}.svg`;
     },
     remoteFile(letter) {
-      return `https://commons.wikimedia.org/wiki/Special:Redirect/file/Sign_language_${letter}.svg`;
+      return `https://commons.wikimedia.org/wiki/Special:FilePath/Sign_language_${letter}.svg`;
     },
     source(letter) {
       return `https://commons.wikimedia.org/wiki/File:Sign_language_${letter}.svg`;
@@ -26,7 +26,7 @@ const LANGUAGES = {
       return `./assets/bsl/${letter}.svg`;
     },
     remoteFile(letter) {
-      return `https://commons.wikimedia.org/wiki/Special:Redirect/file/BSL_letter_${letter}.svg`;
+      return `https://commons.wikimedia.org/wiki/Special:FilePath/BSL_letter_${letter}.svg`;
     },
     source(letter) {
       return `https://commons.wikimedia.org/wiki/File:BSL_letter_${letter}.svg`;
