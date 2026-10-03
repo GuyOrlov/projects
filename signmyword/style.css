@@ -4417,3 +4417,92 @@ select {
   }
 }
 /* End SignMyWord trending language data */
+
+
+/* Show trending language data on mobile — 2026-10-03 */
+@media (max-width: 760px) {
+  /* Override the older mobile rule that hid the trending section. */
+  .popular-searches {
+    display: block !important;
+    width: calc(100% - 24px);
+    margin: 22px auto 0;
+    padding: 18px 14px;
+    border: 1px solid #f0e4c5;
+    border-radius: 18px;
+  }
+
+  .popular-searches__header {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .popular-searches__eyebrow {
+    margin: 0 0 4px;
+    font-size: 11px;
+  }
+
+  .popular-searches h2 {
+    font-size: 22px;
+    line-height: 1.12;
+  }
+
+  .popular-searches__subtitle {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .popular-searches__total {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  .popular-word-cloud {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .popular-word {
+    width: 100%;
+    min-height: 48px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 12px;
+    font-size: 16px !important;
+  }
+
+  .popular-word__count {
+    min-width: 30px;
+    height: 28px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .popular-word__label {
+    min-width: 0;
+    font-size: 16px;
+    line-height: 1.15;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .popular-word__language {
+    justify-self: end;
+    gap: 4px;
+    padding: 5px 7px;
+    font-size: 10px;
+  }
+
+  .popular-word__flag {
+    font-size: 14px;
+  }
+}
+/* End show trending language data on mobile */
