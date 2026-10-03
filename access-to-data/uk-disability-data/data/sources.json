@@ -12,6 +12,30 @@
     "evidenceType": "Survey estimate"
   },
   {
+    "id": "frs-2023-24",
+    "shortName": "DWP Family Resources Survey",
+    "name": "Family Resources Survey 2023 to 2024",
+    "organisation": "Department for Work and Pensions",
+    "covers": "Historical UK disability prevalence figures, including selected country and regional comparisons.",
+    "updateFrequency": "Published annual release",
+    "automation": "Archive source",
+    "status": "ready",
+    "url": "https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2023-to-2024/family-resources-survey-financial-year-2023-to-2024",
+    "evidenceType": "Survey estimate"
+  },
+  {
+    "id": "frs-2022-23",
+    "shortName": "DWP Family Resources Survey",
+    "name": "Family Resources Survey 2022 to 2023",
+    "organisation": "Department for Work and Pensions",
+    "covers": "Historical UK disability prevalence figures, including selected regional comparisons.",
+    "updateFrequency": "Published annual release",
+    "automation": "Archive source",
+    "status": "ready",
+    "url": "https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2022-to-2023/family-resources-survey-financial-year-2022-to-2023",
+    "evidenceType": "Survey estimate"
+  },
+  {
     "id": "employment",
     "shortName": "DWP Employment of Disabled People",
     "name": "The employment of disabled people 2025",
