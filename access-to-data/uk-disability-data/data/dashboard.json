@@ -81,6 +81,41 @@
       "value": 17,
       "period": "2024–25",
       "source": "frs"
+    },
+    {
+      "label": "Wales",
+      "geography": "Wales",
+      "value": 30,
+      "period": "2023–24",
+      "source": "frs-2023-24"
+    },
+    {
+      "label": "UK",
+      "geography": "UK",
+      "value": 25,
+      "period": "2023–24",
+      "source": "frs-2023-24"
+    },
+    {
+      "label": "London",
+      "geography": "London",
+      "value": 17,
+      "period": "2023–24",
+      "source": "frs-2023-24"
+    },
+    {
+      "label": "UK",
+      "geography": "UK",
+      "value": 24,
+      "period": "2022–23",
+      "source": "frs-2022-23"
+    },
+    {
+      "label": "London",
+      "geography": "London",
+      "value": 15,
+      "period": "2022–23",
+      "source": "frs-2022-23"
     }
   ],
   "bslMeasures": [
