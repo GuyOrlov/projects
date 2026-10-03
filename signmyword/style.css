@@ -3530,3 +3530,160 @@ select {
   }
 }
 /* End SignMyWord mobile image-maker step */
+
+
+/* SignMyWord minimal mobile journey — 2026-10-03 */
+.image-title-mobile {
+  display: none;
+}
+
+.image-customise {
+  margin: 20px 0 0;
+}
+
+.image-customise__summary {
+  display: none;
+}
+
+.image-customise__body,
+.image-customise:not([open]) > .image-customise__body {
+  display: block !important;
+}
+
+.image-customise .image-style-picker {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  /* Step 1: keep the first screen focused on language, word and Show signs. */
+  .hero-examples,
+  .recent-searches {
+    display: none !important;
+  }
+
+  /* Step 2: only the two actions needed to continue the journey. */
+  .primary-share-actions {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+
+  .primary-share-actions .button {
+    width: 100%;
+    min-height: 52px;
+    font-size: 16px;
+  }
+
+  #copy-link,
+  #share-whatsapp,
+  .result-tools,
+  .share-utility,
+  .source-note {
+    display: none !important;
+  }
+
+  /* Step 3: full-screen image view with preview and actions first. */
+  .image-title-desktop {
+    display: none;
+  }
+
+  .image-title-mobile {
+    display: inline;
+  }
+
+  .image-modal__dialog {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .image-modal__header {
+    order: 0;
+  }
+
+  .share-image-preview-wrap {
+    order: 1;
+    margin-top: 16px;
+  }
+
+  .image-modal__status {
+    order: 2;
+  }
+
+  .image-modal__actions {
+    order: 3;
+  }
+
+  #copy-image {
+    display: none;
+  }
+
+  /* Step 4: optional controls stay out of the way until requested. */
+  .image-customise {
+    order: 4;
+    margin: 12px 0 0;
+    border: 1px solid var(--smw-border);
+    border-radius: 16px;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .image-customise__summary {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--smw-text-primary);
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .image-customise__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .image-customise__summary::after {
+    content: "⌄";
+    flex: 0 0 auto;
+    color: var(--smw-blue);
+    font-size: 20px;
+    line-height: 1;
+    transform: translateY(-1px);
+  }
+
+  .image-customise[open] .image-customise__summary::after {
+    content: "⌃";
+  }
+
+  .image-customise__hint {
+    margin-left: auto;
+    color: var(--smw-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .image-customise:not([open]) > .image-customise__body {
+    display: none !important;
+  }
+
+  .image-customise[open] > .image-customise__body {
+    display: block !important;
+    padding: 0 14px 14px;
+    border-top: 1px solid var(--smw-border);
+  }
+
+  .image-customise .image-style-picker {
+    margin: 14px 0 12px;
+  }
+
+  .image-customise .image-format-picker {
+    margin: 0;
+  }
+
+  .image-attribution {
+    order: 5;
+  }
+}
+/* End SignMyWord minimal mobile journey */
