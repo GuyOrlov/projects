@@ -1,5 +1,5 @@
-const DATA_URL = "data/dashboard.json";
-const SOURCES_URL = "data/sources.json";
+const DATA_URL = "data/dashboard.json?v=20261003-1205";
+const SOURCES_URL = "data/sources.json?v=20261003-1205";
 let dashboardData = null;
 let sourceRegistry = [];
 const charts = new Map();
