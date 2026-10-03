@@ -5989,3 +5989,103 @@ summary:focus-visible {
   border-radius: 32px;
 }
 /* End export-card language + icon scale upgrade */
+
+
+/* SignMyWord keep export controls visible — 2026-10-03 */
+.image-customise > .image-customise__body,
+.image-customise:not([open]) > .image-customise__body,
+.image-customise[open] > .image-customise__body {
+  display: block !important;
+}
+
+@media (max-width: 760px) {
+  .image-customise {
+    overflow: visible;
+  }
+
+  .image-customise__summary {
+    display: none !important;
+  }
+
+  .image-customise > .image-customise__body {
+    padding: 14px !important;
+  }
+
+  .image-customise .image-style-picker {
+    display: flex !important;
+    margin: 0 0 14px !important;
+  }
+
+  .image-customise .image-format-picker {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    margin: 0 !important;
+    padding-top: 14px;
+    border-top: 1px solid var(--smw-border);
+  }
+
+  .image-customise .image-format-picker__label,
+  .image-customise .image-icon-picker__label {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0 0 3px;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .image-customise .image-icon-picker {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    margin: 14px 0 0 !important;
+    padding-top: 14px;
+    border-top: 1px solid var(--smw-border);
+  }
+}
+
+@media (min-width: 761px) {
+  .image-customise {
+    overflow: visible;
+  }
+
+  .image-customise__summary {
+    display: none !important;
+  }
+
+  .image-customise > .image-customise__body {
+    padding: 16px !important;
+  }
+
+  .image-customise .image-style-picker {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 14px !important;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .image-customise .image-format-picker {
+    display: grid !important;
+    grid-template-columns: auto repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+    margin: 0 !important;
+    padding-top: 14px;
+    border-top: 1px solid var(--smw-border);
+  }
+
+  .image-customise .image-icon-picker {
+    display: grid !important;
+    grid-template-columns: auto repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+    margin: 14px 0 0 !important;
+    padding-top: 14px;
+    border-top: 1px solid var(--smw-border);
+  }
+}
+/* End keep export controls visible */
