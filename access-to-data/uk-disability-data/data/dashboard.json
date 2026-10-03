@@ -48,16 +48,16 @@
   ],
   "prevalenceByArea": [
     {
-      "label": "Scotland",
-      "geography": "Scotland",
-      "value": 30,
+      "label": "Wales",
+      "geography": "Wales",
+      "value": 26,
       "period": "2024–25",
       "source": "frs"
     },
     {
-      "label": "Wales",
-      "geography": "Wales",
-      "value": 26,
+      "label": "Scotland",
+      "geography": "Scotland",
+      "value": 30,
       "period": "2024–25",
       "source": "frs"
     },
@@ -90,9 +90,30 @@
       "source": "frs-2023-24"
     },
     {
+      "label": "Scotland",
+      "geography": "Scotland",
+      "value": 28,
+      "period": "2023–24",
+      "source": "frs-2023-24"
+    },
+    {
       "label": "UK",
       "geography": "UK",
       "value": 25,
+      "period": "2023–24",
+      "source": "frs-2023-24"
+    },
+    {
+      "label": "N. Ireland",
+      "geography": "Northern Ireland",
+      "value": 25,
+      "period": "2023–24",
+      "source": "frs-2023-24"
+    },
+    {
+      "label": "England",
+      "geography": "England",
+      "value": 24,
       "period": "2023–24",
       "source": "frs-2023-24"
     },
