@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Explore UK disability issues through neutral, source-linked evidence covering work, money, health, housing, transport, education, accessibility and disability types.">
+  <meta name="description" content="Explore UK disability issues through clear data on work, money, health, housing, transport, education and accessibility, with sources you can check.">
   <meta name="theme-color" content="#163300">
   <title>Disability Issues in the UK | Access to Data</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20261003-evidence-v2">
-  <script defer src="issues.js?v=20261003-evidence-v2"></script>
+  <script defer src="issues.js?v=20261003-plain-english-v1"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
@@ -18,20 +18,20 @@
   <div class="topbar page-width">
     <a class="brand" href="index.html" aria-label="Access to Data home">
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      <span class="brand-copy"><strong>UK Disability Evidence Hub</strong><small>Access to Data · disability evidence made clearer</small></span>
+      <span class="brand-copy"><strong>UK Disability Evidence Hub</strong><small>Access to Data · UK disability data explained clearly</small></span>
     </a>
     <nav class="primary-nav issues-nav" aria-label="Primary">
       <a href="index.html">Overview</a>
       <a class="active" href="issues.html">Disability issues</a>
-      <a href="index.html#evidence-approach">Evidence approach</a>
+      <a href="index.html#evidence-approach">How we use data</a>
       <a href="index.html#sources">Sources</a>
     </nav>
   </div>
   <section class="hero page-width issues-hero">
     <div class="hero-copy">
       <p class="kicker">Disability issues in the UK</p>
-      <h1>Start with the issue. Then look at the evidence.</h1>
-      <p class="hero-intro">Each topic is designed to separate what the data shows from possible explanations, different perspectives and the limits of the available evidence.</p>
+      <h1>Understand the issue. Then check the evidence.</h1>
+      <p class="hero-intro">Each topic shows what the numbers say, what may explain the differences and what the data cannot tell us.</p>
     </div>
   </section>
 </header>
@@ -39,45 +39,45 @@
 <main id="main">
   <div class="dashboard page-width issues-page">
     <section class="fairness-banner" aria-labelledby="fairnessTitle">
-      <div><p class="eyebrow">Natural and fair</p><h2 id="fairnessTitle">No issue is reduced to one number.</h2></div>
-      <p>Disabled people are not one group. Experiences vary by impairment, age, income, geography and many other factors. This site keeps definitions visible and avoids turning association into cause.</p>
+      <div><p class="eyebrow">Read the numbers in context</p><h2 id="fairnessTitle">One number never tells the whole story.</h2></div>
+      <p>Disabled people have different experiences. Age, disability or impairment, income, where people live and other factors can affect the figures. A link between two things does not prove that one caused the other.</p>
     </section>
 
     <section class="issue-detail-grid" aria-label="Disability issue areas">
-      <article class="issue-detail" id="work"><span class="issue-icon" aria-hidden="true">💼</span><h2>Work</h2><p class="issue-question">Are disabled people equally represented in employment?</p><p>Evidence can cover employment rates, the disability employment gap, pay, underemployment and workplace adjustments. Differences should be shown alongside age, impairment and labour-market context where the source permits.</p><div class="issue-evidence-list" id="workEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">Data connected</span><a href="index.html#employment-kpi">See current work statistic →</a></div></article>
-      <article class="issue-detail" id="money"><span class="issue-icon" aria-hidden="true">£</span><h2>Money &amp; financial security</h2><p class="issue-question">What does the evidence show about income, benefits and financial pressure?</p><p>This area can bring together PIP, other disability-related support, household income, poverty and food-security evidence while keeping benefit caseloads separate from estimates of the disabled population.</p><div class="issue-evidence-list" id="moneyEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">Data connected</span><a href="index.html#pip-kpi">See current PIP statistic →</a></div></article>
-      <article class="issue-detail" id="health"><span class="issue-icon" aria-hidden="true">＋</span><h2>Health &amp; care</h2><p class="issue-question">Where do health and care inequalities appear?</p><p>Future evidence can cover access to healthcare, outcomes, social care and service experience. Measures from different health systems and UK nations should not be combined without checking definitions.</p><div class="issue-evidence-list" id="healthEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Direct health evidence next</span></div></article>
-      <article class="issue-detail" id="housing"><span class="issue-icon" aria-hidden="true">⌂</span><h2>Housing</h2><p class="issue-question">Do homes and housing services meet disabled people’s needs?</p><p>This area should distinguish accessible housing supply, adaptations, tenure, housing costs and homelessness rather than treating “housing” as a single measure.</p><div class="issue-evidence-list" id="housingEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
-      <article class="issue-detail" id="transport"><span class="issue-icon" aria-hidden="true">→</span><h2>Transport</h2><p class="issue-question">What barriers affect independent and accessible travel?</p><p>Evidence can cover public transport use, accessibility, mobility, Blue Badge statistics and reported barriers, with service data clearly separated from survey experience.</p><div class="issue-evidence-list" id="transportEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
-      <article class="issue-detail" id="education"><span class="issue-icon" aria-hidden="true">A</span><h2>Education</h2><p class="issue-question">How do experiences and outcomes differ through education?</p><p>Future pages can cover SEND, attainment, exclusions, further and higher education and transitions into work. England and devolved-nation systems should be labelled separately.</p><div class="issue-evidence-list" id="educationEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
-      <article class="issue-detail" id="access"><span class="issue-icon" aria-hidden="true">Aa</span><h2>Access &amp; inclusion</h2><p class="issue-question">Where do disabled people face barriers to participation?</p><p>This area can examine reasonable adjustments, digital and physical accessibility, public services and participation. Research findings should be attributed to their publisher rather than presented as universal facts.</p><div class="issue-evidence-list" id="accessEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
-      <article class="issue-detail" id="types"><span class="issue-icon" aria-hidden="true">◉</span><h2>Disability types</h2><p class="issue-question">How do experiences differ across disability and impairment groups?</p><p>Mobility, sensory, learning, neurodevelopmental, mental-health and other measures can be explored without assuming that one category captures a person’s whole experience.</p><div class="issue-evidence-list" id="typesEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">BSL example connected</span><a href="index.html#bsl-card">See BSL evidence →</a></div></article>
-      <article class="issue-detail" id="places"><span class="issue-icon" aria-hidden="true">⌖</span><h2>Places &amp; inequality</h2><p class="issue-question">How does disability evidence vary by place and deprivation?</p><p>Census and survey measures can show geographic differences, but age structure, definitions and deprivation need to stay visible when areas are compared.</p><div class="issue-evidence-list" id="placesEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">Census evidence connected</span><a href="index.html#prevalence-card">Compare current survey prevalence →</a></div></article>
+      <article class="issue-detail" id="work"><span class="issue-icon" aria-hidden="true">💼</span><h2>Work</h2><p class="issue-question">How does employment differ for disabled people?</p><p>We look at employment rates, the disability employment gap, pay, people who want more work and workplace adjustments. Where the data allows, we also show differences by age, disability or impairment and the wider job market.</p><div class="issue-evidence-list" id="workEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">Data connected</span><a href="index.html#employment-kpi">See current work statistic →</a></div></article>
+      <article class="issue-detail" id="money"><span class="issue-icon" aria-hidden="true">£</span><h2>Money &amp; financial security</h2><p class="issue-question">What do the figures show about money, benefits and financial pressure?</p><p>We bring together PIP, other disability-related support, household income, poverty and food security. Benefit figures are kept separate from estimates of the total number of disabled people.</p><div class="issue-evidence-list" id="moneyEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">Data connected</span><a href="index.html#pip-kpi">See current PIP statistic →</a></div></article>
+      <article class="issue-detail" id="health"><span class="issue-icon" aria-hidden="true">＋</span><h2>Health &amp; care</h2><p class="issue-question">Where are the biggest differences in health and care?</p><p>This section will cover access to healthcare, health outcomes, social care and people’s experience of services. We will not combine figures from different UK health systems unless the definitions match.</p><div class="issue-evidence-list" id="healthEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Direct health evidence next</span></div></article>
+      <article class="issue-detail" id="housing"><span class="issue-icon" aria-hidden="true">⌂</span><h2>Housing</h2><p class="issue-question">Do homes and housing services meet disabled people’s needs?</p><p>We separate accessible housing, home adaptations, renting or owning, housing costs and homelessness instead of treating housing as one single issue.</p><div class="issue-evidence-list" id="housingEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
+      <article class="issue-detail" id="transport"><span class="issue-icon" aria-hidden="true">→</span><h2>Transport</h2><p class="issue-question">What makes travel harder for disabled people?</p><p>We look at public transport, accessibility, mobility, Blue Badge figures and reported barriers. Service records are kept separate from what people say in surveys.</p><div class="issue-evidence-list" id="transportEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
+      <article class="issue-detail" id="education"><span class="issue-icon" aria-hidden="true">A</span><h2>Education</h2><p class="issue-question">How do experiences and outcomes differ in education?</p><p>This section will cover special educational needs and disabilities (SEND), attainment, exclusions, further and higher education and moving into work. Figures for each UK nation will be labelled separately.</p><div class="issue-evidence-list" id="educationEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
+      <article class="issue-detail" id="access"><span class="issue-icon" aria-hidden="true">Aa</span><h2>Access &amp; inclusion</h2><p class="issue-question">Where do disabled people face barriers to taking part?</p><p>We look at reasonable adjustments, digital and physical accessibility, public services and participation. Research findings are linked to the organisation that published them and are not treated as facts about everyone.</p><div class="issue-evidence-list" id="accessEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-next">Evidence expansion next</span></div></article>
+      <article class="issue-detail" id="types"><span class="issue-icon" aria-hidden="true">◉</span><h2>Disability types</h2><p class="issue-question">How do experiences differ between disability groups?</p><p>We can compare mobility, sensory, learning, neurodevelopmental, mental health and other groups without assuming that one label describes a person’s whole experience.</p><div class="issue-evidence-list" id="typesEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">BSL example connected</span><a href="index.html#bsl-card">See BSL evidence →</a></div></article>
+      <article class="issue-detail" id="places"><span class="issue-icon" aria-hidden="true">⌖</span><h2>Places &amp; inequality</h2><p class="issue-question">How do the figures change by place and level of deprivation?</p><p>Census and survey data can show differences between areas. When we compare places, we also need to consider age, definitions and levels of deprivation.</p><div class="issue-evidence-list" id="placesEvidence" aria-live="polite"></div><div class="coverage-row"><span class="coverage-live">Census evidence connected</span><a href="index.html#prevalence-card">Compare current survey prevalence →</a></div></article>
     </section>
 
     <section class="evidence-framework" id="approach" aria-labelledby="approachTitle">
-      <p class="eyebrow">Evidence framework</p>
-      <h2 id="approachTitle">Every detailed issue page should answer the same five questions.</h2>
+      <p class="eyebrow">How we explain each issue</p>
+      <h2 id="approachTitle">For every issue, we ask five simple questions.</h2>
       <div class="framework-grid">
-        <div><strong>1. What does the data show?</strong><span>Headline figures, trends and comparisons.</span></div>
-        <div><strong>2. Why does it matter?</strong><span>A short plain-English explanation without campaigning language.</span></div>
-        <div><strong>3. What might explain it?</strong><span>Evidence-based factors, clearly attributed where interpretation is involved.</span></div>
-        <div><strong>4. What do different sources say?</strong><span>Government, official statistics and research kept identifiable.</span></div>
-        <div><strong>5. What can’t the data tell us?</strong><span>Missing groups, uncertainty, definition changes and limits on causal claims.</span></div>
+        <div><strong>1. What do the numbers show?</strong><span>The main figures, trends and comparisons.</span></div>
+        <div><strong>2. Why does it matter?</strong><span>A short explanation in plain English.</span></div>
+        <div><strong>3. What might explain it?</strong><span>Possible factors supported by evidence, clearly linked to the source.</span></div>
+        <div><strong>4. What do different sources say?</strong><span>We keep government data, official statistics and research clearly labelled.</span></div>
+        <div><strong>5. What can’t the data tell us?</strong><span>Who may be missing, what is uncertain and what the figures cannot prove.</span></div>
       </div>
     </section>
 
     <section class="methodology-card">
-      <div><p class="eyebrow">Evidence labels</p><h2>Know what kind of evidence you are looking at.</h2><p>The site will use visible evidence-type labels so a survey estimate is never made to look identical to a census count, administrative caseload or research finding.</p></div>
+      <div><p class="eyebrow">How to read the evidence</p><h2>Not all figures are the same kind of data.</h2><p>We label each figure so you can see whether it comes from a survey, a census, public-service records or research.</p></div>
       <div class="methodology-points evidence-types">
-        <div><strong>Official statistic / survey</strong><span>Estimate or published analysis from an official statistical source.</span></div>
-        <div><strong>Census</strong><span>Count based on census questions and definitions.</span></div>
-        <div><strong>Administrative data</strong><span>Records generated through a public service or benefit system.</span></div>
-        <div><strong>Research finding</strong><span>A finding attributed to the research organisation or study that produced it.</span></div>
+        <div><strong>Official statistics or survey</strong><span>Figures published by an official statistics body.</span></div>
+        <div><strong>Census</strong><span>A population count based on census questions and definitions.</span></div>
+        <div><strong>Public-service records</strong><span>Figures from a benefit, service or other public system.</span></div>
+        <div><strong>Research</strong><span>A finding from a named study or research organisation.</span></div>
       </div>
     </section>
   </div>
 </main>
-<footer class="site-footer"><div class="page-width footer-inner"><strong>Access to Data · UK Disability Evidence Hub</strong><span>Neutral evidence · accessible presentation · source-linked data</span></div></footer>
+<footer class="site-footer"><div class="page-width footer-inner"><strong>Access to Data · UK Disability Data Hub</strong><span>Clear data · accessible presentation · sources you can check</span></div></footer>
 </body>
 </html>
