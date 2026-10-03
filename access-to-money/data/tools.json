@@ -1,0 +1,28 @@
+{
+  "tools": [
+    {
+      "icon": "✓",
+      "title": "Benefits check",
+      "description": "Work through disability, income, housing and local support. Then use an official calculator for a full entitlement check.",
+      "button": "Start benefits check",
+      "href": "#benefits-check",
+      "type": "internal"
+    },
+    {
+      "icon": "↗",
+      "title": "Pension forecast",
+      "description": "Build an illustration of how a pension could grow using your current pot and monthly contribution.",
+      "button": "Estimate my pension",
+      "href": "#pension-calculator",
+      "type": "internal"
+    },
+    {
+      "icon": "£",
+      "title": "ISA & savings growth",
+      "description": "See how regular saving and compound growth can build over time. Compare the result with your target.",
+      "button": "Calculate savings",
+      "href": "#savings-calculator",
+      "type": "internal"
+    }
+  ]
+}

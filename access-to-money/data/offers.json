@@ -1,0 +1,37 @@
+{
+  "disclosure": "Some links may be commercial or affiliate links. If you use one, Access to Money may receive a commission at no extra cost to you. Paid placements are labelled and do not change our evidence or calculator results.",
+  "offers": [
+    {
+      "label": "AFFILIATE SLOT",
+      "title": "Cash ISA comparisons",
+      "description": "Compare tax-free cash savings products. Add an approved affiliate partner link here when your partnership is live.",
+      "button": "Compare providers",
+      "href": "#",
+      "category": "Savings"
+    },
+    {
+      "label": "AFFILIATE SLOT",
+      "title": "Easy-access savings",
+      "description": "A high-intent area for savings comparison partners. Keep rate claims live and date-stamped when you activate this slot.",
+      "button": "See savings options",
+      "href": "#",
+      "category": "Savings"
+    },
+    {
+      "label": "SPONSOR SLOT",
+      "title": "Accessible banking partner",
+      "description": "A sponsored accessibility profile can explain BSL, Relay UK, text support and branch accessibility without ranking the sponsor as 'best'.",
+      "button": "Partner profile",
+      "href": "#",
+      "category": "Banking"
+    },
+    {
+      "label": "AFFILIATE SLOT",
+      "title": "Travel money",
+      "description": "Compare exchange-rate and fee information for trips abroad. A natural route to your travel-money project or a regulated partner.",
+      "button": "Compare travel money",
+      "href": "#",
+      "category": "Travel"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "updated": "2026-09-12",
+  "facts": [
+    {
+      "stat": "£1,095",
+      "suffix": "extra a month",
+      "title": "The disability price tag",
+      "description": "Scope says disabled households face an average £1,095 a month in extra costs to have the same standard of living as non-disabled households.",
+      "source": "Scope",
+      "sourceUrl": "https://www.scope.org.uk/campaigns/disability-price-tag",
+      "chartLabelA": "Average PIP £465",
+      "chartValueA": 42.5,
+      "chartLabelB": "Extra costs £1,095",
+      "chartValueB": 100
+    },
+    {
+      "stat": "12.7%",
+      "suffix": "pay gap",
+      "title": "Disabled workers are paid less on average",
+      "description": "ONS reported a 12.7% disability pay gap in 2023: median hourly pay was £13.69 for disabled employees and £15.69 for non-disabled employees.",
+      "source": "Office for National Statistics",
+      "sourceUrl": "https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/disability/articles/disabilitypaygapsintheuk/2014to2023",
+      "chartLabelA": "Disabled £13.69",
+      "chartValueA": 87.3,
+      "chartLabelB": "Non-disabled £15.69",
+      "chartValueB": 100
+    },
+    {
+      "stat": "29.7pp",
+      "suffix": "employment gap",
+      "title": "A large disability employment gap remains",
+      "description": "DWP reported a 29.7 percentage-point disability employment gap in Q2 2025.",
+      "source": "Department for Work and Pensions",
+      "sourceUrl": "https://www.gov.uk/government/statistics/the-employment-of-disabled-people-2025/the-employment-of-disabled-people-2025",
+      "chartLabelA": "Disabled people",
+      "chartValueA": 54,
+      "chartLabelB": "Non-disabled people",
+      "chartValueB": 84
+    },
+    {
+      "stat": "18m+",
+      "suffix": "people",
+      "title": "Deafness and hearing loss affect millions",
+      "description": "RNID says more than 18 million people in the UK are deaf, have hearing loss or tinnitus — around 1 in 3 people.",
+      "source": "RNID",
+      "sourceUrl": "https://rnid.org.uk/what-we-do/data-and-evidence/deafness-and-hearing-loss-prevalence/",
+      "chartLabelA": "Affected",
+      "chartValueA": 33,
+      "chartLabelB": "UK population share",
+      "chartValueB": 100
+    },
+    {
+      "stat": "151k",
+      "suffix": "BSL users",
+      "title": "BSL users need accessible information",
+      "description": "A 2025 government report cited around 151,000 BSL users in the UK, including around 87,000 Deaf people.",
+      "source": "GOV.UK",
+      "sourceUrl": "https://www.gov.uk/government/publications/bsl-user-experience-of-health-and-social-care-in-uk/locked-out-exclusion-of-deaf-and-deafblind-bsl-users-from-health-and-social-care-in-the-uk-full-report-bsl-and-english-versions",
+      "chartLabelA": "Deaf BSL users",
+      "chartValueA": 58,
+      "chartLabelB": "All cited BSL users",
+      "chartValueB": 100
+    },
+    {
+      "stat": "5.2m",
+      "suffix": "PIP or DLA claimants",
+      "title": "Disability benefits affect millions of households",
+      "description": "DWP recorded 5.2 million people claiming PIP or DLA under DWP policy ownership at August 2025.",
+      "source": "Department for Work and Pensions",
+      "sourceUrl": "https://www.gov.uk/government/statistics/dwp-benefit-statistics-february-2026/dwp-benefit-statistics-february-2026",
+      "chartLabelA": "PIP",
+      "chartValueA": 74,
+      "chartLabelB": "PIP + DLA",
+      "chartValueB": 100
+    }
+  ]
+}

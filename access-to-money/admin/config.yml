@@ -1,0 +1,85 @@
+backend:
+  name: github
+  repo: GuyOrlov/accesstomoney
+  branch: main
+  base_url: https://api.netlify.com
+  site_domain: accesstomoney.co.uk
+  use_graphql: true
+
+publish_mode: editorial_workflow
+media_folder: assets/uploads
+public_folder: /assets/uploads
+local_backend: true
+
+collections:
+  - name: settings
+    label: Site settings
+    files:
+      - name: homepage
+        label: Homepage
+        file: data/site.json
+        format: json
+        fields:
+          - {label: Site name, name: siteName, widget: string}
+          - {label: Strapline, name: strapline, widget: string}
+          - {label: Hero eyebrow, name: heroEyebrow, widget: string}
+          - {label: Hero title, name: heroTitle, widget: string}
+          - {label: Hero text, name: heroText, widget: text}
+          - {label: Primary CTA, name: primaryCta, widget: string}
+          - {label: Primary CTA link, name: primaryCtaHref, widget: string}
+          - {label: Secondary CTA, name: secondaryCta, widget: string}
+          - {label: Secondary CTA link, name: secondaryCtaHref, widget: string}
+          - {label: Contact email, name: email, widget: string}
+          - {label: Footer disclaimer, name: footerText, widget: text}
+      - name: evidence
+        label: Evidence and shocking data
+        file: data/facts.json
+        format: json
+        fields:
+          - {label: Last updated, name: updated, widget: datetime, time_format: false, format: YYYY-MM-DD}
+          - label: Facts
+            name: facts
+            widget: list
+            summary: "{{fields.stat}} — {{fields.title}}"
+            fields:
+              - {label: Big stat, name: stat, widget: string}
+              - {label: Suffix, name: suffix, widget: string}
+              - {label: Title, name: title, widget: string}
+              - {label: Description, name: description, widget: text}
+              - {label: Source, name: source, widget: string}
+              - {label: Source URL, name: sourceUrl, widget: string}
+              - {label: Chart label A, name: chartLabelA, widget: string}
+              - {label: Chart value A, name: chartValueA, widget: number, min: 0, max: 200}
+              - {label: Chart label B, name: chartLabelB, widget: string}
+              - {label: Chart value B, name: chartValueB, widget: number, min: 0, max: 200}
+      - name: tools
+        label: Money tools
+        file: data/tools.json
+        format: json
+        fields:
+          - label: Tools
+            name: tools
+            widget: list
+            fields:
+              - {label: Icon, name: icon, widget: string}
+              - {label: Title, name: title, widget: string}
+              - {label: Description, name: description, widget: text}
+              - {label: Button, name: button, widget: string}
+              - {label: Link, name: href, widget: string}
+              - {label: Type, name: type, widget: select, options: [internal, external]}
+      - name: commercial
+        label: Commercial / affiliate cards
+        file: data/offers.json
+        format: json
+        fields:
+          - {label: Affiliate disclosure, name: disclosure, widget: text}
+          - label: Offers
+            name: offers
+            widget: list
+            fields:
+              - {label: Label, name: label, widget: select, options: [AFFILIATE SLOT, SPONSOR SLOT, PARTNER]}
+              - {label: Title, name: title, widget: string}
+              - {label: Description, name: description, widget: text}
+              - {label: Button, name: button, widget: string}
+              - {label: Link, name: href, widget: string}
+              - {label: Category, name: category, widget: string}
