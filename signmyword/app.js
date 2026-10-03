@@ -484,7 +484,7 @@ async function shareCardLetter(letter, language) {
 
   try {
     image.src = await signImageDataUrl(language, letter);
-    box.appendChild(image);
+    box.append(label, image);
 
     if (image.decode) {
       try {
@@ -500,17 +500,17 @@ async function shareCardLetter(letter, language) {
 
     if (visibleImage?.currentSrc || visibleImage?.src) {
       image.src = visibleImage.currentSrc || visibleImage.src;
-      box.appendChild(image);
+      box.append(label, image);
     } else {
       const fallback = document.createElement('strong');
       fallback.textContent = letter;
       fallback.style.fontSize = '54px';
       fallback.style.lineHeight = '1';
-      box.appendChild(fallback);
+      box.append(label, fallback);
     }
   }
 
-  card.append(label, box);
+  card.append(box);
   return card;
 }
 
