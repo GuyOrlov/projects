@@ -1078,8 +1078,7 @@ function renderPopularSummary(summary) {
     language.setAttribute('aria-hidden', 'true');
 
     const flag = document.createElement('span');
-    flag.className = 'popular-word__flag';
-    flag.textContent = config.flag;
+    flag.className = `popular-word__flag flag-icon flag-icon--${lang === 'bsl' ? 'gb' : 'us'}`;
 
     const languageName = document.createElement('span');
     languageName.className = 'popular-word__language-name';
@@ -1098,17 +1097,49 @@ function renderPopularSummary(summary) {
   });
 
   const totals = summary.languageTotals || { bsl: 0, asl: 0 };
-  const languageBreakdown = [
-    totals.bsl ? `${totals.bsl} 🇬🇧 BSL` : '',
-    totals.asl ? `${totals.asl} 🇺🇸 ASL` : '',
-  ].filter(Boolean).join(' · ');
+
+  el.popularTotal.replaceChildren();
+
+  const addLanguageTotal = (lang, count) => {
+    if (!count) return;
+
+    if (el.popularTotal.childNodes.length) {
+      const separator = document.createElement('span');
+      separator.className = 'popular-searches__separator';
+      separator.textContent = '·';
+      separator.setAttribute('aria-hidden', 'true');
+      el.popularTotal.appendChild(separator);
+    }
+
+    const item = document.createElement('span');
+    item.className = 'popular-searches__language-total';
+
+    const number = document.createElement('span');
+    number.textContent = count.toLocaleString();
+
+    const flag = document.createElement('span');
+    flag.className = `flag-icon flag-icon--${lang === 'bsl' ? 'gb' : 'us'}`;
+    flag.setAttribute('aria-hidden', 'true');
+
+    const label = document.createElement('span');
+    label.textContent = LANGUAGES[lang].label;
+
+    item.append(number, flag, label);
+    el.popularTotal.appendChild(item);
+  };
+
+  addLanguageTotal('bsl', totals.bsl);
+  addLanguageTotal('asl', totals.asl);
+
+  if (!el.popularTotal.childNodes.length) {
+    el.popularTotal.textContent =
+      `${summary.total.toLocaleString()} ${summary.total === 1 ? 'search' : 'searches'} this week`;
+  }
 
   if (summary.source === 'site') {
     el.popularSubtitle.textContent = 'Anonymous aggregate BSL and ASL searches across SignMyWord over the last 7 days.';
-    el.popularTotal.textContent = languageBreakdown || `${summary.total.toLocaleString()} searches this week`;
   } else {
     el.popularSubtitle.textContent = 'Based on genuine BSL and ASL searches from this browser over the last 7 days.';
-    el.popularTotal.textContent = languageBreakdown || `${summary.total.toLocaleString()} ${summary.total === 1 ? 'search' : 'searches'} this week on this browser`;
   }
 
   el.popularSection.hidden = false;
