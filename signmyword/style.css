@@ -3687,3 +3687,25 @@ select {
   }
 }
 /* End SignMyWord minimal mobile journey */
+
+
+/* SignMyWord mobile customise themes fit — 2026-10-03 */
+@media (max-width: 760px) {
+  /* Show every theme option fully inside the mobile Customise panel. */
+  .image-customise[open] .image-style-picker {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .image-customise[open] .image-style-pill {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 6px;
+    font-size: 12px;
+    text-align: center;
+  }
+}
+/* End SignMyWord mobile customise themes fit */
