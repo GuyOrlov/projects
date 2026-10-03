@@ -5311,3 +5311,54 @@ select {
   }
 }
 /* End SignMyWord mobile customiser always visible */
+
+
+/* SignMyWord desktop customiser always visible — 2026-10-03 */
+@media (min-width: 761px) {
+  .image-customise {
+    display: block !important;
+    width: min(100%, 720px) !important;
+    margin: 16px auto 0 !important;
+    overflow: visible !important;
+  }
+
+  .image-customise__summary {
+    display: none !important;
+  }
+
+  .image-customise__body,
+  .image-customise:not([open]) > .image-customise__body,
+  .image-customise[open] > .image-customise__body {
+    display: block !important;
+    padding: 14px !important;
+    border: 1px solid var(--smw-border) !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+    overflow: visible !important;
+  }
+
+  .image-customise .image-style-picker {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin: 0 0 14px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .image-customise .image-format-picker,
+  .image-customise .image-icon-picker {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 0 0 14px !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .image-customise .image-icon-picker {
+    margin-bottom: 0 !important;
+  }
+}
+/* End SignMyWord desktop customiser always visible */
