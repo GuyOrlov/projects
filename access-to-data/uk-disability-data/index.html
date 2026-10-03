@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20261003-evidence-v2">
   <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
-  <script defer src="app.js?v=20261003-plain-english-v1"></script>
+  <script defer src="app.js?v=20261003-plain-english-v2"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
@@ -72,14 +72,14 @@
     <section class="filter-bar" aria-label="Dashboard filters">
       <span class="filter-label">Filter</span>
       <label>
-        <span class="sr-only">Geography</span>
+        <span class="sr-only">Area</span>
         <select id="geographyFilter">
-          <option value="all">Geography: UK &amp; selected areas</option>
-          <option value="UK">Geography: UK only</option>
-          <option value="Scotland">Geography: Scotland</option>
-          <option value="Wales">Geography: Wales</option>
-          <option value="Northern Ireland">Geography: Northern Ireland</option>
-          <option value="London">Geography: London</option>
+          <option value="all">Area: UK &amp; selected areas</option>
+          <option value="UK">Area: UK only</option>
+          <option value="Scotland">Area: Scotland</option>
+          <option value="Wales">Area: Wales</option>
+          <option value="Northern Ireland">Area: Northern Ireland</option>
+          <option value="London">Area: London</option>
         </select>
       </label>
       <label>
@@ -91,7 +91,7 @@
       <label class="measure-filter">
         <span class="sr-only">Measure</span>
         <select id="measureFilter">
-          <option value="prevalence">Measure: Disability prevalence</option>
+          <option value="prevalence">Measure: Share of people who are disabled</option>
         </select>
       </label>
       <span class="source-status"><i aria-hidden="true"></i><span id="sourceStatusText">Sources checked</span></span>
