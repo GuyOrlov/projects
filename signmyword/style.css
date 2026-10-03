@@ -5813,3 +5813,101 @@ summary:focus-visible {
   }
 }
 /* End SignMyWord brand system */
+
+
+/* SignMyWord mobile single-row language navigation — 2026-10-03 */
+@media (max-width: 760px) {
+  .header {
+    width: min(100% - 28px, 1200px) !important;
+    min-height: 64px !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding: 9px 0 !important;
+  }
+
+  .brand-lockup {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    gap: 0 !important;
+  }
+
+  .brand-lockup .brand {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    font-size: clamp(20px, 5.8vw, 25px) !important;
+    white-space: nowrap !important;
+  }
+
+  /* Give the language navigation room to sit on the same line. */
+  .brand-tagline {
+    display: none !important;
+  }
+
+  .header .language-switcher {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    display: inline-flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 3px !important;
+    border: 1px solid var(--smw-border) !important;
+    border-radius: 14px !important;
+    background: var(--smw-bg-subtle) !important;
+  }
+
+  .header .language-switcher .language-pill {
+    min-width: 58px !important;
+    min-height: 38px !important;
+    padding: 7px 10px !important;
+    gap: 6px !important;
+    border: 0 !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+  }
+
+  .header .language-switcher .language-pill--active {
+    background: var(--smw-blue) !important;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, .18) !important;
+  }
+
+  .header .language-switcher .flag-icon {
+    width: 19px !important;
+    height: 13px !important;
+    flex-basis: 19px !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .header {
+    width: calc(100% - 20px) !important;
+    gap: 8px !important;
+  }
+
+  .brand-lockup .brand {
+    font-size: 19px !important;
+  }
+
+  .header .language-switcher .language-pill {
+    min-width: 52px !important;
+    padding-inline: 8px !important;
+    font-size: 12px !important;
+  }
+
+  .header .language-switcher .flag-icon {
+    width: 17px !important;
+    height: 12px !important;
+    flex-basis: 17px !important;
+  }
+}
+/* End SignMyWord mobile single-row language navigation */
