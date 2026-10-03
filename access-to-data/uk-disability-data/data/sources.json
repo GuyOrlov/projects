@@ -8,7 +8,8 @@
     "updateFrequency": "Annual",
     "automation": "Release/file check",
     "status": "ready",
-    "url": "https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2024-to-2025"
+    "url": "https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2024-to-2025",
+    "evidenceType": "Survey estimate"
   },
   {
     "id": "employment",
@@ -19,7 +20,8 @@
     "updateFrequency": "Annual",
     "automation": "Release/file check",
     "status": "ready",
-    "url": "https://www.gov.uk/government/statistics/the-employment-of-disabled-people-2025/the-employment-of-disabled-people-2025"
+    "url": "https://www.gov.uk/government/statistics/the-employment-of-disabled-people-2025/the-employment-of-disabled-people-2025",
+    "evidenceType": "Official statistical analysis"
   },
   {
     "id": "ons-a08",
@@ -30,7 +32,8 @@
     "updateFrequency": "Quarterly",
     "automation": "Dataset/release check",
     "status": "ready",
-    "url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/labourmarketstatusofdisabledpeoplea08/current"
+    "url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/labourmarketstatusofdisabledpeoplea08/current",
+    "evidenceType": "Survey estimate"
   },
   {
     "id": "pip",
@@ -41,7 +44,8 @@
     "updateFrequency": "Quarterly",
     "automation": "Stat-Xplore / release check",
     "status": "ready",
-    "url": "https://www.gov.uk/government/collections/personal-independence-payment-statistics"
+    "url": "https://www.gov.uk/government/collections/personal-independence-payment-statistics",
+    "evidenceType": "Administrative statistics"
   },
   {
     "id": "bsl-government",
@@ -52,7 +56,8 @@
     "updateFrequency": "Annual reporting commitment",
     "automation": "Publication check",
     "status": "ready",
-    "url": "https://www.gov.uk/government/publications/british-sign-language-bsl-fourth-report-may-2025-to-april-2026/british-sign-language-fourth-report-bsl-and-english-versions"
+    "url": "https://www.gov.uk/government/publications/british-sign-language-bsl-fourth-report-may-2025-to-april-2026/british-sign-language-fourth-report-bsl-and-english-versions",
+    "evidenceType": "Government report / published estimate"
   },
   {
     "id": "ons-language",
@@ -63,7 +68,8 @@
     "updateFrequency": "Census",
     "automation": "Version check",
     "status": "ready",
-    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/culturalidentity/language/bulletins/languageenglandandwales/census2021"
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/culturalidentity/language/bulletins/languageenglandandwales/census2021",
+    "evidenceType": "Census"
   },
   {
     "id": "stat-xplore",
@@ -74,7 +80,8 @@
     "updateFrequency": "Varies by dataset",
     "automation": "REST API",
     "status": "next",
-    "url": "https://stat-xplore.dwp.gov.uk/webapi/online-help/Open-Data-API.html"
+    "url": "https://stat-xplore.dwp.gov.uk/webapi/online-help/Open-Data-API.html",
+    "evidenceType": "Administrative data API"
   },
   {
     "id": "scotland-census",
@@ -85,7 +92,8 @@
     "updateFrequency": "Census / irregular",
     "automation": "File/version check",
     "status": "next",
-    "url": "https://www.scotlandscensus.gov.uk/"
+    "url": "https://www.scotlandscensus.gov.uk/",
+    "evidenceType": "Census"
   },
   {
     "id": "nisra-census",
@@ -96,6 +104,7 @@
     "updateFrequency": "Census / irregular",
     "automation": "File/version check",
     "status": "next",
-    "url": "https://www.nisra.gov.uk/statistics/census/2021-census"
+    "url": "https://www.nisra.gov.uk/statistics/census/2021-census",
+    "evidenceType": "Census"
   }
 ]

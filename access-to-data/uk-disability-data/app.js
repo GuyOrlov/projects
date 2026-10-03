@@ -1,5 +1,5 @@
-const DATA_URL = "data/dashboard.json?v=20261003-1205";
-const SOURCES_URL = "data/sources.json?v=20261003-1205";
+const DATA_URL = "data/dashboard.json?v=20261003-issues-v1";
+const SOURCES_URL = "data/sources.json?v=20261003-issues-v1";
 let dashboardData = null;
 let sourceRegistry = [];
 const charts = new Map();
@@ -215,6 +215,7 @@ function renderSources(){
     return '<article class="source-card">' +
       '<span class="source-org">' + escapeHtml(source.organisation) + '</span>' +
       '<h3>' + escapeHtml(source.name) + '</h3>' +
+      '<div class="evidence-badge">' + escapeHtml(source.evidenceType || "Published evidence") + '</div>' +
       '<p>' + escapeHtml(source.covers) + '</p>' +
       '<div class="source-meta"><span>' + escapeHtml(source.updateFrequency) + '</span><span>' + escapeHtml(source.automation) + '</span></div>' +
       '<a href="' + escapeAttribute(source.url) + '" target="_blank" rel="noopener">Open official source ↗</a>' +
