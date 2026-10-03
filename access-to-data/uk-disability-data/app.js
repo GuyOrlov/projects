@@ -108,16 +108,28 @@ function bindDisplayControls(){
 
 function bindFilters(){
   const geography = document.getElementById("geographyFilter");
-  if(!geography) return;
+  const year = document.getElementById("yearFilter");
+  if(!geography || !year) return;
+
   geography.addEventListener("change", function(){
-    renderPrevalence(geography.value);
+    renderPrevalence(geography.value, year.value);
+  });
+
+  year.addEventListener("change", function(){
+    populateGeographyOptions(year.value, "all");
+    geography.value = "all";
+    renderPrevalence("all", year.value);
   });
 }
 
 function renderDashboard(){
   renderHero();
   renderMetrics();
-  renderPrevalence("all");
+  populateYearOptions();
+  const yearFilter = document.getElementById("yearFilter");
+  const initialYear = yearFilter && yearFilter.value ? yearFilter.value : "2024–25";
+  populateGeographyOptions(initialYear, "all");
+  renderPrevalence("all", initialYear);
   renderBsl();
   renderEvidenceHighlights();
   renderSources();
@@ -152,28 +164,63 @@ function renderMetrics(){
   }).join("");
 }
 
-function renderPrevalence(filter){
+function populateYearOptions(){
+  const select = document.getElementById("yearFilter");
+  if(!select || !dashboardData) return;
+  const periods = Array.from(new Set(dashboardData.prevalenceByArea.map(function(row){ return row.period; })));
+  select.innerHTML = periods.map(function(period,index){
+    const uk = dashboardData.prevalenceByArea.find(function(row){ return row.period === period && row.geography === "UK"; });
+    const detail = uk ? " · UK " + uk.value + "%" : "";
+    return '<option value="' + escapeAttribute(period) + '">' + escapeHtml(period + (index === 0 ? " (latest)" : "") + detail) + '</option>';
+  }).join("");
+}
+
+function populateGeographyOptions(period, selected){
+  const select = document.getElementById("geographyFilter");
+  if(!select || !dashboardData) return;
+  const rows = dashboardData.prevalenceByArea.filter(function(row){ return row.period === period; });
+  const options = ['<option value="all">All available areas · ' + rows.length + '</option>'].concat(
+    rows.map(function(row){
+      return '<option value="' + escapeAttribute(row.geography) + '">' + escapeHtml(row.label + " · " + row.value + "%") + '</option>';
+    })
+  );
+  select.innerHTML = options.join("");
+  select.value = selected && Array.from(select.options).some(function(option){ return option.value === selected; }) ? selected : "all";
+}
+
+function renderPrevalence(filter, period){
   let rows = dashboardData.prevalenceByArea.slice();
+  if(period) rows = rows.filter(function(row){ return row.period === period; });
   if(filter && filter !== "all") rows = rows.filter(function(row){ return row.geography === filter; });
+
   const body = document.getElementById("prevalenceTableBody");
   if(body){
     body.innerHTML = rows.map(function(row){
       return '<tr><th scope="row">' + escapeHtml(row.label) + '</th><td>' + row.value + '%</td><td>' + escapeHtml(row.period) + '</td></tr>';
     }).join("");
   }
+
   renderMobileBars("prevalenceMobileBars", rows.map(function(r){return {label:r.label,value:r.value,display:r.value+"%"};}), 30);
+
   const summary = document.getElementById("prevalenceSummary");
   if(summary){
     if(rows.length > 1){
       const sorted = rows.slice().sort(function(a,b){return b.value-a.value;});
-      summary.textContent = "Among the areas shown, " + sorted[0].label + " has the highest estimated share of disabled people at " + sorted[0].value + "%, while " + sorted[sorted.length-1].label + " has the lowest at " + sorted[sorted.length-1].value + "%.";
+      summary.textContent = "For " + period + ", among the areas available in this dashboard, " + sorted[0].label + " has the highest estimated share at " + sorted[0].value + "%, while " + sorted[sorted.length-1].label + " has the lowest at " + sorted[sorted.length-1].value + "%.";
     }else if(rows.length === 1){
       summary.textContent = "In " + rows[0].label + ", an estimated " + rows[0].value + "% of people were classed as disabled in " + rows[0].period + ".";
+    }else{
+      summary.textContent = "No verified figure is available in this dashboard for that area and year.";
     }
   }
-  const source = sourceById("frs");
+
+  const source = rows.length ? sourceById(rows[0].source) : null;
   const link = document.getElementById("prevalenceSourceLink");
-  if(link && source) link.href = source.url;
+  if(link && source){
+    link.href = source.url;
+    link.textContent = source.shortName + " " + (period || "") + " ↗";
+  }
+
   drawHorizontalBar("prevalence","prevalenceChart",rows.map(function(r){return r.label;}),rows.map(function(r){return r.value;}),"%",30);
 }
 
@@ -251,7 +298,10 @@ function renderSources(){
 
 function renderCharts(){
   if(!dashboardData || typeof echarts === "undefined") return;
-  renderPrevalence(document.getElementById("geographyFilter") ? document.getElementById("geographyFilter").value : "all");
+  renderPrevalence(
+    document.getElementById("geographyFilter") ? document.getElementById("geographyFilter").value : "all",
+    document.getElementById("yearFilter") ? document.getElementById("yearFilter").value : "2024–25"
+  );
   renderBsl();
 }
 
