@@ -884,21 +884,32 @@ function writeLocalPopularEvents(events) {
 function localPopularSummary() {
   const events = readLocalPopularEvents();
   const counts = new Map();
+  const languageTotals = { bsl: 0, asl: 0 };
 
   events.forEach(({ word, lang }) => {
-    if (!eligiblePopularWord(word)) return;
-    if (lang && lang !== state.lang) return;
-    counts.set(word, (counts.get(word) || 0) + 1);
+    if (!eligiblePopularWord(word) || !LANGUAGES[lang]) return;
+
+    const key = `${lang}\u0000${word}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+    languageTotals[lang] += 1;
   });
 
   const words = [...counts.entries()]
-    .map(([word, count]) => ({ word, count }))
-    .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
+    .map(([key, count]) => {
+      const [lang, word] = key.split('\u0000');
+      return { word, lang, count };
+    })
+    .sort((a, b) =>
+      b.count - a.count ||
+      a.word.localeCompare(b.word) ||
+      a.lang.localeCompare(b.lang)
+    )
     .slice(0, 24);
 
   return {
     words,
-    total: events.length,
+    total: languageTotals.bsl + languageTotals.asl,
+    languageTotals,
     source: 'local',
   };
 }
@@ -919,17 +930,36 @@ async function remotePopularSummary() {
     const data = await response.json();
     if (!Array.isArray(data?.words)) return null;
 
+    const words = data.words
+      .filter((item) =>
+        eligiblePopularWord(String(item?.word || '').toUpperCase()) &&
+        Number(item?.count) > 0 &&
+        LANGUAGES[item?.lang]
+      )
+      .map((item) => ({
+        word: String(item.word).toUpperCase(),
+        lang: item.lang,
+        count: Number(item.count),
+      }))
+      .sort((a, b) =>
+        b.count - a.count ||
+        a.word.localeCompare(b.word) ||
+        a.lang.localeCompare(b.lang)
+      )
+      .slice(0, 24);
+
+    const languageTotals = words.reduce(
+      (totals, item) => {
+        totals[item.lang] += item.count;
+        return totals;
+      },
+      { bsl: 0, asl: 0 }
+    );
+
     return {
-      words: data.words
-        .filter((item) =>
-          eligiblePopularWord(String(item?.word || '').toUpperCase()) &&
-          Number(item?.count) > 0 &&
-          (!item?.lang || item.lang === state.lang)
-        )
-        .map((item) => ({ word: String(item.word).toUpperCase(), count: Number(item.count) }))
-        .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word))
-        .slice(0, 24),
-      total: Number(data.total) || 0,
+      words,
+      total: Number(data.total) || languageTotals.bsl + languageTotals.asl,
+      languageTotals,
       source: 'site',
     };
   } catch {
@@ -958,14 +988,20 @@ function renderPopularSummary(summary) {
 
   el.popularCloud.replaceChildren();
 
-  words.forEach(({ word, count }) => {
+  words.forEach(({ word, lang, count }) => {
+    if (!LANGUAGES[lang]) return;
+
+    const config = LANGUAGES[lang];
     const button = document.createElement('button');
     button.className = 'popular-word';
     button.type = 'button';
     button.style.setProperty('--popular-size', `${cloudSize(count, min, max)}px`);
     button.style.setProperty('--popular-weight', count === max ? '800' : '700');
-    button.title = `${word}: ${count} ${count === 1 ? 'search' : 'searches'} in the last 7 days`;
-    button.setAttribute('aria-label', `${word}, ${count} ${count === 1 ? 'search' : 'searches'}`);
+    button.title = `${word}: ${count} ${count === 1 ? 'search' : 'searches'} in ${config.label} over the last 7 days`;
+    button.setAttribute(
+      'aria-label',
+      `${count} ${count === 1 ? 'search' : 'searches'} for ${word} in ${config.name}, ${config.label}`
+    );
 
     const tier =
       count >= max * 0.66 ? 'high' :
@@ -973,6 +1009,7 @@ function renderPopularSummary(summary) {
       'low';
 
     button.dataset.tier = tier;
+    button.dataset.lang = lang;
 
     const countLabel = document.createElement('span');
     countLabel.className = 'popular-word__count';
@@ -983,8 +1020,23 @@ function renderPopularSummary(summary) {
     label.className = 'popular-word__label';
     label.textContent = word;
 
-    button.append(countLabel, label);
+    const language = document.createElement('span');
+    language.className = 'popular-word__language';
+    language.setAttribute('aria-hidden', 'true');
+
+    const flag = document.createElement('span');
+    flag.className = 'popular-word__flag';
+    flag.textContent = config.flag;
+
+    const languageName = document.createElement('span');
+    languageName.className = 'popular-word__language-name';
+    languageName.textContent = config.label;
+
+    language.append(flag, languageName);
+    button.append(countLabel, label, language);
+
     button.addEventListener('click', () => {
+      state.lang = lang;
       setWord(word, { track: false });
       document.querySelector('.result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -992,17 +1044,22 @@ function renderPopularSummary(summary) {
     el.popularCloud.appendChild(button);
   });
 
+  const totals = summary.languageTotals || { bsl: 0, asl: 0 };
+  const languageBreakdown = [
+    totals.bsl ? `${totals.bsl} 🇬🇧 BSL` : '',
+    totals.asl ? `${totals.asl} 🇺🇸 ASL` : '',
+  ].filter(Boolean).join(' · ');
+
   if (summary.source === 'site') {
-    el.popularSubtitle.textContent = `Anonymous aggregate ${LANGUAGES[state.lang].label} searches across SignMyWord over the last 7 days.`;
-    el.popularTotal.textContent = `${summary.total.toLocaleString()} searches this week`;
+    el.popularSubtitle.textContent = 'Anonymous aggregate BSL and ASL searches across SignMyWord over the last 7 days.';
+    el.popularTotal.textContent = languageBreakdown || `${summary.total.toLocaleString()} searches this week`;
   } else {
-    el.popularSubtitle.textContent = `Based on genuine ${LANGUAGES[state.lang].label} searches from this browser over the last 7 days.`;
-    el.popularTotal.textContent = `${summary.total.toLocaleString()} ${summary.total === 1 ? 'search' : 'searches'} this week on this browser`;
+    el.popularSubtitle.textContent = 'Based on genuine BSL and ASL searches from this browser over the last 7 days.';
+    el.popularTotal.textContent = languageBreakdown || `${summary.total.toLocaleString()} ${summary.total === 1 ? 'search' : 'searches'} this week on this browser`;
   }
 
   el.popularSection.hidden = false;
 }
-
 async function refreshPopularSearches() {
   const remote = await remotePopularSummary();
   renderPopularSummary(remote || localPopularSummary());
