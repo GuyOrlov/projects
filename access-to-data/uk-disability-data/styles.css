@@ -868,3 +868,35 @@ th{background:var(--forest);color:#fff}
   .evidence-highlight-card{padding:15px}
   .evidence-highlight-value{font-size:28px}
 }
+
+/* Disability type overview */
+.disability-type-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:14px 0 8px;
+}
+.disability-type-list span{
+  display:inline-flex;
+  align-items:center;
+  min-height:32px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:var(--green-soft);
+  color:var(--forest);
+  font-size:12px;
+  font-weight:800;
+}
+.type-note{
+  margin:8px 0 14px!important;
+  padding:11px 13px;
+  border-left:4px solid var(--forest);
+  border-radius:0 10px 10px 0;
+  background:var(--offwhite);
+  color:var(--muted)!important;
+  font-size:12px!important;
+}
+@media(max-width:720px){
+  .disability-type-list{gap:6px}
+  .disability-type-list span{min-height:30px;padding:6px 9px;font-size:11px}
+}
