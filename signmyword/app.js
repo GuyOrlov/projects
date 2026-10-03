@@ -602,9 +602,7 @@ async function openImageMaker() {
   if (!el.imageModal) return;
 
   trackMetric('image_maker_opened', { lang: state.lang });
-  if (window.matchMedia('(max-width: 760px)').matches) {
-    el.imageCustomise?.removeAttribute('open');
-  }
+  el.imageCustomise?.removeAttribute('open');
   el.imageModal.hidden = false;
   document.body.classList.add('modal-open');
   setImageModalStatus('');
