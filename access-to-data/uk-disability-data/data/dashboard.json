@@ -155,5 +155,54 @@
       "type": "Census count",
       "tooltipLabel": "BSL reported as main language"
     }
-  ]
+  ],
+  "disabilityTrend": [
+    {
+      "period": "2014–15",
+      "value": 20,
+      "geography": "UK",
+      "source": "frs"
+    },
+    {
+      "period": "2022–23",
+      "value": 24,
+      "geography": "UK",
+      "source": "frs-2022-23"
+    },
+    {
+      "period": "2023–24",
+      "value": 25,
+      "geography": "UK",
+      "source": "frs-2023-24"
+    },
+    {
+      "period": "2024–25",
+      "value": 25,
+      "geography": "UK",
+      "source": "frs"
+    }
+  ],
+  "countryComparison": {
+    "period": "2023–24",
+    "note": "The latest year in this dashboard with a complete, directly comparable four-nation set.",
+    "source": "frs-2023-24",
+    "rows": [
+      {
+        "label": "Wales",
+        "value": 30
+      },
+      {
+        "label": "Scotland",
+        "value": 28
+      },
+      {
+        "label": "Northern Ireland",
+        "value": 25
+      },
+      {
+        "label": "England",
+        "value": 24
+      }
+    ]
+  }
 }
