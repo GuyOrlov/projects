@@ -826,8 +826,7 @@ function recordRecentSearch(word) {
     // Recent searches are optional and remain on this device.
   }
 
-  renderRecentSearches();
-}
+  }
 
 function renderRecentSearches() {
   if (!el.recentSection || !el.recentChips) return;
@@ -1029,7 +1028,7 @@ function cloudSize(count, min, max) {
 function renderPopularSummary(summary) {
   if (!el.popularSection || !el.popularCloud || !el.popularTotal || !el.popularSubtitle) return;
 
-  const words = summary?.words || [];
+  const words = (summary?.words || []).slice(0, 6);
   if (!words.length) {
     el.popularSection.hidden = true;
     return;
@@ -1088,7 +1087,7 @@ function renderPopularSummary(summary) {
     button.append(countLabel, label, language);
 
     button.addEventListener('click', () => {
-      state.lang = lang;
+      setLanguage(lang);
       setWord(word, { track: false });
       document.querySelector('.result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -1137,9 +1136,9 @@ function renderPopularSummary(summary) {
   }
 
   if (summary.source === 'site') {
-    el.popularSubtitle.textContent = 'Anonymous aggregate BSL and ASL searches across SignMyWord over the last 7 days.';
+    el.popularSubtitle.textContent = 'Top BSL and ASL searches from the last 7 days.';
   } else {
-    el.popularSubtitle.textContent = 'Based on genuine BSL and ASL searches from this browser over the last 7 days.';
+    el.popularSubtitle.textContent = 'Top searches on this device from the last 7 days.';
   }
 
   el.popularSection.hidden = false;
