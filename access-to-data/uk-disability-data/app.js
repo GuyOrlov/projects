@@ -1,5 +1,5 @@
 const DATA_URL = "data/dashboard.json?v=20261003-plain-english-v2";
-const SOURCES_URL = "data/sources.json?v=20261003-evidence-v2";
+const SOURCES_URL = "data/sources.json?v=20261003-plain-english-v2";
 const ISSUES_URL = "data/issues.json?v=20261003-plain-english-v2";
 let dashboardData = null;
 let sourceRegistry = [];
