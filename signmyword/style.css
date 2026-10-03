@@ -4361,3 +4361,59 @@ select {
   }
 }
 /* End SignMyWord image step UX polish */
+
+
+/* SignMyWord trending language data — 2026-10-03 */
+.popular-word__language {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  margin-left: 2px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--smw-bg-blue-soft);
+  color: var(--smw-text-primary);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.popular-word__flag {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.popular-word__language-name {
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .popular-word-cloud {
+    justify-content: flex-start;
+  }
+
+  .popular-word {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    font-size: 17px !important;
+  }
+
+  .popular-word__label {
+    min-width: 0;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .popular-word__language {
+    justify-self: end;
+  }
+
+  .popular-searches__total {
+    text-align: left;
+  }
+}
+/* End SignMyWord trending language data */
