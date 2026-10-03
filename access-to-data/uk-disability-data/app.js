@@ -1,4 +1,4 @@
-const DATA_URL = "data/dashboard.json?v=20261003-evidence-v2";
+const DATA_URL = "data/dashboard.json?v=20261003-wording-v1";
 const SOURCES_URL = "data/sources.json?v=20261003-evidence-v2";
 const ISSUES_URL = "data/issues.json?v=20261003-evidence-v2";
 let dashboardData = null;
@@ -140,14 +140,14 @@ function renderMetrics(){
   grid.innerHTML = dashboardData.headline.map(function(item){
     const anchor = item.id === "employment-gap" ? ' id="employment-kpi"' : item.id === "pip-caseload" ? ' id="pip-kpi"' : "";
     const help = item.id === "employment-gap"
-      ? '<details class="metric-help"><summary>What does “percentage points” mean?</summary><p>Percentage points show the direct difference between two percentages. For example, 82.5% minus 52.8% equals a 29.7 percentage-point gap.</p></details>'
+      ? '<details class="metric-help"><summary>What are percentage points?</summary><p>A percentage point is the direct difference between two percentages. For example, 82.5% minus 52.8% equals 29.7 percentage points.</p></details>'
       : "";
     return '<article class="metric-card"' + anchor + '>' +
       '<div class="metric-label">' + escapeHtml(item.label) + '</div>' +
       '<strong class="metric-value">' + escapeHtml(item.display) + '</strong>' +
       '<p class="metric-description">' + escapeHtml(item.description) + '</p>' +
       help +
-      '<small class="metric-source">' + escapeHtml(item.period + " · " + item.geography) + '</small>' +
+      '<small class="metric-source">' + escapeHtml((item.id === "pip-caseload" ? "As at " : "") + item.period + " · " + item.geography) + '</small>' +
       '</article>';
   }).join("");
 }
