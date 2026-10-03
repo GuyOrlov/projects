@@ -99,14 +99,14 @@ const SHARE_FORMATS = {
 };
 
 const AUTO_ICON_RULES = [
-  { emoji: '🎂', phrases: ['HAPPY BIRTHDAY'], words: ['BIRTHDAY'] },
-  { emoji: '❤️', phrases: ['I LOVE YOU'], words: ['LOVE', 'XOXO'] },
-  { emoji: '🙏', phrases: ['THANK YOU'], words: ['THANKS'] },
-  { emoji: '🎓', phrases: ['BACK TO SCHOOL'], words: ['SCHOOL', 'CLASS', 'TEACHER', 'STUDENT'] },
-  { emoji: '👋', phrases: ['GOOD MORNING'], words: ['HELLO', 'WELCOME', 'HI'] },
+  { icon: 'birthday', phrases: ['HAPPY BIRTHDAY'], words: ['BIRTHDAY'] },
+  { icon: 'heart', phrases: ['I LOVE YOU'], words: ['LOVE', 'XOXO'] },
+  { icon: 'thanks', phrases: ['THANK YOU'], words: ['THANKS'] },
+  { icon: 'school', phrases: ['BACK TO SCHOOL'], words: ['SCHOOL', 'CLASS', 'TEACHER', 'STUDENT'] },
+  { icon: 'hello', phrases: ['GOOD MORNING'], words: ['HELLO', 'WELCOME', 'HI'] },
 ];
 
-function autoEmojiForWord(value = '') {
+function autoIconForWord(value = '') {
   const normalized = String(value)
     .toUpperCase()
     .replace(/[^A-Z\s'-]/g, ' ')
@@ -116,24 +116,33 @@ function autoEmojiForWord(value = '') {
   const tokens = new Set(normalized.split(' ').filter(Boolean));
 
   for (const rule of AUTO_ICON_RULES) {
-    if (rule.phrases.some((phrase) => normalized.includes(phrase))) return rule.emoji;
-    if (rule.words.some((word) => tokens.has(word))) return rule.emoji;
+    if (rule.phrases.some((phrase) => normalized.includes(phrase))) return rule;
+    if (rule.words.some((word) => tokens.has(word))) return rule;
   }
 
-  return '';
+  return null;
 }
 
-function currentShareEmoji() {
-  if (shareImageState.iconMode === 'none') return '';
-  return autoEmojiForWord(state.word);
+function currentShareIcon() {
+  if (shareImageState.iconMode === 'none') return null;
+  return autoIconForWord(state.word);
 }
 
-function updateShareCardEmoji() {
+function updateShareCardIcon() {
   if (!el.shareCardEmoji) return;
 
-  const emoji = currentShareEmoji();
-  el.shareCardEmoji.textContent = emoji;
-  el.shareCardEmoji.hidden = !emoji;
+  const icon = currentShareIcon();
+
+  if (!icon) {
+    el.shareCardEmoji.hidden = true;
+    el.shareCardEmoji.removeAttribute('src');
+    el.shareCardEmoji.removeAttribute('data-icon');
+    return;
+  }
+
+  el.shareCardEmoji.src = `./assets/icons/${icon.icon}.png`;
+  el.shareCardEmoji.dataset.icon = icon.icon;
+  el.shareCardEmoji.hidden = false;
 }
 
 const SURPRISE_WORDS = [
@@ -211,13 +220,7 @@ function imageChoiceLabel(value = '') {
 function updateImageCustomiseHint() {
   if (!el.imageCustomiseHint) return;
 
-  const iconLabel =
-    shareImageState.iconMode === 'none'
-      ? 'No icon'
-      : currentShareEmoji()
-        ? `Auto ${currentShareEmoji()}`
-        : 'Auto';
-
+  const iconLabel = shareImageState.iconMode === 'none' ? 'No icon' : 'Auto';
   el.imageCustomiseHint.textContent =
     `${imageChoiceLabel(shareImageState.style)} · ${imageChoiceLabel(shareImageState.format)} · ${iconLabel}`;
 }
@@ -548,7 +551,7 @@ async function renderShareCard() {
   }
 
   el.shareCardTitle.textContent = `How to fingerspell “${word}” in ${config.name} (${config.label})`;
-  updateShareCardEmoji();
+  updateShareCardIcon();
   el.shareCardLetters.replaceChildren();
   el.shareCardLetters.className = 'share-card__letters';
 
