@@ -900,3 +900,86 @@ th{background:var(--forest);color:#fff}
   .disability-type-list{gap:6px}
   .disability-type-list span{min-height:30px;padding:6px 9px;font-size:11px}
 }
+
+/* Disability types comparison charts */
+.type-chart-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:16px 0 12px;
+}
+.type-chart-card{
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--offwhite);
+}
+.type-chart-heading{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.type-chart-heading h3{
+  margin:0;
+  font-size:15px;
+  line-height:1.25;
+}
+.highest-badge{
+  flex:0 0 auto;
+  padding:5px 7px;
+  border-radius:999px;
+  background:var(--green);
+  color:var(--forest);
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.type-bar-row{margin-top:11px}
+.type-bar-label{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:5px;
+  font-size:12px;
+  line-height:1.25;
+}
+.type-bar-label span{min-width:0}
+.type-bar-label strong{flex:0 0 auto}
+.type-bar-track{
+  height:13px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#dce7d7;
+}
+.type-bar-fill{
+  height:100%;
+  border-radius:999px;
+  background:var(--forest);
+}
+.type-bar-row small{
+  display:block;
+  margin-top:4px;
+  color:var(--forest);
+  font-size:10px;
+  font-weight:800;
+}
+.type-chart-source{
+  margin:8px 0 14px!important;
+  color:var(--muted)!important;
+  font-size:11px!important;
+}
+.high-contrast .type-bar-track{background:#fff9a8;border:1px solid #000}
+.high-contrast .type-bar-fill{background:#000}
+.high-contrast .highest-badge{background:#ffff00;color:#000}
+@media(max-width:980px){
+  .type-chart-grid{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .type-chart-grid{gap:10px;margin-top:12px}
+  .type-chart-card{padding:13px}
+  .type-chart-heading h3{font-size:14px}
+  .type-bar-label{font-size:11px}
+  .type-bar-track{height:12px}
+}
