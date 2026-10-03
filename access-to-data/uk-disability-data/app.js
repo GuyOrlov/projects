@@ -111,9 +111,12 @@ function bindFilters(){
   const year = document.getElementById("yearFilter");
   if(!geography || !year) return;
 
-  geography.addEventListener("change", function(){
+  function applyAreaFilter(){
     renderPrevalence(geography.value, year.value);
-  });
+  }
+
+  geography.addEventListener("change", applyAreaFilter);
+  geography.addEventListener("input", applyAreaFilter);
 
   year.addEventListener("change", function(){
     populateGeographyOptions(year.value, "all");
@@ -192,6 +195,28 @@ function renderPrevalence(filter, period){
   let rows = dashboardData.prevalenceByArea.slice();
   if(period) rows = rows.filter(function(row){ return row.period === period; });
   if(filter && filter !== "all") rows = rows.filter(function(row){ return row.geography === filter; });
+
+  const filterResult = document.getElementById("filterResult");
+  if(filterResult){
+    if(rows.length === 1){
+      filterResult.innerHTML =
+        '<span class="filter-result-label">Selected area</span>' +
+        '<strong>' + escapeHtml(rows[0].label) + ' · ' + rows[0].value + '%</strong>' +
+        '<span>' + escapeHtml(rows[0].period) + ' · disabled population estimate</span>' +
+        '<a href="#prevalence-card">See chart ↓</a>';
+    }else if(rows.length > 1){
+      filterResult.innerHTML =
+        '<span class="filter-result-label">Current view</span>' +
+        '<strong>' + rows.length + ' available areas</strong>' +
+        '<span>' + escapeHtml(period || "") + '</span>' +
+        '<a href="#prevalence-card">See chart ↓</a>';
+    }else{
+      filterResult.innerHTML =
+        '<span class="filter-result-label">Current view</span>' +
+        '<strong>No verified figure available</strong>' +
+        '<span>Try another area or year.</span>';
+    }
+  }
 
   const body = document.getElementById("prevalenceTableBody");
   if(body){
