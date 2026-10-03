@@ -1,6 +1,6 @@
-const DATA_URL = "data/dashboard.json?v=20261003-plain-english-v1";
+const DATA_URL = "data/dashboard.json?v=20261003-plain-english-v2";
 const SOURCES_URL = "data/sources.json?v=20261003-evidence-v2";
-const ISSUES_URL = "data/issues.json?v=20261003-plain-english-v1";
+const ISSUES_URL = "data/issues.json?v=20261003-plain-english-v2";
 let dashboardData = null;
 let sourceRegistry = [];
 let issueEvidence = null;
@@ -166,9 +166,9 @@ function renderPrevalence(filter){
   if(summary){
     if(rows.length > 1){
       const sorted = rows.slice().sort(function(a,b){return b.value-a.value;});
-      summary.textContent = sorted[0].label + " has the highest figure shown at " + sorted[0].value + "%, while " + sorted[sorted.length-1].label + " has the lowest at " + sorted[sorted.length-1].value + "%.";
+      summary.textContent = "Among the areas shown, " + sorted[0].label + " has the highest estimated share of disabled people at " + sorted[0].value + "%, while " + sorted[sorted.length-1].label + " has the lowest at " + sorted[sorted.length-1].value + "%.";
     }else if(rows.length === 1){
-      summary.textContent = rows[0].label + " has an estimated disabled population share of " + rows[0].value + "% for " + rows[0].period + ".";
+      summary.textContent = "In " + rows[0].label + ", an estimated " + rows[0].value + "% of people were classed as disabled in " + rows[0].period + ".";
     }
   }
   const source = sourceById("frs");
@@ -223,7 +223,7 @@ function renderEvidenceHighlights(){
     const source = item.source ? sourceById(item.source) : null;
     const freshness = item.freshness ? '<span class="freshness-badge">' + escapeHtml(item.freshness) + '</span>' : '';
     return '<article class="evidence-highlight-card">' +
-      '<div class="evidence-highlight-top"><span class="evidence-badge">' + escapeHtml(item.evidenceType) + '</span>' + freshness + '</div>' +
+      '<div class="evidence-highlight-top"><span class="evidence-badge">' + escapeHtml(displayEvidenceType(item.evidenceType)) + '</span>' + freshness + '</div>' +
       '<h3>' + escapeHtml(item.title) + '</h3>' +
       '<strong class="evidence-highlight-value">' + escapeHtml(item.value) + '</strong>' +
       '<p class="evidence-highlight-comparison">' + escapeHtml(item.comparison) + '</p>' +
@@ -241,7 +241,7 @@ function renderSources(){
     return '<article class="source-card">' +
       '<span class="source-org">' + escapeHtml(source.organisation) + '</span>' +
       '<h3>' + escapeHtml(source.name) + '</h3>' +
-      '<div class="evidence-badge">' + escapeHtml(source.evidenceType || "Published evidence") + '</div>' +
+      '<div class="evidence-badge">' + escapeHtml(displayEvidenceType(source.evidenceType || "Published evidence")) + '</div>' +
       '<p>' + escapeHtml(source.covers) + '</p>' +
       '<div class="source-meta"><span>Updated: ' + escapeHtml(source.updateFrequency) + '</span></div>' +
       '<a href="' + escapeAttribute(source.url) + '" target="_blank" rel="noopener">View source ↗</a>' +
@@ -382,6 +382,22 @@ function bindBslShare(){
 
 function resizeCharts(){
   charts.forEach(function(chart){ chart.resize(); });
+}
+
+
+function displayEvidenceType(value){
+  const labels = {
+    "Administrative statistics":"Public-service records",
+    "Administrative data API":"Public-service data API",
+    "Official statistical analysis":"Official statistics",
+    "Accredited official statistics / survey":"Official survey statistics",
+    "Accredited official statistics":"Official statistics",
+    "Official statistics / police-recorded crime":"Police-recorded statistics",
+    "Official statistics / survey":"Official survey statistics",
+    "Survey analysis · older evidence":"Survey analysis · older data",
+    "Government report / published estimate":"Government report / estimate"
+  };
+  return labels[value] || value;
 }
 
 function sourceById(id){
