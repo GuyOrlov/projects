@@ -4010,3 +4010,87 @@ select {
   }
 }
 /* End SignMyWord desktop image step matches mobile flow */
+
+
+/* Fix image-step flex overlap — 2026-10-03 09:58 */
+/* The image page is a vertical flex column. Prevent the browser from shrinking
+   the preview to fit the viewport, which caused buttons/customise to sit over it. */
+.image-modal__header,
+.share-image-preview-wrap,
+.image-modal__status,
+.image-modal__actions,
+.image-customise,
+.image-attribution {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 760px) {
+  .share-image-preview-wrap {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    overflow: hidden;
+  }
+
+  .share-image-preview {
+    position: static !important;
+    display: block;
+    width: 100%;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0;
+  }
+
+  .image-modal__actions {
+    position: static;
+    margin-top: 14px;
+  }
+
+  .image-customise {
+    position: static;
+    margin-top: 14px;
+  }
+
+  /* Keep customisation useful without dominating the screen. */
+  .image-customise[open] .image-style-picker {
+    gap: 7px;
+    margin: 12px 0;
+  }
+
+  .image-customise[open] .image-style-pill {
+    min-height: 44px;
+    padding: 7px 5px;
+    font-size: 11px;
+  }
+
+  .image-customise[open] .image-format-picker {
+    gap: 7px;
+    padding-top: 11px;
+  }
+
+  .image-customise[open] .image-format-pill {
+    min-height: 42px;
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 761px) {
+  .share-image-preview-wrap {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    overflow: hidden;
+  }
+
+  .share-image-preview {
+    position: static !important;
+    display: block;
+    width: 100%;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0;
+  }
+}
+/* End fix image-step flex overlap */
