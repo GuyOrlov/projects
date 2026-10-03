@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261003-filter-info-v1">
+  <link rel="stylesheet" href="styles.css?v=20261003-mobile-filter-result-v1">
   <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
-  <script defer src="app.js?v=20261003-filter-info-v1"></script>
+  <script defer src="app.js?v=20261003-mobile-filter-result-v1"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
@@ -90,7 +90,13 @@
         </select>
       </label>
       <span class="source-status"><i aria-hidden="true"></i><span id="sourceStatusText">Sources checked</span></span>
-      <p class="filter-help" id="filterHelp">These filters update the disability prevalence chart below. Each menu shows the percentage beside the area or year. Only verified figures available for that survey year are listed.</p>
+      <div class="filter-result" id="filterResult" aria-live="polite">
+        <span class="filter-result-label">Current view</span>
+        <strong>5 available areas</strong>
+        <span>2024–25</span>
+        <a href="#prevalence-card">See chart ↓</a>
+      </div>
+      <p class="filter-help" id="filterHelp">Choose an area and year. The selected percentage appears here immediately, and the chart below updates too.</p>
     </section>
 
     <section id="overview" class="section-block" aria-labelledby="overviewTitle">
