@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "title": "UK Disability Data Hub",
+    "lastChecked": "2026-10-03",
+    "notes": "Figures retain their original population, geography, period and definition. Survey, census and administrative data are not treated as interchangeable."
+  },
+  "headline": [
+    {
+      "id": "disabled-share",
+      "label": "Disabled people",
+      "display": "25%",
+      "value": 25,
+      "description": "One in four people were classified as disabled.",
+      "geography": "UK",
+      "period": "2024–25",
+      "source": "frs"
+    },
+    {
+      "id": "disabled-count",
+      "label": "Number of people",
+      "display": "16.7m",
+      "value": 16.7,
+      "description": "Up from 12.9 million in 2014–15.",
+      "geography": "UK",
+      "period": "2024–25",
+      "source": "frs"
+    },
+    {
+      "id": "employment-gap",
+      "label": "Employment gap",
+      "display": "29.7 pp",
+      "value": 29.7,
+      "description": "Difference between disabled and non-disabled employment rates.",
+      "geography": "UK",
+      "period": "Apr–Jun 2025",
+      "source": "employment"
+    },
+    {
+      "id": "pip-caseload",
+      "label": "PIP caseload",
+      "display": "4.0m",
+      "value": 4,
+      "description": "Claimants entitled to Personal Independence Payment.",
+      "geography": "England & Wales",
+      "period": "30 Apr 2026",
+      "source": "pip"
+    }
+  ],
+  "prevalenceByArea": [
+    {
+      "label": "Scotland",
+      "geography": "Scotland",
+      "value": 30,
+      "period": "2024–25",
+      "source": "frs"
+    },
+    {
+      "label": "Wales",
+      "geography": "Wales",
+      "value": 26,
+      "period": "2024–25",
+      "source": "frs"
+    },
+    {
+      "label": "UK",
+      "geography": "UK",
+      "value": 25,
+      "period": "2024–25",
+      "source": "frs"
+    },
+    {
+      "label": "N. Ireland",
+      "geography": "Northern Ireland",
+      "value": 22,
+      "period": "2024–25",
+      "source": "frs"
+    },
+    {
+      "label": "London",
+      "geography": "London",
+      "value": 17,
+      "period": "2024–25",
+      "source": "frs"
+    }
+  ],
+  "bslMeasures": [
+    {
+      "label": "Estimated BSL users",
+      "shortLabel": "Estimated BSL users",
+      "display": "151k",
+      "value": 151,
+      "geography": "UK",
+      "period": "current estimate cited 2026",
+      "source": "bsl-government",
+      "definition": "People estimated to use BSL, not necessarily as their main language."
+    },
+    {
+      "label": "Estimated Deaf BSL users",
+      "shortLabel": "Estimated Deaf BSL users",
+      "display": "87k",
+      "value": 87,
+      "geography": "UK",
+      "period": "current estimate cited 2026",
+      "source": "bsl-government",
+      "definition": "Deaf people estimated to use BSL."
+    },
+    {
+      "label": "BSL as main language",
+      "shortLabel": "BSL main language",
+      "display": "22k",
+      "value": 22,
+      "geography": "England & Wales",
+      "period": "Census 2021",
+      "source": "ons-language",
+      "definition": "Usual residents aged three years and over who reported BSL as their main language."
+    }
+  ]
+}

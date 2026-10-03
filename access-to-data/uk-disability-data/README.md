@@ -1,69 +1,63 @@
 # UK Disability Data Hub
 
-A source-linked, accessible dashboard that brings together key UK disability statistics in one place.
+Access to Data is an accessible, source-linked UK disability statistics website.
 
-## Live page path
+## Current build
 
-When GitHub Pages is enabled for this repository, the project page is available at:
+The dashboard now follows the Figma layout in:
 
-`https://guyorlov.github.io/accesstodata/uk-disability-data/`
+https://www.figma.com/design/nelY12uMGnGGRM8QPSBqPY
 
-## Current data themes
+The implementation is deliberately split into:
 
-- Disability prevalence and long-term change
-- Age, sex and geographic differences
-- Disability employment rate and employment gap
-- Underemployment and housing-related employment gaps
-- Personal Independence Payment caseload
-- Benefit receipt
-- Food-bank use
-- Reported impairment types
+- index.html — semantic page structure
+- styles.css — responsive desktop/mobile presentation
+- app.js — data loading, filters, accessible chart/table switching and ECharts
+- data/dashboard.json — dashboard values and metadata
+- data/sources.json — source registry and automation metadata
+- data.csv — downloadable flat data
 
-## Main official sources
+## Chart layer
 
-1. DWP Family Resources Survey 2024 to 2025  
-   https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2024-to-2025
+Charts are rendered with Apache ECharts in the browser. The numbers are not hard-coded into the chart configuration; app.js reads the JSON data files and builds the charts.
 
-2. DWP The employment of disabled people 2025  
-   https://www.gov.uk/government/statistics/the-employment-of-disabled-people-2025/the-employment-of-disabled-people-2025
+Every chart also has a table view so the information is available without relying on colour or graphics alone.
 
-3. ONS A08: Labour market status of disabled people  
-   https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/labourmarketstatusofdisabledpeoplea08/current
+## Data model direction
 
-4. DWP Personal Independence Payment statistics  
-   https://www.gov.uk/government/collections/personal-independence-payment-statistics
+Each metric should retain:
 
-5. UK Food Security Digest 2025  
-   https://www.gov.uk/government/statistics/united-kingdom-food-security-digest-2025/united-kingdom-food-security-digest-2025
+- measure and value
+- unit
+- geography
+- population coverage
+- period
+- source
+- definition
+- publication/update metadata
+- last checked date
+- quality or comparability notes where needed
 
-6. ONS disability topic hub  
-   https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/disability
+Survey estimates, census counts and administrative caseloads should remain distinguishable.
 
-7. ONS Census disability and protected characteristics  
-   https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/disability/datasets/protectedcharacteristicsbydisabilitystatusinenglandandwales
+## Automation roadmap
 
-8. House of Commons Library constituency disability data  
-   https://commonslibrary.parliament.uk/research-briefings/cbp-10565/
+Phase 1: maintain clean JSON/CSV files while the data model stabilises.
 
-9. NHS England learning disability data hub  
-   https://digital.nhs.uk/data-and-information/data-tools-and-services/data-services/learning-disabilities-data-hub
+Phase 2: use GitHub Actions to check known official releases/APIs, update raw and normalised data, validate changes and commit refreshed public data.
 
-10. Department for Transport disability and accessibility statistics  
-    https://www.gov.uk/government/collections/transport-disability-and-accessibility
+Phase 3: move the clean data layer to Supabase/Postgres only when dataset size, filtering or API requirements justify it.
 
-11. DWP Households Below Average Income 2024 to 2025  
-    https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025
+## Main source families
 
-12. Department for Education special educational needs 2025/26  
-    https://explore-education-statistics.service.gov.uk/find-statistics/special-educational-needs-in-england/2025-26
+- DWP Family Resources Survey
+- DWP Employment of Disabled People
+- ONS A08 labour market dataset
+- DWP Personal Independence Payment statistics
+- DWP Stat-Xplore
+- UK Government BSL reports
+- ONS Census language data
+- Scotland Census
+- NISRA Census
 
-13. National Data Library / data.gov.uk  
-    https://www.data.gov.uk/
-
-## Accessibility
-
-The page includes a skip link, keyboard-accessible tabs, high-contrast mode, larger text mode, semantic headings, reduced-motion support, visible source labels and a CSV download.
-
-## Data notes
-
-Different sources use different populations, periods and geographic coverage. The dashboard keeps those labels visible and does not treat PIP figures as UK-wide. Family Resources Survey prevalence follows the core Equality Act 2010 disability definition used by DWP.
+The source registry is stored in data/sources.json.

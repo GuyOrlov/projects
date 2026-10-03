@@ -1,0 +1,101 @@
+[
+  {
+    "id": "frs",
+    "shortName": "DWP Family Resources Survey",
+    "name": "Family Resources Survey 2024 to 2025",
+    "organisation": "Department for Work and Pensions",
+    "covers": "UK disability prevalence, age, sex, geography and impairment.",
+    "updateFrequency": "Annual",
+    "automation": "Release/file check",
+    "status": "ready",
+    "url": "https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2024-to-2025"
+  },
+  {
+    "id": "employment",
+    "shortName": "DWP Employment of Disabled People",
+    "name": "The employment of disabled people 2025",
+    "organisation": "Department for Work and Pensions",
+    "covers": "Employment rates, disability employment gap, underemployment and related breakdowns.",
+    "updateFrequency": "Annual",
+    "automation": "Release/file check",
+    "status": "ready",
+    "url": "https://www.gov.uk/government/statistics/the-employment-of-disabled-people-2025/the-employment-of-disabled-people-2025"
+  },
+  {
+    "id": "ons-a08",
+    "shortName": "ONS A08",
+    "name": "Labour market status of disabled people",
+    "organisation": "Office for National Statistics",
+    "covers": "Quarterly labour-market status of disabled people from the Labour Force Survey.",
+    "updateFrequency": "Quarterly",
+    "automation": "Dataset/release check",
+    "status": "ready",
+    "url": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/labourmarketstatusofdisabledpeoplea08/current"
+  },
+  {
+    "id": "pip",
+    "shortName": "DWP PIP statistics",
+    "name": "Personal Independence Payment statistics",
+    "organisation": "Department for Work and Pensions",
+    "covers": "PIP caseload, registrations, decisions and awards for England and Wales.",
+    "updateFrequency": "Quarterly",
+    "automation": "Stat-Xplore / release check",
+    "status": "ready",
+    "url": "https://www.gov.uk/government/collections/personal-independence-payment-statistics"
+  },
+  {
+    "id": "bsl-government",
+    "shortName": "UK Government BSL report",
+    "name": "British Sign Language fourth report, May 2025 to April 2026",
+    "organisation": "UK Government",
+    "covers": "BSL use and government reporting under the British Sign Language Act 2022; cites BDA estimates of BSL users.",
+    "updateFrequency": "Annual reporting commitment",
+    "automation": "Publication check",
+    "status": "ready",
+    "url": "https://www.gov.uk/government/publications/british-sign-language-bsl-fourth-report-may-2025-to-april-2026/british-sign-language-fourth-report-bsl-and-english-versions"
+  },
+  {
+    "id": "ons-language",
+    "shortName": "ONS Census 2021",
+    "name": "Language, England and Wales: Census 2021",
+    "organisation": "Office for National Statistics",
+    "covers": "Main language, including British Sign Language, for usual residents aged three years and over.",
+    "updateFrequency": "Census",
+    "automation": "Version check",
+    "status": "ready",
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/culturalidentity/language/bulletins/languageenglandandwales/census2021"
+  },
+  {
+    "id": "stat-xplore",
+    "shortName": "DWP Stat-Xplore",
+    "name": "Stat-Xplore Open Data API",
+    "organisation": "Department for Work and Pensions",
+    "covers": "API access to DWP administrative statistics suitable for later automated ingestion.",
+    "updateFrequency": "Varies by dataset",
+    "automation": "REST API",
+    "status": "next",
+    "url": "https://stat-xplore.dwp.gov.uk/webapi/online-help/Open-Data-API.html"
+  },
+  {
+    "id": "scotland-census",
+    "shortName": "Scotland Census",
+    "name": "Scotland's Census 2022",
+    "organisation": "National Records of Scotland",
+    "covers": "Scotland population, health, disability and related census data.",
+    "updateFrequency": "Census / irregular",
+    "automation": "File/version check",
+    "status": "next",
+    "url": "https://www.scotlandscensus.gov.uk/"
+  },
+  {
+    "id": "nisra-census",
+    "shortName": "NISRA Census",
+    "name": "Northern Ireland Census 2021",
+    "organisation": "Northern Ireland Statistics and Research Agency",
+    "covers": "Northern Ireland population, disability, health and language census data.",
+    "updateFrequency": "Census / irregular",
+    "automation": "File/version check",
+    "status": "next",
+    "url": "https://www.nisra.gov.uk/statistics/census/2021-census"
+  }
+]
