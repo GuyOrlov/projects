@@ -5362,3 +5362,95 @@ select {
   }
 }
 /* End SignMyWord desktop customiser always visible */
+
+
+/* SignMyWord definitive image-modal flow fix — 2026-10-03 */
+.image-modal__dialog {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.image-modal__header {
+  order: 0 !important;
+}
+
+.share-image-preview-wrap {
+  order: 1 !important;
+  position: relative !important;
+  z-index: 1 !important;
+  margin-top: 16px !important;
+}
+
+.image-modal__status {
+  order: 2 !important;
+}
+
+.image-customise,
+.image-customise:not([open]),
+.image-customise[open] {
+  order: 3 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  width: min(100%, 720px) !important;
+  margin: 16px auto 0 !important;
+  transform: none !important;
+  top: auto !important;
+  bottom: auto !important;
+  overflow: visible !important;
+}
+
+.image-customise__summary {
+  display: none !important;
+}
+
+.image-customise__body,
+.image-customise:not([open]) > .image-customise__body,
+.image-customise[open] > .image-customise__body {
+  display: block !important;
+  position: static !important;
+  transform: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.image-modal__actions {
+  order: 4 !important;
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 1 !important;
+  width: min(100%, 720px) !important;
+  margin: 18px auto 0 !important;
+  transform: none !important;
+  clear: both !important;
+}
+
+.image-modal__actions .button {
+  position: static !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+.image-attribution {
+  order: 5 !important;
+}
+
+@media (min-width: 761px) {
+  .image-modal__actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .image-modal__actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+}
+/* End SignMyWord definitive image-modal flow fix */
