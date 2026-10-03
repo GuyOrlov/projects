@@ -302,10 +302,12 @@ th{background:var(--forest);color:#fff}
   .primary-nav.open{display:grid;grid-template-columns:1fr 1fr}
   .primary-nav a{width:100%;font-size:12px}
   .primary-nav .nav-cta{grid-column:1/-1}
-  .hero{display:flex;flex-direction:column;gap:14px;padding:24px}
-  .kicker{margin-bottom:8px;font-size:12px}
-  .hero h1{font-size:36px;line-height:1.05}
-  .hero-intro{margin-top:10px;font-size:16px}
+  .hero{display:flex;flex-direction:column;gap:10px;padding:18px 24px 16px}
+  .kicker{margin-bottom:6px;font-size:12px}
+  .hero h1{max-width:none;font-size:clamp(28px,8vw,32px);line-height:1.02;letter-spacing:-.045em}
+  .hero-title-line{display:block;white-space:nowrap}
+  .large-text .hero-title-line{white-space:normal}
+  .hero-intro{margin-top:9px;font-size:15px;line-height:1.45}
   .hero-actions{display:none}
   .hero-stat{width:100%;padding:18px;border-width:5px;border-radius:18px}
   .hero-stat span{font-size:13px}
