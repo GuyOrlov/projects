@@ -63,6 +63,7 @@ const el = {
   shareImageFile: document.querySelector('#share-image-file'),
   shareCard: document.querySelector('#share-card'),
   shareCardTitle: document.querySelector('#share-card-title'),
+  shareCardEmoji: document.querySelector('#share-card-emoji'),
   shareCardLetters: document.querySelector('#share-card-letters'),
   shareCardQr: document.querySelector('#share-card-qr'),
   shareCardLanguage: document.querySelector('#share-card-language'),
@@ -77,6 +78,7 @@ const el = {
   classroomLink: document.querySelector('#classroom-link'),
   copyEmbed: document.querySelector('#copy-embed'),
   imageFormatButtons: [...document.querySelectorAll('[data-card-format]')],
+  imageIconButtons: [...document.querySelectorAll('[data-card-icon-mode]')],
   copyImage: document.querySelector('#copy-image'),
   imageCustomise: document.querySelector('#image-customise'),
   imageCustomiseHint: document.querySelector('#image-customise-hint'),
@@ -85,6 +87,7 @@ const el = {
 const shareImageState = {
   style: 'light',
   format: 'portrait',
+  iconMode: 'auto',
   blob: null,
   previewUrl: null,
 };
@@ -94,6 +97,44 @@ const SHARE_FORMATS = {
   square: { width: 1080, height: 1080, label: 'square' },
   story: { width: 1080, height: 1920, label: 'story' },
 };
+
+const AUTO_ICON_RULES = [
+  { emoji: '🎂', phrases: ['HAPPY BIRTHDAY'], words: ['BIRTHDAY'] },
+  { emoji: '❤️', phrases: ['I LOVE YOU'], words: ['LOVE', 'XOXO'] },
+  { emoji: '🙏', phrases: ['THANK YOU'], words: ['THANKS'] },
+  { emoji: '🎓', phrases: ['BACK TO SCHOOL'], words: ['SCHOOL', 'CLASS', 'TEACHER', 'STUDENT'] },
+  { emoji: '👋', phrases: ['GOOD MORNING'], words: ['HELLO', 'WELCOME', 'HI'] },
+];
+
+function autoEmojiForWord(value = '') {
+  const normalized = String(value)
+    .toUpperCase()
+    .replace(/[^A-Z\s'-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const tokens = new Set(normalized.split(' ').filter(Boolean));
+
+  for (const rule of AUTO_ICON_RULES) {
+    if (rule.phrases.some((phrase) => normalized.includes(phrase))) return rule.emoji;
+    if (rule.words.some((word) => tokens.has(word))) return rule.emoji;
+  }
+
+  return '';
+}
+
+function currentShareEmoji() {
+  if (shareImageState.iconMode === 'none') return '';
+  return autoEmojiForWord(state.word);
+}
+
+function updateShareCardEmoji() {
+  if (!el.shareCardEmoji) return;
+
+  const emoji = currentShareEmoji();
+  el.shareCardEmoji.textContent = emoji;
+  el.shareCardEmoji.hidden = !emoji;
+}
 
 const SURPRISE_WORDS = [
   'GOOD MORNING',
@@ -169,8 +210,16 @@ function imageChoiceLabel(value = '') {
 
 function updateImageCustomiseHint() {
   if (!el.imageCustomiseHint) return;
+
+  const iconLabel =
+    shareImageState.iconMode === 'none'
+      ? 'No icon'
+      : currentShareEmoji()
+        ? `Auto ${currentShareEmoji()}`
+        : 'Auto';
+
   el.imageCustomiseHint.textContent =
-    `${imageChoiceLabel(shareImageState.style)} · ${imageChoiceLabel(shareImageState.format)}`;
+    `${imageChoiceLabel(shareImageState.style)} · ${imageChoiceLabel(shareImageState.format)} · ${iconLabel}`;
 }
 
 function blobToDataUrl(blob) {
@@ -499,6 +548,7 @@ async function renderShareCard() {
   }
 
   el.shareCardTitle.textContent = `How to fingerspell “${word}” in ${config.name} (${config.label})`;
+  updateShareCardEmoji();
   el.shareCardLetters.replaceChildren();
   el.shareCardLetters.className = 'share-card__letters';
 
@@ -1450,7 +1500,6 @@ el.imageFormatButtons.forEach((button) => {
     });
 
     updateImageCustomiseHint();
-    updateImageCustomiseHint();
     invalidateShareImage();
 
     try {
@@ -1471,12 +1520,34 @@ el.imageStyleButtons.forEach((button) => {
       item.setAttribute('aria-pressed', String(active));
     });
 
+    updateImageCustomiseHint();
     invalidateShareImage();
 
     try {
       await generateShareImageBlob();
     } catch (error) {
       setImageModalStatus(error?.message || 'Could not create this image style.');
+    }
+  });
+});
+
+el.imageIconButtons.forEach((button) => {
+  button.addEventListener('click', async () => {
+    shareImageState.iconMode = button.dataset.cardIconMode || 'auto';
+
+    el.imageIconButtons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('image-icon-pill--active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+
+    updateImageCustomiseHint();
+    invalidateShareImage();
+
+    try {
+      await generateShareImageBlob();
+    } catch (error) {
+      setImageModalStatus(error?.message || 'Could not update the icon setting.');
     }
   });
 });
