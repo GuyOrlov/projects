@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261003-mobile-filter-result-v1">
+  <link rel="stylesheet" href="styles.css?v=20261003-desktop-filter-footer-v2">
   <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
-  <script defer src="app.js?v=20261003-mobile-filter-result-v1"></script>
+  <script defer src="app.js?v=20261003-desktop-filter-footer-v2"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
@@ -71,14 +71,14 @@
   <div class="dashboard page-width">
     <section class="filter-bar" aria-label="Dashboard filters">
       <span class="filter-label">Filter</span>
-      <label>
-        <span class="sr-only">Area</span>
+      <label class="filter-field">
+        <span class="filter-field-label">Area / country</span>
         <select id="geographyFilter" aria-describedby="filterHelp">
           <option value="all">All available areas</option>
         </select>
       </label>
-      <label>
-        <span class="sr-only">Year</span>
+      <label class="filter-field">
+        <span class="filter-field-label">Year</span>
         <select id="yearFilter" aria-describedby="filterHelp">
           <option value="2024–25">2024–25 (latest)</option>
         </select>
@@ -261,8 +261,14 @@
 
 <footer class="site-footer">
   <div class="page-width footer-inner">
-    <strong>Access to Data · UK Disability Data Hub</strong>
-    <span>Clear data · accessible charts · sources you can check</span>
+    <div class="footer-brand">
+      <strong>Access to Data · UK Disability Data Hub</strong>
+      <span>Clear data · accessible charts · sources you can check</span>
+    </div>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="./terms.html">Terms</a>
+      <span>Created by Guy Orlov</span>
+    </nav>
   </div>
 </footer>
 
