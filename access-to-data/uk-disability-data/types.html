@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Compare disability and impairment types reported by disabled people in the UK, with clear definitions, age-group comparisons and official sources.">
+  <meta name="theme-color" content="#163300">
+  <title>Disability Types | Access to Data</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20261003-features-v1">
+  <script defer src="types.js?v=20261003-features-v1"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site-header">
+  <div class="topbar page-width">
+    <a class="brand" href="index.html" aria-label="Access to Data home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="brand-copy"><strong>Disability Types</strong><small>Access to Data · UK disability data explained clearly</small></span>
+    </a>
+    <nav class="primary-nav types-nav" aria-label="Primary">
+      <a href="index.html">Overview</a>
+      <a href="issues.html">Disability issues</a>
+      <a class="active" href="types.html">Disability types</a>
+      <a href="index.html#sources">Sources</a>
+    </nav>
+  </div>
+  <section class="hero page-width types-hero">
+    <div class="hero-copy">
+      <p class="kicker">Disability and impairment types</p>
+      <h1>Compare the types clearly.</h1>
+      <p class="hero-intro">See the most commonly reported impairment types for disabled children, working-age adults and pension-age adults. The percentages can overlap because a person can report more than one impairment.</p>
+    </div>
+  </section>
+</header>
+
+<main id="main">
+  <div class="dashboard page-width types-page">
+    <section class="type-explorer" aria-labelledby="typeExplorerTitle">
+      <div class="section-heading section-heading-row">
+        <div>
+          <p class="eyebrow">Interactive comparison</p>
+          <h2 id="typeExplorerTitle">Top reported impairment types</h2>
+          <p>The official FRS summary publishes the top three types for each age group. Choose a group to compare them.</p>
+        </div>
+        <span class="freshness-badge">Recent data · 2024–25</span>
+      </div>
+
+      <div class="type-group-switch" id="typeGroupSwitch" role="group" aria-label="Choose age group"></div>
+
+      <article class="type-explorer-card">
+        <div class="type-explorer-heading">
+          <div>
+            <p class="eyebrow" id="typeGroupEyebrow">UK · 2024–25</p>
+            <h3 id="typeGroupTitle">Disabled children</h3>
+          </div>
+          <div class="chart-tools">
+            <button type="button" id="typeShareButton">Share</button>
+            <button type="button" id="typeCsvButton">Download CSV</button>
+            <button type="button" id="typePngButton">Download PNG</button>
+          </div>
+        </div>
+        <div class="type-explorer-bars" id="typeExplorerBars" aria-live="polite"></div>
+        <div class="type-insight" id="typeInsight" aria-live="polite"></div>
+      </article>
+
+      <aside class="overlap-explainer" aria-labelledby="overlapTitle">
+        <strong id="overlapTitle">Why can the percentages add up to more than 100%?</strong>
+        <p>A person can report more than one impairment. For example, someone may report both mobility and stamina difficulties. These percentages describe reported impairment types, not separate groups of people.</p>
+      </aside>
+    </section>
+
+    <section class="section-block" aria-labelledby="definitionsTitle">
+      <div class="section-heading">
+        <p class="eyebrow">Plain-English guide</p>
+        <h2 id="definitionsTitle">What do the disability types mean?</h2>
+        <p>These short descriptions help readers understand the broad labels. They are explanations, not diagnoses.</p>
+      </div>
+      <div class="type-definition-grid" id="typeDefinitionGrid"></div>
+    </section>
+
+    <section class="methodology-card">
+      <div>
+        <p class="eyebrow">How to read this page</p>
+        <h2>The labels are broad, and people can have more than one impairment.</h2>
+        <p>Different surveys and public services may use different categories. This page keeps the source definition and age group visible so the figures are not treated as if they measure exactly the same thing.</p>
+      </div>
+      <div class="methodology-points">
+        <div><strong>Highest is automatic</strong><span>The largest verified percentage in the selected age group is highlighted.</span></div>
+        <div><strong>Lowest shown is automatic</strong><span>The smallest of the published top-three values is identified for context.</span></div>
+        <div><strong>Source first</strong><span>Figures come from the DWP Family Resources Survey 2024–25.</span></div>
+      </div>
+    </section>
+
+    <section class="source-library section-block">
+      <div class="source-card">
+        <span class="source-org">Department for Work and Pensions</span>
+        <h3>Family Resources Survey 2024 to 2025</h3>
+        <p>UK disability prevalence and impairment types reported by disabled people, including age-group breakdowns.</p>
+        <div class="source-meta"><span>Recent data</span><span>Survey estimate</span></div>
+        <a href="https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2024-to-2025/family-resources-survey-financial-year-2024-to-2025" target="_blank" rel="noopener">View official source ↗</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="page-width footer-inner">
+    <div class="footer-brand"><strong>Access to Data · Disability Types</strong><span>Clear data · accessible comparisons · sources you can check</span></div>
+    <nav class="footer-links" aria-label="Footer"><a href="terms.html">Terms</a><span>Created by Guy Orlov</span></nav>
+  </div>
+</footer>
+</body>
+</html>
