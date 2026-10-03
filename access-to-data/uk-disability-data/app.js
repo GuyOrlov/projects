@@ -256,7 +256,7 @@ function drawHorizontalBar(key,elementId,labels,values,suffix,maxValue){
     series:[{
       type:"bar",
       data:values,
-      barWidth:compact?15:18,
+      barWidth:compact?18:22,
       showBackground:true,
       backgroundStyle:{color:background,borderRadius:8},
       itemStyle:{color:ink,borderRadius:8},

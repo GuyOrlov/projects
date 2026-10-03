@@ -6,7 +6,7 @@
   --white:#fff;
   --offwhite:#f7f7f3;
   --ink:#163300;
-  --muted:#425044;
+  --muted:#38463b;
   --line:#d5ddd1;
   --soft-line:#e7ece4;
   --radius:18px;
@@ -416,7 +416,7 @@ th{background:var(--forest);color:#fff}
 .mobile-bar-item{margin-top:14px}
 .mobile-bar-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px;font-size:13px;font-weight:700}
 .mobile-bar-head span:first-child{min-width:0}
-.mobile-bar-track{height:15px;overflow:hidden;border-radius:999px;background:var(--green-soft)}
+.mobile-bar-track{height:18px;overflow:hidden;border-radius:999px;background:var(--green-soft)}
 .mobile-bar-fill{height:100%;border-radius:999px;background:var(--forest)}
 .source-accessibility-link{font-size:13px;font-weight:700}
 .high-contrast .accessibility-panel{background:#fff;color:#000;border-color:#000}
@@ -424,7 +424,15 @@ th{background:var(--forest);color:#fff}
 .high-contrast .mobile-bar-fill{background:#000}
 
 @media (max-width:720px){
-  .accessibility-button{display:none}
+  .accessibility-button{
+    display:inline-flex;
+    width:40px;
+    min-height:36px;
+    padding:0;
+    font-size:0;
+    border-color:rgba(255,255,255,.75)
+  }
+  .accessibility-button::before{content:"Aa";font-size:13px;font-weight:700}
   .accessibility-panel{top:66px;left:14px;right:14px}
   .primary-nav.open .nav-cta{grid-column:1/-1}
   .echart{display:none}
@@ -432,3 +440,8 @@ th{background:var(--forest);color:#fff}
   .card-heading p{line-height:1.35}
   .chart-summary{font-size:12px}
 }
+
+/* Stronger visual differentiation for accessible chart reading */
+.echart{min-height:270px}
+.chart-summary{color:#38463b}
+.metric-source,.source-line,.source-card p,.section-heading p{color:#38463b}
