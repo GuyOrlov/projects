@@ -1,4 +1,4 @@
-const ISSUE_DATA_URL = "data/issues.json?v=20261003-evidence-v2";
+const ISSUE_DATA_URL = "data/issues.json?v=20261003-plain-english-v1";
 const SOURCE_DATA_URL = "data/sources.json?v=20261003-evidence-v2";
 
 document.addEventListener("DOMContentLoaded", initIssues);
@@ -13,7 +13,7 @@ async function initIssues(){
   }catch(error){
     console.error(error);
     document.querySelectorAll(".issue-evidence-list").forEach(function(el){
-      el.innerHTML='<p class="load-error">Evidence cards could not be loaded. Source links remain available from the main page.</p>';
+      el.innerHTML='<p class="load-error">We could not load these figures. You can still find the sources on the main page.</p>';
     });
   }
 }
@@ -38,7 +38,7 @@ function renderIssueEvidence(items,sources){
         '<p>' + esc(item.detail) + '</p>' +
         '<small>' + esc(item.geography + " · " + item.period) + '</small>' +
         (item.caveat?'<details class="evidence-caveat"><summary>What this does not tell us</summary><p>'+esc(item.caveat)+'</p></details>':'') +
-        (source?'<a class="evidence-source-link" href="'+attr(source.url)+'" target="_blank" rel="noopener">Open source ↗</a>':'') +
+        (source?'<a class="evidence-source-link" href="'+attr(source.url)+'" target="_blank" rel="noopener">View source ↗</a>':'') +
       '</article>';
     }).join("");
   });
