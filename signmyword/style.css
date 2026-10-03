@@ -6317,3 +6317,86 @@ summary:focus-visible {
   }
 }
 /* End closer share preview */
+
+
+/* SignMyWord export footer + flag/icon sizing — 2026-10-03 */
+.share-card__footer-copy {
+  display: flex !important;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: nowrap !important;
+  min-width: 0;
+}
+
+.share-card__footer-copy strong,
+.share-card__footer-copy span {
+  display: inline !important;
+  white-space: nowrap !important;
+}
+
+.share-card__footer-copy span {
+  font-weight: 600;
+}
+
+.share-card__language {
+  gap: 12px;
+  padding: 12px 18px;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.share-card__language .share-flag-svg,
+.share-card__language .flag-icon {
+  width: 50px !important;
+  height: 32px !important;
+  flex: 0 0 50px !important;
+  border-radius: 5px;
+}
+
+.share-card__emoji-badge {
+  width: 50px !important;
+  height: 50px !important;
+  flex: 0 0 50px !important;
+  border-radius: 14px;
+  object-fit: contain;
+}
+
+.share-card--format-square .share-card__language .share-flag-svg,
+.share-card--format-square .share-card__language .flag-icon {
+  width: 46px !important;
+  height: 30px !important;
+  flex-basis: 46px !important;
+}
+
+.share-card--format-square .share-card__emoji-badge {
+  width: 50px !important;
+  height: 50px !important;
+  flex-basis: 50px !important;
+}
+
+.share-card--format-story .share-card__language .share-flag-svg,
+.share-card--format-story .share-card__language .flag-icon {
+  width: 56px !important;
+  height: 36px !important;
+  flex-basis: 56px !important;
+}
+
+.share-card--format-story .share-card__emoji-badge {
+  width: 58px !important;
+  height: 58px !important;
+  flex-basis: 58px !important;
+}
+
+/* Keep footer copy on one row without crowding the QR code. */
+.share-card__footer {
+  gap: 18px;
+}
+
+.share-card__footer-copy {
+  flex: 1 1 auto;
+}
+
+.share-card__qr {
+  flex: 0 0 auto;
+}
+/* End export footer + flag/icon sizing */
