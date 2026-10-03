@@ -24,7 +24,8 @@
       "period": "Apr–Jun 2025",
       "source": "employment",
       "evidenceType": "Official statistical analysis",
-      "caveat": "This covers people aged 16 to 64. The latest year-on-year change was small enough that it may be due to normal survey variation."
+      "caveat": "This covers people aged 16 to 64. The latest year-on-year change was small enough that it may be due to normal survey variation.",
+      "freshness": "Recent data"
     },
     {
       "id": "employment-gap",
@@ -37,7 +38,8 @@
       "period": "Apr–Jun 2025",
       "source": "employment",
       "evidenceType": "Official statistical analysis",
-      "caveat": "The gap shows that the rates are different. It does not tell us, by itself, why they are different."
+      "caveat": "The gap shows that the rates are different. It does not tell us, by itself, why they are different.",
+      "freshness": "Recent data"
     },
     {
       "id": "low-income-ahc",
@@ -50,7 +52,8 @@
       "period": "FYE 2025",
       "source": "hbai-2025",
       "evidenceType": "Official statistical analysis",
-      "caveat": "The figures show a link between disability in the family and low income. Other factors may also explain part of the difference."
+      "caveat": "The figures show a link between disability in the family and low income. Other factors may also explain part of the difference.",
+      "freshness": "Recent data"
     },
     {
       "id": "low-income-bhc",
@@ -63,7 +66,8 @@
       "period": "FYE 2025",
       "source": "hbai-2025",
       "evidenceType": "Official statistical analysis",
-      "caveat": "Changes to the disability questions can affect comparisons with earlier years."
+      "caveat": "Changes to the disability questions can affect comparisons with earlier years.",
+      "freshness": "Recent data"
     },
     {
       "id": "pip-caseload",
@@ -76,7 +80,8 @@
       "period": "31 Jul 2026",
       "source": "pip",
       "evidenceType": "Administrative statistics",
-      "caveat": "This is not a count of all disabled people. It also does not include people receiving Scotland’s Adult Disability Payment."
+      "caveat": "This is not a count of all disabled people. It also does not include people receiving Scotland’s Adult Disability Payment.",
+      "freshness": "Latest / recent"
     },
     {
       "id": "uc-health",
@@ -89,7 +94,8 @@
       "period": "Jun 2026",
       "source": "uc-health-2026",
       "evidenceType": "Administrative statistics",
-      "caveat": "This is a benefits figure. It is not a measure of healthcare access or a count of all disabled people."
+      "caveat": "This is a benefits figure. It is not a measure of healthcare access or a count of all disabled people.",
+      "freshness": "Latest / recent"
     },
     {
       "id": "transport-trips",
@@ -102,7 +108,8 @@
       "period": "2025",
       "source": "nts-disability-2025",
       "evidenceType": "Accredited official statistics / survey",
-      "caveat": "The survey shows how often people travelled, but not why the difference exists. It also leaves out people living in care homes and some other communal settings."
+      "caveat": "The survey shows how often people travelled, but not why the difference exists. It also leaves out people living in care homes and some other communal settings.",
+      "freshness": "Recent data"
     },
     {
       "id": "ehc-plan",
@@ -115,7 +122,8 @@
       "period": "2025/26",
       "source": "sen-2026",
       "evidenceType": "Accredited official statistics",
-      "caveat": "Having an EHC plan is not the same as being counted as disabled in other datasets."
+      "caveat": "Having an EHC plan is not the same as being counted as disabled in other datasets.",
+      "freshness": "Latest / recent"
     },
     {
       "id": "sen-support",
@@ -128,7 +136,8 @@
       "period": "2025/26",
       "source": "sen-2026",
       "evidenceType": "Accredited official statistics",
-      "caveat": "SEN is a school support category. It should not be used as a direct count of disabled pupils."
+      "caveat": "SEN is a school support category. It should not be used as a direct count of disabled pupils.",
+      "freshness": "Latest / recent"
     },
     {
       "id": "disability-hate-crime",
@@ -141,7 +150,8 @@
       "period": "Year ending Mar 2025",
       "source": "hate-crime-2025",
       "evidenceType": "Official statistics / police-recorded crime",
-      "caveat": "Not every incident is reported to the police. Changes in reporting and recording can also affect the number."
+      "caveat": "Not every incident is reported to the police. Changes in reporting and recording can also affect the number.",
+      "freshness": "Recent data"
     },
     {
       "id": "civic-engagement",
@@ -154,7 +164,8 @@
       "period": "2025/26",
       "source": "civic-2026",
       "evidenceType": "Official statistics / survey",
-      "caveat": "Disability status is self-reported. This measures participation, not accessibility or discrimination."
+      "caveat": "Disability status is self-reported. This measures participation, not accessibility or discrimination.",
+      "freshness": "Latest / recent"
     },
     {
       "id": "housing-social-rent",
@@ -223,7 +234,8 @@
       "period": "Current approach",
       "source": null,
       "evidenceType": "Scope note",
-      "caveat": "A future health section should use direct data about health services, outcomes or care, with clear definitions of who is included."
+      "caveat": "A future health section should use direct data about health services, outcomes or care, with clear definitions of who is included.",
+      "freshness": "Check period"
     },
     {
       "id": "type-children-social-behavioural",
@@ -236,7 +248,8 @@
       "period": "2024–25",
       "source": "frs",
       "evidenceType": "Survey estimate",
-      "caveat": "Children can have more than one impairment. This percentage should not be added to other impairment percentages."
+      "caveat": "Children can have more than one impairment. This percentage should not be added to other impairment percentages.",
+      "freshness": "Recent data"
     },
     {
       "id": "type-working-age-mental-health",
@@ -249,7 +262,8 @@
       "period": "2024–25",
       "source": "frs",
       "evidenceType": "Survey estimate",
-      "caveat": "People can report more than one impairment. This age group should not be directly compared with children or pension-age adults as if they were the same population."
+      "caveat": "People can report more than one impairment. This age group should not be directly compared with children or pension-age adults as if they were the same population.",
+      "freshness": "Recent data"
     },
     {
       "id": "type-pension-age-mobility",
@@ -262,7 +276,8 @@
       "period": "2024–25",
       "source": "frs",
       "evidenceType": "Survey estimate",
-      "caveat": "People can report more than one impairment. This age group should not be directly compared with younger groups as if they were the same population."
+      "caveat": "People can report more than one impairment. This age group should not be directly compared with younger groups as if they were the same population.",
+      "freshness": "Recent data"
     }
   ]
 }
