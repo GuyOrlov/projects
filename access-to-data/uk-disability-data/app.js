@@ -182,9 +182,7 @@ function renderBsl(){
     }).join("");
   }
 
-  renderMobileBars("bslMobileBars", rows.map(function(r){
-    return {label:r.tooltipLabel || r.label,value:r.value,display:r.display,subline:r.geography + (r.period ? " · " + r.period : "")};
-  }), 160);
+  renderBslBars(rows);
 
   const definitionList = document.getElementById("bslDefinitionList");
   if(definitionList){
@@ -208,7 +206,6 @@ function renderBsl(){
   const onsLink = document.getElementById("bslOnsSourceLink");
   if(govLink && gov) govLink.href = gov.url;
   if(onsLink && ons) onsLink.href = ons.url;
-  drawBslChart(rows);
 }
 
 function renderSources(){
@@ -304,88 +301,31 @@ function renderMobileBars(elementId,rows,maxValue){
   }).join("");
 }
 
-function drawBslChart(rows){
-  if(typeof echarts === "undefined") return;
-  const element = document.getElementById("bslChart");
-  if(!element) return;
-  let chart = charts.get("bsl");
-  if(!chart){
-    chart = echarts.init(element,null,{renderer:"canvas"});
-    charts.set("bsl",chart);
-  }
-  const highContrast = document.body.classList.contains("high-contrast");
-  const ink = highContrast ? "#000000" : "#163300";
-  const muted = highContrast ? "#111111" : "#38463b";
-  const track = highContrast ? "#fff9a8" : "#e5f8d7";
-
-  chart.setOption({
-    animation: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    aria:{enabled:true,decal:{show:false}},
-    tooltip:{
-      trigger:"item",
-      confine:true,
-      backgroundColor:"#ffffff",
-      borderColor:highContrast ? "#000000" : "#9fe870",
-      borderWidth:2,
-      padding:0,
-      extraCssText:"border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.18);max-width:310px;",
-      textStyle:{color:ink,fontFamily:"Atkinson Hyperlegible, Arial, sans-serif"},
-      formatter:function(params){
-        const row = rows[params.dataIndex];
-        const source = sourceById(row.source);
-        return '<div class="bsl-tooltip">' +
-          '<div class="bsl-tooltip-title">' + escapeHtml(row.tooltipLabel || row.label) + '</div>' +
-          '<div class="bsl-tooltip-value">' + escapeHtml(row.value === 22 ? "22,000" : row.value === 87 ? "87,000" : row.value === 151 ? "151,000" : row.display) + '</div>' +
-          '<div class="bsl-tooltip-meta"><strong>Area:</strong> ' + escapeHtml(row.geography) + '</div>' +
-          '<div class="bsl-tooltip-meta"><strong>Type:</strong> ' + escapeHtml(row.type || "") + '</div>' +
-          '<div class="bsl-tooltip-definition">' + escapeHtml(row.definition) + '</div>' +
-          '<div class="bsl-tooltip-source">Source: ' + escapeHtml(source ? source.shortName : row.source) + '</div>' +
-          '</div>';
-      }
-    },
-    grid:{left:285,right:58,top:10,bottom:10,containLabel:false},
-    xAxis:{
-      type:"value",
-      max:160,
-      axisLabel:{show:false},
-      axisLine:{show:false},
-      splitLine:{show:false},
-      axisTick:{show:false}
-    },
-    yAxis:{
-      type:"category",
-      inverse:true,
-      data:rows.map(function(row){return row.tooltipLabel || row.label;}),
-      axisLine:{show:false},
-      axisTick:{show:false},
-      axisLabel:{
-        color:ink,
-        fontWeight:700,
-        fontSize:14,
-        lineHeight:18,
-        width:245,
-        overflow:"break",
-        align:"right",
-        margin:16
-      }
-    },
-    series:[{
-      type:"bar",
-      data:rows.map(function(row){return row.value;}),
-      barWidth:22,
-      showBackground:true,
-      backgroundStyle:{color:track,borderRadius:10},
-      itemStyle:{color:ink,borderRadius:10},
-      label:{
-        show:true,
-        position:"right",
-        formatter:function(params){return rows[params.dataIndex].display;},
-        color:muted,
-        fontWeight:700,
-        fontSize:13
-      }
-    }]
-  },true);
+function renderBslBars(rows){
+  const list = document.getElementById("bslBarList");
+  if(!list) return;
+  const maxValue = 160;
+  list.innerHTML = rows.map(function(row,index){
+    const width = Math.max(4,Math.min(100,(row.value/maxValue)*100));
+    const fullValue = row.value === 151 ? "151,000" : row.value === 87 ? "87,000" : row.value === 22 ? "22,000" : row.display;
+    const source = sourceById(row.source);
+    return '<div class="bsl-bar-row" tabindex="0" aria-describedby="bsl-tip-' + index + '">' +
+      '<div class="bsl-bar-label-row">' +
+        '<div class="bsl-bar-label">' + escapeHtml(row.tooltipLabel || row.label) + '</div>' +
+        '<strong class="bsl-bar-value">' + escapeHtml(row.display) + '</strong>' +
+      '</div>' +
+      '<div class="bsl-bar-meta">' + escapeHtml(row.geography + " · " + row.period) + '</div>' +
+      '<div class="bsl-bar-track" aria-hidden="true"><div class="bsl-bar-fill" style="width:' + width.toFixed(1) + '%"></div></div>' +
+      '<div class="bsl-html-tooltip" role="tooltip" id="bsl-tip-' + index + '">' +
+        '<div class="bsl-tooltip-title">' + escapeHtml(row.tooltipLabel || row.label) + '</div>' +
+        '<div class="bsl-tooltip-value">' + escapeHtml(fullValue) + '</div>' +
+        '<div class="bsl-tooltip-meta"><strong>Area:</strong> ' + escapeHtml(row.geography) + '</div>' +
+        '<div class="bsl-tooltip-meta"><strong>Type:</strong> ' + escapeHtml(row.type || "") + '</div>' +
+        '<div class="bsl-tooltip-definition">' + escapeHtml(row.definition) + '</div>' +
+        '<div class="bsl-tooltip-source">Source: ' + escapeHtml(source ? source.shortName : row.source) + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
 }
 
 function bindBslShare(){
