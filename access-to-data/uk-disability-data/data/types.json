@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "title": "Disability types and impairments",
+    "period": "2024–25",
+    "geography": "UK",
+    "source": "frs",
+    "sourceUrl": "https://www.gov.uk/government/statistics/family-resources-survey-financial-year-2024-to-2025/family-resources-survey-financial-year-2024-to-2025",
+    "lastChecked": "2026-10-03",
+    "note": "The published FRS summary gives the three most commonly reported impairment types for each age group. People can report more than one impairment, so percentages can overlap."
+  },
+  "groups": [
+    {
+      "id": "children",
+      "label": "Disabled children",
+      "shortLabel": "Children",
+      "rows": [
+        {
+          "label": "Social or behavioural",
+          "value": 61,
+          "definitionId": "social-behavioural"
+        },
+        {
+          "label": "Learning",
+          "value": 32,
+          "definitionId": "learning"
+        },
+        {
+          "label": "Mental health",
+          "value": 26,
+          "definitionId": "mental-health"
+        }
+      ]
+    },
+    {
+      "id": "working-age",
+      "label": "Working-age disabled adults",
+      "shortLabel": "Working age",
+      "rows": [
+        {
+          "label": "Mental health",
+          "value": 46,
+          "definitionId": "mental-health"
+        },
+        {
+          "label": "Mobility",
+          "value": 40,
+          "definitionId": "mobility"
+        },
+        {
+          "label": "Stamina, breathing or fatigue",
+          "value": 33,
+          "definitionId": "stamina"
+        }
+      ]
+    },
+    {
+      "id": "pension-age",
+      "label": "Disabled pension-age adults",
+      "shortLabel": "Pension age",
+      "rows": [
+        {
+          "label": "Mobility",
+          "value": 68,
+          "definitionId": "mobility"
+        },
+        {
+          "label": "Stamina, breathing or fatigue",
+          "value": 45,
+          "definitionId": "stamina"
+        },
+        {
+          "label": "Dexterity",
+          "value": 34,
+          "definitionId": "dexterity"
+        }
+      ]
+    }
+  ],
+  "definitions": [
+    {
+      "id": "mobility",
+      "label": "Mobility",
+      "text": "Difficulties with moving around, walking or getting from place to place."
+    },
+    {
+      "id": "stamina",
+      "label": "Stamina, breathing or fatigue",
+      "text": "Long-term difficulties with energy, breathing, stamina or fatigue that affect everyday activities."
+    },
+    {
+      "id": "dexterity",
+      "label": "Dexterity",
+      "text": "Difficulties using hands or fingers for everyday tasks."
+    },
+    {
+      "id": "learning",
+      "label": "Learning",
+      "text": "Difficulties with learning, understanding or processing information."
+    },
+    {
+      "id": "mental-health",
+      "label": "Mental health",
+      "text": "Long-term mental health difficulties that substantially affect everyday activities."
+    },
+    {
+      "id": "social-behavioural",
+      "label": "Social or behavioural",
+      "text": "Long-term social or behavioural difficulties that substantially affect everyday activities."
+    },
+    {
+      "id": "memory",
+      "label": "Memory",
+      "text": "Difficulties remembering information or events."
+    },
+    {
+      "id": "vision",
+      "label": "Vision",
+      "text": "Long-term sight or visual difficulties."
+    },
+    {
+      "id": "hearing",
+      "label": "Hearing",
+      "text": "Long-term hearing difficulties."
+    },
+    {
+      "id": "communication",
+      "label": "Communication",
+      "text": "Difficulties communicating, speaking or being understood."
+    },
+    {
+      "id": "other-multiple",
+      "label": "Other / multiple impairments",
+      "text": "Some people have an impairment not captured by a single broad label, or report more than one impairment."
+    }
+  ]
+}
