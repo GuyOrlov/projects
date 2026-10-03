@@ -6400,3 +6400,114 @@ summary:focus-visible {
   flex: 0 0 auto;
 }
 /* End export footer + flag/icon sizing */
+
+
+/* SignMyWord export wordmark + in-box letters + brand icon — 2026-10-03 */
+.share-card__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.share-card__brand-name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 8px 22px rgba(16,42,86,.08);
+}
+
+.share-card__brand-sign {
+  color: #1479f8;
+}
+
+.share-card__brand-word {
+  color: #102a56;
+}
+
+.share-card__brand .share-card__emoji-badge {
+  margin: 0;
+}
+
+/* The icon now belongs to the SignMyWord brand row, not the title row. */
+.share-card__title-row {
+  display: block;
+}
+
+.share-card__title-row .share-card__title {
+  width: 100%;
+  max-width: 940px;
+}
+
+/* Put A–Z directly inside the SVG/hand box. */
+.share-card__letter {
+  padding: 8px !important;
+}
+
+.share-card__letter-box {
+  position: relative;
+  overflow: hidden;
+}
+
+.share-card__letter-name {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  margin: 0 !important;
+  min-width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0 8px;
+  border: 1px solid rgba(16,42,86,.12);
+  border-radius: 10px;
+  background: rgba(255,255,255,.94);
+  color: #102a56;
+  box-shadow: 0 4px 12px rgba(16,42,86,.08);
+  font-size: 24px !important;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.share-card--dense .share-card__letter-name {
+  top: 7px;
+  left: 7px;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 20px !important;
+}
+
+.share-card--very-dense .share-card__letter-name,
+.share-card--format-square .share-card__letter-name {
+  top: 6px;
+  left: 6px;
+  min-width: 27px;
+  height: 27px;
+  padding: 0 6px;
+  border-radius: 7px;
+  font-size: 18px !important;
+}
+
+.share-card--phrase .share-card__word-letters .share-card__letter-name {
+  top: 6px;
+  left: 6px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 7px;
+  font-size: 18px !important;
+}
+
+.share-card--format-story .share-card__letter-name {
+  top: 10px;
+  left: 10px;
+  min-width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 25px !important;
+}
+/* End export wordmark + in-box letters + brand icon */
