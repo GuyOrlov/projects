@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261003-2125">
+  <link rel="stylesheet" href="./style.css?v=20261003-2205">
 </head>
 <body>
   <header class="site-shell header">
@@ -138,11 +138,11 @@
         <button class="image-modal__close" id="close-image-modal" type="button" aria-label="Close image maker">×</button>
       </div>
 
-      <details class="image-customise" id="image-customise" open>
-        <summary class="image-customise__summary">
-          <span>Customise</span>
-          <span class="image-customise__hint" id="image-customise-hint">Light · Portrait</span>
-        </summary>
+      <section class="image-customise" id="image-customise" aria-label="Customise exported image">
+        <div class="image-customise__heading">
+          <strong>Customise your image</strong>
+          <span class="image-customise__hint" id="image-customise-hint">Light · Portrait · Auto</span>
+        </div>
         <div class="image-customise__body">
           <div class="image-style-picker" aria-label="Choose image style">
             <span class="image-style-picker__label">Theme</span>
@@ -167,7 +167,7 @@
             <button class="image-icon-pill" type="button" data-card-icon-mode="none" aria-pressed="false">None</button>
           </div>
         </div>
-      </details>
+      </section>
 
       <div class="share-image-preview-wrap">
         <div class="share-image-loading" id="share-image-loading">Creating preview…</div>
@@ -214,6 +214,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="./blocked-words.js" defer></script>
-  <script src="./app.js?v=20261003-1735" defer></script>
+  <script src="./app.js?v=20261003-2205" defer></script>
 </body>
 </html>
