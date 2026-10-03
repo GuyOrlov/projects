@@ -343,7 +343,7 @@ function drawBslChart(rows){
           '</div>';
       }
     },
-    grid:{left:230,right:54,top:24,bottom:18,containLabel:false},
+    grid:{left:285,right:58,top:10,bottom:10,containLabel:false},
     xAxis:{
       type:"value",
       max:160,
@@ -361,12 +361,12 @@ function drawBslChart(rows){
       axisLabel:{
         color:ink,
         fontWeight:700,
-        fontSize:13,
-        lineHeight:17,
-        width:205,
+        fontSize:14,
+        lineHeight:18,
+        width:245,
         overflow:"break",
-        align:"left",
-        margin:18
+        align:"right",
+        margin:16
       }
     },
     series:[{

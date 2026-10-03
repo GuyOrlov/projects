@@ -478,7 +478,7 @@ th{background:var(--forest);color:#fff}
   font-size:11px;
   font-weight:700;
 }
-.bsl-echart{height:300px;margin-top:18px}
+.bsl-echart{height:230px;margin-top:10px}
 .bsl-explainer{
   margin-top:18px;
   padding:18px;
@@ -561,4 +561,11 @@ th{background:var(--forest);color:#fff}
   .bsl-echart{display:none}
   .bsl-mobile-bars{display:block}
   .bsl-definition-item strong span{font-size:22px}
+}
+
+/* BSL desktop chart spacing fix */
+@media (min-width:721px){
+  .bsl-story-card .chart-panel{margin-top:8px}
+  .bsl-story-card .card-heading{margin-bottom:2px}
+  .bsl-story-card .echart canvas{outline:none}
 }
