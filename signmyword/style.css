@@ -1,21 +1,30 @@
 :root {
+  /* SignMyWord brand tokens — Fluent-style UI + Material-style tonal surfaces */
   --smw-bg-base: #ffffff;
-  --smw-bg-subtle: #f7faff;
-  --smw-bg-blue-soft: #eef6ff;
-  --smw-bg-green-soft: #ecfbf5;
-  --smw-bg-purple-soft: #f6f0ff;
+  --smw-bg-page: #f8fafc;
+  --smw-bg-subtle: #f8fafc;
+  --smw-bg-blue-soft: #eff6ff;
+  --smw-bg-green-soft: #ecfdf8;
+  --smw-bg-purple-soft: #f5f3ff;
   --smw-text-primary: #102a56;
-  --smw-text-secondary: #55709a;
-  --smw-blue: #1479f8;
-  --smw-teal: #0fa7a0;
-  --smw-purple: #7b3ff2;
-  --smw-whatsapp: #17b85c;
-  --smw-border: #d7e3f4;
+  --smw-text-body: #172033;
+  --smw-text-secondary: #52657d;
+  --smw-blue: #2563eb;
+  --smw-blue-hover: #1d4ed8;
+  --smw-blue-pressed: #1e40af;
+  --smw-teal: #0f9f94;
+  --smw-teal-dark: #0f766e;
+  --smw-purple: #7c3aed;
+  --smw-purple-hover: #6d28d9;
+  --smw-whatsapp: #15803d;
+  --smw-border: #d9e2ef;
+  --smw-border-strong: #cbd5e1;
   --smw-radius-md: 12px;
   --smw-radius-lg: 18px;
   --smw-radius-xl: 24px;
   --smw-radius-full: 999px;
-  --smw-shadow: 0 12px 30px rgba(16, 42, 86, 0.08);
+  --smw-shadow: 0 12px 32px rgba(16, 42, 86, 0.08);
+  --smw-shadow-hover: 0 16px 40px rgba(16, 42, 86, 0.12);
 }
 
 * {
@@ -5549,3 +5558,258 @@ select {
   }
 }
 /* End SignMyWord desktop visibility final fix */
+
+
+/* SignMyWord brand system — Fluent 2 structure + Material tonal colour — 2026-10-03 */
+body {
+  background: var(--smw-bg-page);
+  color: var(--smw-text-body);
+  font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", Arial, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, .28) !important;
+  outline-offset: 3px;
+}
+
+.header {
+  background: rgba(255,255,255,.96);
+  border-bottom: 1px solid rgba(217,226,239,.9);
+}
+
+.brand {
+  color: var(--smw-text-primary);
+}
+
+.brand__accent {
+  color: var(--smw-blue) !important;
+}
+
+.brand__word {
+  color: var(--smw-text-primary) !important;
+}
+
+.brand-tagline {
+  color: var(--smw-text-secondary) !important;
+}
+
+.language-pill {
+  border-color: var(--smw-border);
+  background: #fff;
+  color: var(--smw-text-primary);
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.language-pill:hover:not(:disabled) {
+  border-color: #93b4ff;
+  background: var(--smw-bg-blue-soft);
+}
+
+.language-pill--active {
+  border-color: var(--smw-blue) !important;
+  background: var(--smw-blue) !important;
+  color: #fff !important;
+  box-shadow: 0 3px 10px rgba(37,99,235,.18);
+}
+
+.marketing-hero {
+  background:
+    radial-gradient(circle at 82% 16%, rgba(15,159,148,.12), transparent 26%),
+    radial-gradient(circle at 18% 84%, rgba(124,58,237,.08), transparent 30%),
+    linear-gradient(135deg, #eff6ff 0%, #ffffff 54%, #f5f3ff 100%) !important;
+  border-block-color: #e2e8f0 !important;
+}
+
+.marketing-hero h1,
+.result-section__heading h2,
+.image-modal__header h2 {
+  color: var(--smw-text-primary);
+}
+
+.marketing-hero__intro,
+.result-section .output-meta,
+.image-modal__status {
+  color: var(--smw-text-secondary);
+}
+
+.word-input,
+.hero-word-input {
+  border-color: var(--smw-border-strong) !important;
+  background: #fff !important;
+  color: var(--smw-text-body) !important;
+  box-shadow: 0 1px 2px rgba(16,42,86,.04);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.word-input:focus,
+.hero-word-input:focus {
+  border-color: var(--smw-blue) !important;
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12) !important;
+  outline: 0 !important;
+}
+
+.button {
+  transition: transform 120ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button--primary,
+.hero-go {
+  background: var(--smw-blue) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(37,99,235,.18);
+}
+
+.button--primary:hover,
+.hero-go:hover {
+  background: var(--smw-blue-hover) !important;
+}
+
+.button--primary:active,
+.hero-go:active {
+  background: var(--smw-blue-pressed) !important;
+}
+
+.button--secondary {
+  border: 1px solid var(--smw-border) !important;
+  background: #fff !important;
+  color: var(--smw-blue) !important;
+}
+
+.button--secondary:hover {
+  border-color: #93b4ff !important;
+  background: var(--smw-bg-blue-soft) !important;
+}
+
+.button--image,
+.primary-share-actions__image {
+  background: var(--smw-purple) !important;
+  color: #fff !important;
+  border-color: var(--smw-purple) !important;
+}
+
+.button--image:hover,
+.primary-share-actions__image:hover {
+  background: var(--smw-purple-hover) !important;
+  border-color: var(--smw-purple-hover) !important;
+}
+
+.panel,
+.result-section,
+.image-modal__dialog {
+  border-color: var(--smw-border) !important;
+}
+
+.panel--input {
+  background: var(--smw-bg-blue-soft) !important;
+}
+
+.panel--output {
+  background: var(--smw-bg-green-soft) !important;
+}
+
+.panel--share {
+  background: var(--smw-bg-purple-soft) !important;
+}
+
+.result-section {
+  background: #fff !important;
+  box-shadow: var(--smw-shadow) !important;
+}
+
+.result-section:hover {
+  box-shadow: var(--smw-shadow-hover);
+}
+
+.result-section .output-language {
+  border-color: #cfe1ff !important;
+  background: var(--smw-bg-blue-soft) !important;
+  color: var(--smw-text-primary) !important;
+}
+
+.result-section .letter-card {
+  border-color: #dbeafe !important;
+  background: #eff6ff !important;
+}
+
+.result-section .letter-card__image {
+  border-color: #d9e2ef !important;
+  background: #fff !important;
+}
+
+.popular-word,
+.example-chip,
+.image-style-pill,
+.image-format-pill,
+.image-icon-pill {
+  border-color: var(--smw-border) !important;
+  color: var(--smw-text-primary);
+}
+
+.popular-word:hover,
+.example-chip:hover,
+.image-style-pill:hover,
+.image-format-pill:hover,
+.image-icon-pill:hover {
+  border-color: #93b4ff !important;
+  background: var(--smw-bg-blue-soft);
+}
+
+.image-style-pill--active,
+.image-format-pill--active,
+.image-icon-pill--active {
+  border-color: var(--smw-blue) !important;
+  background: var(--smw-bg-blue-soft) !important;
+  color: var(--smw-blue) !important;
+  box-shadow: inset 0 0 0 1px var(--smw-blue);
+}
+
+.image-customise__body {
+  border-color: var(--smw-border) !important;
+  background: #fff !important;
+}
+
+.image-style-picker__label,
+.image-format-picker__label,
+.image-icon-picker__label {
+  color: var(--smw-text-secondary) !important;
+}
+
+.legal-footer {
+  border-top-color: var(--smw-border);
+  background: #fff;
+}
+
+.share-card--light {
+  background: linear-gradient(145deg, #eff6ff 0%, #ffffff 55%, #f5f3ff 100%) !important;
+  color: var(--smw-text-primary) !important;
+}
+
+.share-card--light .share-card__language {
+  background: rgba(37,99,235,.10) !important;
+  color: var(--smw-blue) !important;
+}
+
+@media (max-width: 760px) {
+  body {
+    background: #fff;
+  }
+
+  .header {
+    background: #fff;
+  }
+}
+/* End SignMyWord brand system */
