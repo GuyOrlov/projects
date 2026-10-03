@@ -4164,3 +4164,200 @@ select {
   }
 }
 /* End SignMyWord desktop customise theme previews */
+
+
+/* SignMyWord image step UX polish — 2026-10-03 */
+.image-modal__header {
+  min-height: 72px;
+}
+
+.image-modal__eyebrow {
+  display: none !important;
+}
+
+.image-modal__header h2 {
+  margin: 0;
+}
+
+.share-image-preview-wrap {
+  display: flex !important;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.share-image-preview {
+  width: 92% !important;
+  max-width: 720px !important;
+  height: auto !important;
+  max-height: none !important;
+  flex: 0 0 auto;
+  border: 1px solid var(--smw-border);
+  box-shadow: 0 12px 32px rgba(16,42,86,.08);
+}
+
+.image-modal__actions {
+  width: min(100%, 720px);
+  margin: 22px auto 0 !important;
+}
+
+.image-modal__actions #share-image-file {
+  background: var(--smw-blue);
+  color: #fff;
+  border-color: var(--smw-blue);
+}
+
+.image-modal__actions #download-share-image {
+  background: #fff;
+  color: var(--smw-blue);
+  border: 1px solid var(--smw-border);
+}
+
+.image-customise {
+  width: min(100%, 720px);
+  margin: 14px auto 0 !important;
+}
+
+.image-customise__summary {
+  padding-inline: 16px !important;
+}
+
+.image-customise__hint {
+  color: var(--smw-text-secondary);
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.image-style-picker__label {
+  grid-column: 1 / -1;
+  margin: 0 0 1px;
+  color: var(--smw-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.image-customise[open] .image-style-picker {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin: 12px 0 14px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+.image-customise[open] .image-style-pill {
+  min-height: 42px !important;
+  border-radius: 12px !important;
+  padding: 6px 7px !important;
+  font-size: 11px !important;
+  box-shadow: inset 0 0 0 1px rgba(16,42,86,.12);
+}
+
+.image-customise[open] .image-style-pill.image-style-pill--active {
+  outline: 2px solid var(--smw-blue) !important;
+  outline-offset: 2px !important;
+}
+
+.image-customise[open] .image-format-picker {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  width: 100%;
+  margin: 0 !important;
+  padding-top: 12px !important;
+  border-top: 1px solid var(--smw-border);
+  border-radius: 12px;
+}
+
+.image-customise[open] .image-format-picker__label {
+  grid-column: 1 / -1;
+  margin: 0 0 8px !important;
+  color: var(--smw-text-secondary);
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.image-customise[open] .image-format-pill {
+  min-height: 40px !important;
+  width: 100%;
+  margin: 0 !important;
+  padding: 7px 5px !important;
+  border-radius: 0 !important;
+  border-right-width: 0 !important;
+  font-size: 11px !important;
+}
+
+.image-customise[open] .image-format-pill:first-of-type {
+  border-radius: 12px 0 0 12px !important;
+}
+
+.image-customise[open] .image-format-pill:last-of-type {
+  border-radius: 0 12px 12px 0 !important;
+  border-right-width: 1px !important;
+}
+
+.image-customise[open] .image-format-pill--active {
+  position: relative;
+  z-index: 1;
+  border-color: var(--smw-blue) !important;
+  border-right-width: 1px !important;
+  background: var(--smw-bg-blue-soft) !important;
+}
+
+.image-attribution {
+  margin: 16px auto 8px !important;
+  text-align: center;
+  font-size: 10px !important;
+}
+
+.image-attribution a {
+  color: #7a8eac !important;
+  text-decoration-thickness: 1px;
+}
+
+@media (max-width: 760px) {
+  .image-modal__header {
+    min-height: 64px;
+  }
+
+  .image-modal__header h2 {
+    font-size: 22px !important;
+  }
+
+  .share-image-preview-wrap {
+    margin-top: 20px !important;
+  }
+
+  .share-image-preview {
+    width: 92% !important;
+    border-radius: 16px !important;
+  }
+
+  .image-modal__actions {
+    gap: 10px !important;
+    margin-top: 22px !important;
+  }
+
+  .image-modal__actions .button {
+    min-height: 50px !important;
+    font-size: 15px !important;
+  }
+
+  .image-customise__summary {
+    min-height: 50px !important;
+  }
+}
+
+@media (min-width: 761px) {
+  .image-modal__actions {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  }
+
+  .image-customise[open] .image-style-picker {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+}
+/* End SignMyWord image step UX polish */
