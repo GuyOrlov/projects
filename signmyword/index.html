@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261003-0958">
+  <link rel="stylesheet" href="./style.css?v=20261003-uxpolish">
 </head>
 <body>
   <header class="site-shell header">
@@ -164,7 +164,6 @@
     <section class="image-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="image-modal-title">
       <div class="image-modal__header">
         <div>
-          <p class="image-modal__eyebrow">Shareable image</p>
           <h2 id="image-modal-title"><span class="image-title-desktop">Share your fingerspelling</span><span class="image-title-mobile">Your image</span></h2>
         </div>
         <button class="image-modal__close" id="close-image-modal" type="button" aria-label="Close image maker">×</button>
@@ -173,10 +172,11 @@
       <details class="image-customise" id="image-customise">
         <summary class="image-customise__summary">
           <span>Customise</span>
-          <span class="image-customise__hint">Theme &amp; size</span>
+          <span class="image-customise__hint" id="image-customise-hint">Light · Portrait</span>
         </summary>
         <div class="image-customise__body">
           <div class="image-style-picker" aria-label="Choose image style">
+            <span class="image-style-picker__label">Theme</span>
             <button class="image-style-pill image-style-pill--active" type="button" data-card-style="light" aria-pressed="true">Light</button>
             <button class="image-style-pill" type="button" data-card-style="dark" aria-pressed="false">Dark</button>
             <button class="image-style-pill" type="button" data-card-style="colourful" aria-pressed="false">Colourful</button>
@@ -202,11 +202,11 @@
       <p class="image-modal__status" id="image-modal-status" aria-live="polite"></p>
 
       <div class="image-modal__actions">
-        <button class="button button--primary" id="download-share-image" type="button">Download image</button>
-        <button class="button button--secondary" id="share-image-file" type="button">Share image</button>
+        <button class="button button--primary" id="share-image-file" type="button">Share image</button>
+        <button class="button button--secondary" id="download-share-image" type="button">Download JPG</button>
         <button class="button button--secondary" id="copy-image" type="button">Copy image</button>
       </div>
-      <p class="image-attribution"><a href="./terms.html#artwork">Artwork source &amp; licence information</a></p>
+      <p class="image-attribution"><a href="./terms.html#artwork">Info &amp; licences</a></p>
     </section>
   </div>
 
@@ -236,6 +236,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="./blocked-words.js" defer></script>
-  <script src="./app.js?v=20261003-desktopflow" defer></script>
+  <script src="./app.js?v=20261003-uxpolish" defer></script>
 </body>
 </html>
