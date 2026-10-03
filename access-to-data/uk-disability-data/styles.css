@@ -426,13 +426,19 @@ th{background:var(--forest);color:#fff}
 @media (max-width:720px){
   .accessibility-button{
     display:inline-flex;
-    width:40px;
+    align-items:center;
+    justify-content:center;
+    width:36px;
+    height:36px;
+    min-width:36px;
     min-height:36px;
+    flex:0 0 36px;
     padding:0;
+    border-radius:50%;
     font-size:0;
     border-color:rgba(255,255,255,.75)
   }
-  .accessibility-button::before{content:"Aa";font-size:13px;font-weight:700}
+  .accessibility-button::before{content:"Aa";font-size:12px;line-height:1;font-weight:700}
   .accessibility-panel{top:66px;left:14px;right:14px}
   .primary-nav.open .nav-cta{grid-column:1/-1}
   .echart{display:none}
