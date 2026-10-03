@@ -6293,3 +6293,27 @@ summary:focus-visible {
   }
 }
 /* End permanent image customisation panel */
+
+
+/* SignMyWord closer share preview — 2026-10-03 */
+.share-image-preview-wrap {
+  overflow: hidden !important;
+}
+
+.share-image-preview {
+  width: 106% !important;
+  max-width: none !important;
+  height: auto !important;
+  margin-left: -3%;
+  margin-right: -3%;
+}
+
+/* Keep the close-up subtle on smaller screens. */
+@media (max-width: 760px) {
+  .share-image-preview {
+    width: 104% !important;
+    margin-left: -2%;
+    margin-right: -2%;
+  }
+}
+/* End closer share preview */
