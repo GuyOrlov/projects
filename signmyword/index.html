@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261003-trendflags">
+  <link rel="stylesheet" href="./style.css?v=20261003-trendinghero">
 </head>
 <body>
   <header class="site-shell header">
@@ -65,17 +65,16 @@
         </form>
         <p class="message hero-message" id="form-message" aria-live="polite"></p>
 
-        <div class="hero-examples" aria-label="Example words and phrases">
-          <span>Try:</span>
-          <button class="example-chip" type="button" data-example="I LOVE YOU">I LOVE YOU</button>
-          <button class="example-chip" type="button" data-example="HELLO">HELLO</button>
-          <button class="example-chip" type="button" data-example="THANK YOU">THANK YOU</button>
-          <button class="example-chip example-chip--surprise" id="surprise-word" type="button">Surprise me</button>
-        </div>
-
-        <section class="recent-searches" id="recent-searches" aria-labelledby="recent-searches-title" hidden>
-          <h2 id="recent-searches-title">Recent on this device</h2>
-          <div class="recent-searches__chips" id="recent-searches-chips"></div>
+        <section class="popular-searches popular-searches--hero" id="popular-searches" aria-labelledby="popular-searches-title" hidden>
+          <div class="popular-searches__header">
+            <div>
+              <p class="popular-searches__eyebrow">Trending now</p>
+              <h2 id="popular-searches-title">Popular fingerspelling</h2>
+              <p class="popular-searches__subtitle" id="popular-searches-subtitle">Based on genuine BSL and ASL searches over the last 7 days.</p>
+            </div>
+            <p class="popular-searches__total" id="popular-searches-total"></p>
+          </div>
+          <div class="popular-word-cloud" id="popular-word-cloud" aria-live="polite"></div>
         </section>
       </div>
     </section>
@@ -115,18 +114,6 @@
         <input class="share-url" id="share-url" type="text" readonly>
         <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
       </div>
-    </section>
-
-    <section class="site-shell popular-searches" id="popular-searches" aria-labelledby="popular-searches-title" hidden>
-      <div class="popular-searches__header">
-        <div>
-          <p class="popular-searches__eyebrow">Trending on SignMyWord</p>
-          <h2 id="popular-searches-title">What people are fingerspelling</h2>
-          <p class="popular-searches__subtitle" id="popular-searches-subtitle">Based on genuine BSL and ASL searches from this browser over the last 7 days.</p>
-        </div>
-        <p class="popular-searches__total" id="popular-searches-total"></p>
-      </div>
-      <div class="popular-word-cloud" id="popular-word-cloud" aria-live="polite"></div>
     </section>
 
     <p class="site-shell mobile-disclaimer">Fingerspelling tool · not full sign-language translation</p>
@@ -225,6 +212,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
   <script src="./blocked-words.js" defer></script>
-  <script src="./app.js?v=20261003-trendflags" defer></script>
+  <script src="./app.js?v=20261003-trendinghero" defer></script>
 </body>
 </html>
