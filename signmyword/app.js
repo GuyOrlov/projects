@@ -1426,9 +1426,16 @@ function setWord(value, options = {}) {
     trackMetric('word_generated', { lang: state.lang, letters: letterCount(next), words: phraseWords(next).length });
   }
 
-  if (options.scroll !== false && window.matchMedia('(max-width: 760px)').matches) {
+  if (options.scroll !== false) {
     window.setTimeout(() => {
-      document.querySelector('.result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const result = document.querySelector('.result-section');
+      if (!result) return;
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      result.scrollIntoView({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'start',
+      });
     }, 80);
   }
 }
