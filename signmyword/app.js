@@ -166,6 +166,24 @@ function trackMetric(name, detail = {}) {
   try {
     const metrics = JSON.parse(localStorage.getItem(METRICS_STORAGE_KEY) || '{}');
     metrics[name] = (Number(metrics[name]) || 0) + 1;
+
+    // Keep anonymous dimensions locally so Insights can show what people use,
+    // not only how many times an action happened.
+    const dimensions = metrics._dimensions && typeof metrics._dimensions === 'object'
+      ? metrics._dimensions
+      : {};
+    const bump = (group, value) => {
+      if (!value) return;
+      dimensions[group] = dimensions[group] && typeof dimensions[group] === 'object' ? dimensions[group] : {};
+      dimensions[group][String(value)] = (Number(dimensions[group][String(value)]) || 0) + 1;
+    };
+
+    if (detail.lang) bump('language', detail.lang);
+    if (detail.style) bump('theme', detail.style);
+    if (detail.format) bump('format', detail.format);
+    if (detail.category) bump('category', detail.category);
+    metrics._dimensions = dimensions;
+
     localStorage.setItem(METRICS_STORAGE_KEY, JSON.stringify(metrics));
   } catch {
     // Metrics are optional and stay anonymous on this device.
@@ -1180,6 +1198,19 @@ function isBlockedInput(value) {
   return Boolean(window.SignMyWordModeration?.check(value)?.blocked);
 }
 
+function wordCategory(value = '') {
+  const word = String(value).toUpperCase().trim();
+  const tokens = new Set(word.split(/\s+/).filter(Boolean));
+  if (/BIRTHDAY|CONGRAT|CELEBRAT/.test(word)) return 'Birthday';
+  if (/LOVE|XOXO|VALENTINE|KISS|DARLING|SWEETHEART/.test(word)) return 'Love';
+  if (/HELLO|HI|WELCOME|MORNING|AFTERNOON|EVENING|GOODBYE|BYE|THANK/.test(word)) return 'Greetings';
+  if (/MUM|MOM|DAD|FAMILY|SISTER|BROTHER|GRAND|WIFE|HUSBAND|BABY/.test(word)) return 'Family';
+  if (/SCHOOL|CLASS|TEACHER|STUDENT|LEARN|COLLEGE|UNIVERSITY/.test(word)) return 'School';
+  if (/WORK|JOB|OFFICE|BOSS|TEAM|MEETING|BUSINESS/.test(word)) return 'Work';
+  if (word.split(' ').length === 1 && word.length >= 2 && word.length <= 14) return 'Names / words';
+  return 'Other';
+}
+
 function cleanWord(value) {
   return value
     .toUpperCase()
@@ -1423,7 +1454,12 @@ function setWord(value, options = {}) {
 
   if (options.track !== false) {
     recordPopularSearch(next);
-    trackMetric('word_generated', { lang: state.lang, letters: letterCount(next), words: phraseWords(next).length });
+    trackMetric('word_generated', {
+      lang: state.lang,
+      letters: letterCount(next),
+      words: phraseWords(next).length,
+      category: wordCategory(next),
+    });
   }
 
   if (options.scroll !== false) {
@@ -1532,6 +1568,7 @@ el.copyImage?.addEventListener('click', copyGeneratedImage);
 el.imageFormatButtons.forEach((button) => {
   button.addEventListener('click', async () => {
     shareImageState.format = button.dataset.cardFormat || 'portrait';
+    trackMetric('format_selected', { format: shareImageState.format, lang: state.lang });
 
     el.imageFormatButtons.forEach((item) => {
       const active = item === button;
@@ -1553,6 +1590,7 @@ el.imageFormatButtons.forEach((button) => {
 el.imageStyleButtons.forEach((button) => {
   button.addEventListener('click', async () => {
     shareImageState.style = button.dataset.cardStyle || 'light';
+    trackMetric('theme_selected', { style: shareImageState.style, lang: state.lang });
 
     el.imageStyleButtons.forEach((item) => {
       const active = item === button;
