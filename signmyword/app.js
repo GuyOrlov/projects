@@ -684,7 +684,6 @@ async function openImageMaker() {
   if (!el.imageModal) return;
 
   trackMetric('image_maker_opened', { lang: state.lang });
-  el.imageCustomise?.removeAttribute('open');
   updateImageCustomiseHint();
   el.imageModal.hidden = false;
   document.body.classList.add('modal-open');
