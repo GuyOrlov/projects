@@ -5911,3 +5911,81 @@ summary:focus-visible {
   }
 }
 /* End SignMyWord mobile single-row language navigation */
+
+
+/* SignMyWord export-card language + icon scale upgrade */
+.share-card__language {
+  gap: 14px;
+  padding: 15px 22px;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.share-card__language .share-flag-svg,
+.share-card__language .flag-icon {
+  width: 54px;
+  height: 34px;
+  flex: 0 0 54px;
+  border-radius: 5px;
+}
+
+.share-card__emoji-badge {
+  width: 116px;
+  height: 116px;
+  flex: 0 0 116px;
+  border-radius: 28px;
+  object-fit: contain;
+}
+
+.share-card--dense .share-card__emoji-badge {
+  width: 94px;
+  height: 94px;
+  flex-basis: 94px;
+  border-radius: 24px;
+}
+
+.share-card--very-dense .share-card__emoji-badge {
+  width: 78px;
+  height: 78px;
+  flex-basis: 78px;
+  border-radius: 20px;
+}
+
+.share-card--format-square .share-card__language {
+  padding: 13px 19px;
+  font-size: 28px;
+}
+
+.share-card--format-square .share-card__language .share-flag-svg,
+.share-card--format-square .share-card__language .flag-icon {
+  width: 48px;
+  height: 30px;
+  flex-basis: 48px;
+}
+
+.share-card--format-square .share-card__emoji-badge {
+  width: 92px;
+  height: 92px;
+  flex-basis: 92px;
+  border-radius: 23px;
+}
+
+.share-card--format-story .share-card__language {
+  padding: 17px 24px;
+  font-size: 36px;
+}
+
+.share-card--format-story .share-card__language .share-flag-svg,
+.share-card--format-story .share-card__language .flag-icon {
+  width: 64px;
+  height: 40px;
+  flex-basis: 64px;
+}
+
+.share-card--format-story .share-card__emoji-badge {
+  width: 132px;
+  height: 132px;
+  flex-basis: 132px;
+  border-radius: 32px;
+}
+/* End export-card language + icon scale upgrade */
