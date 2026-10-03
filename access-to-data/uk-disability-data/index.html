@@ -145,34 +145,49 @@
           <p class="source-line">Source: <a id="prevalenceSourceLink" href="#" target="_blank" rel="noopener">DWP Family Resources Survey 2024–25 ↗</a></p>
         </article>
 
-        <article class="data-card" id="bsl-card">
-          <div class="card-heading">
+        <article class="data-card bsl-story-card" id="bsl-card">
+          <div class="card-heading bsl-heading">
             <div>
-              <h3>Why BSL numbers differ</h3>
-              <p>Different datasets measure different populations. Keep the definition beside the number.</p>
+              <p class="bsl-kicker">British Sign Language data</p>
+              <h3>How many people use BSL in the UK?</h3>
+              <p>Three commonly quoted figures measure different groups. They should not be added together.</p>
+              <div class="trust-line" id="bslTrustLine" aria-label="BSL data trust information">
+                <span>✓ Source-linked data</span>
+                <span>Definitions kept separate</span>
+                <span id="bslCheckedDate"></span>
+              </div>
             </div>
             <div class="view-switch" role="group" aria-label="BSL data view">
               <button class="view-button active" type="button" data-view="chart" data-target="bsl">Chart</button>
               <button class="view-button" type="button" data-view="table" data-target="bsl">View as table</button>
             </div>
           </div>
+
           <div class="chart-panel" id="bsl-chart-panel">
-            <div class="echart" id="bslChart" role="img" aria-label="Horizontal bar chart comparing three different British Sign Language population measures"></div>
-            <div class="mobile-bar-list" id="bslMobileBars" aria-hidden="true"></div>
+            <div class="echart bsl-echart" id="bslChart" role="img" aria-label="Horizontal bar chart comparing estimated BSL users, estimated Deaf BSL users, and people reporting BSL as their main language"></div>
+            <div class="mobile-bar-list bsl-mobile-bars" id="bslMobileBars" aria-hidden="true"></div>
           </div>
+
           <div class="table-panel" id="bsl-table-panel" hidden>
             <div class="table-scroll">
               <table>
                 <caption>British Sign Language population measures</caption>
-                <thead><tr><th scope="col">Measure</th><th scope="col">Value</th><th scope="col">Coverage</th></tr></thead>
+                <thead><tr><th scope="col">Measure</th><th scope="col">Value</th><th scope="col">Coverage</th><th scope="col">Type</th></tr></thead>
                 <tbody id="bslTableBody"></tbody>
               </table>
             </div>
           </div>
-          <p class="chart-summary" id="bslSummary"></p>
-          <div class="definition-note">
-            <strong>Do not combine these into one “Deaf population” number.</strong>
-            <span>Use scope, source and year to explain what each figure means.</span>
+
+          <div class="bsl-explainer" aria-labelledby="bslExplainTitle">
+            <h4 id="bslExplainTitle">Why are there three numbers?</h4>
+            <div class="bsl-definition-list" id="bslDefinitionList"></div>
+            <p class="bsl-warning"><strong>They measure different things and should not be added together.</strong></p>
+          </div>
+
+          <div class="bsl-card-actions">
+            <a href="#sources">View all sources</a>
+            <button type="button" id="shareBslChart">Share chart</button>
+            <span class="share-status" id="shareBslStatus" role="status" aria-live="polite"></span>
           </div>
           <p class="source-line">Sources: <a id="bslGovSourceLink" href="#" target="_blank" rel="noopener">UK Government BSL report ↗</a> · <a id="bslOnsSourceLink" href="#" target="_blank" rel="noopener">ONS Census 2021 ↗</a></p>
         </article>

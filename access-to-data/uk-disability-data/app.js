@@ -11,6 +11,7 @@ async function init(){
   bindAccessibilityPanel();
   bindViewSwitches();
   bindDisplayControls();
+  bindBslShare();
   try{
     const responses = await Promise.all([fetch(DATA_URL), fetch(SOURCES_URL)]);
     if(!responses[0].ok || !responses[1].ok) throw new Error("Data files could not be loaded");
@@ -177,19 +178,37 @@ function renderBsl(){
   const body = document.getElementById("bslTableBody");
   if(body){
     body.innerHTML = rows.map(function(row){
-      return '<tr><th scope="row">' + escapeHtml(row.label) + '</th><td>' + escapeHtml(row.display) + '</td><td>' + escapeHtml(row.geography + " · " + row.period) + '</td></tr>';
+      return '<tr><th scope="row">' + escapeHtml(row.tooltipLabel || row.label) + '</th><td>' + escapeHtml(row.display) + '</td><td>' + escapeHtml(row.geography + " · " + row.period) + '</td><td>' + escapeHtml(row.type || "") + '</td></tr>';
     }).join("");
   }
-  renderMobileBars("bslMobileBars", rows.map(function(r){return {label:r.shortLabel,value:r.value,display:r.display};}), 160);
-  const summary = document.getElementById("bslSummary");
-  if(summary) summary.textContent = "These figures answer different questions: estimated BSL users, estimated Deaf BSL users, and people who reported BSL as their main language in the England and Wales Census. They should not be added together.";
+
+  renderMobileBars("bslMobileBars", rows.map(function(r){
+    return {label:r.tooltipLabel || r.label,value:r.value,display:r.display,subline:r.geography + (r.period ? " · " + r.period : "")};
+  }), 160);
+
+  const definitionList = document.getElementById("bslDefinitionList");
+  if(definitionList){
+    definitionList.innerHTML = rows.map(function(row){
+      return '<div class="bsl-definition-item">' +
+        '<strong><span>' + escapeHtml(row.display) + '</span> ' + escapeHtml(row.tooltipLabel || row.label) + '</strong>' +
+        '<p>' + escapeHtml(row.definition) + '</p>' +
+        '<small>' + escapeHtml(row.geography + " · " + row.period + " · " + (row.type || "")) + '</small>' +
+        '</div>';
+    }).join("");
+  }
+
+  const checkedDate = document.getElementById("bslCheckedDate");
+  if(checkedDate && dashboardData.meta && dashboardData.meta.lastChecked){
+    checkedDate.textContent = "Last checked " + formatDate(dashboardData.meta.lastChecked);
+  }
+
   const gov = sourceById("bsl-government");
   const ons = sourceById("ons-language");
   const govLink = document.getElementById("bslGovSourceLink");
   const onsLink = document.getElementById("bslOnsSourceLink");
   if(govLink && gov) govLink.href = gov.url;
   if(onsLink && ons) onsLink.href = ons.url;
-  drawHorizontalBar("bsl","bslChart",rows.map(function(r){return r.shortLabel;}),rows.map(function(r){return r.value;}),"k",160);
+  drawBslChart(rows);
 }
 
 function renderSources(){
@@ -279,9 +298,119 @@ function renderMobileBars(elementId,rows,maxValue){
     const width = Math.max(3, Math.min(100, (row.value / maxValue) * 100));
     return '<div class="mobile-bar-item">' +
       '<div class="mobile-bar-head"><span>' + escapeHtml(row.label) + '</span><strong>' + escapeHtml(row.display) + '</strong></div>' +
+      (row.subline ? '<small class="mobile-bar-subline">' + escapeHtml(row.subline) + '</small>' : '') +
       '<div class="mobile-bar-track" aria-hidden="true"><div class="mobile-bar-fill" style="width:' + width.toFixed(1) + '%"></div></div>' +
       '</div>';
   }).join("");
+}
+
+function drawBslChart(rows){
+  if(typeof echarts === "undefined") return;
+  const element = document.getElementById("bslChart");
+  if(!element) return;
+  let chart = charts.get("bsl");
+  if(!chart){
+    chart = echarts.init(element,null,{renderer:"canvas"});
+    charts.set("bsl",chart);
+  }
+  const highContrast = document.body.classList.contains("high-contrast");
+  const ink = highContrast ? "#000000" : "#163300";
+  const muted = highContrast ? "#111111" : "#38463b";
+  const track = highContrast ? "#fff9a8" : "#e5f8d7";
+
+  chart.setOption({
+    animation: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    aria:{enabled:true,decal:{show:false}},
+    tooltip:{
+      trigger:"item",
+      confine:true,
+      backgroundColor:"#ffffff",
+      borderColor:highContrast ? "#000000" : "#9fe870",
+      borderWidth:2,
+      padding:0,
+      extraCssText:"border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.18);max-width:310px;",
+      textStyle:{color:ink,fontFamily:"Atkinson Hyperlegible, Arial, sans-serif"},
+      formatter:function(params){
+        const row = rows[params.dataIndex];
+        const source = sourceById(row.source);
+        return '<div class="bsl-tooltip">' +
+          '<div class="bsl-tooltip-title">' + escapeHtml(row.tooltipLabel || row.label) + '</div>' +
+          '<div class="bsl-tooltip-value">' + escapeHtml(row.value === 22 ? "22,000" : row.value === 87 ? "87,000" : row.value === 151 ? "151,000" : row.display) + '</div>' +
+          '<div class="bsl-tooltip-meta"><strong>Area:</strong> ' + escapeHtml(row.geography) + '</div>' +
+          '<div class="bsl-tooltip-meta"><strong>Type:</strong> ' + escapeHtml(row.type || "") + '</div>' +
+          '<div class="bsl-tooltip-definition">' + escapeHtml(row.definition) + '</div>' +
+          '<div class="bsl-tooltip-source">Source: ' + escapeHtml(source ? source.shortName : row.source) + '</div>' +
+          '</div>';
+      }
+    },
+    grid:{left:230,right:54,top:24,bottom:18,containLabel:false},
+    xAxis:{
+      type:"value",
+      max:160,
+      axisLabel:{show:false},
+      axisLine:{show:false},
+      splitLine:{show:false},
+      axisTick:{show:false}
+    },
+    yAxis:{
+      type:"category",
+      inverse:true,
+      data:rows.map(function(row){return row.tooltipLabel || row.label;}),
+      axisLine:{show:false},
+      axisTick:{show:false},
+      axisLabel:{
+        color:ink,
+        fontWeight:700,
+        fontSize:13,
+        lineHeight:17,
+        width:205,
+        overflow:"break",
+        align:"left",
+        margin:18
+      }
+    },
+    series:[{
+      type:"bar",
+      data:rows.map(function(row){return row.value;}),
+      barWidth:22,
+      showBackground:true,
+      backgroundStyle:{color:track,borderRadius:10},
+      itemStyle:{color:ink,borderRadius:10},
+      label:{
+        show:true,
+        position:"right",
+        formatter:function(params){return rows[params.dataIndex].display;},
+        color:muted,
+        fontWeight:700,
+        fontSize:13
+      }
+    }]
+  },true);
+}
+
+function bindBslShare(){
+  const button = document.getElementById("shareBslChart");
+  const status = document.getElementById("shareBslStatus");
+  if(!button) return;
+  button.addEventListener("click", async function(){
+    const url = location.origin + location.pathname + "#bsl-card";
+    const title = "How many people use BSL in the UK?";
+    const text = "151k estimated BSL users · 87k estimated Deaf BSL users · 22k reported BSL as their main language in England and Wales Census 2021. These figures measure different groups.";
+    try{
+      if(navigator.share){
+        await navigator.share({title:title,text:text,url:url});
+        if(status) status.textContent = "Shared.";
+      }else if(navigator.clipboard){
+        await navigator.clipboard.writeText(title + "\n" + text + "\n" + url);
+        if(status) status.textContent = "Chart summary copied.";
+      }else{
+        if(status) status.textContent = "Copy this page link to share.";
+      }
+    }catch(error){
+      if(error && error.name === "AbortError") return;
+      if(status) status.textContent = "Sharing was not available.";
+    }
+  });
 }
 
 function resizeCharts(){

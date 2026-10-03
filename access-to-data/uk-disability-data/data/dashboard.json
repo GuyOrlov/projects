@@ -92,7 +92,9 @@
       "geography": "UK",
       "period": "current estimate cited 2026",
       "source": "bsl-government",
-      "definition": "People estimated to use BSL, not necessarily as their main language."
+      "definition": "People estimated to use BSL, not necessarily as their main language.",
+      "type": "Estimate",
+      "tooltipLabel": "Estimated BSL users"
     },
     {
       "label": "Estimated Deaf BSL users",
@@ -102,7 +104,9 @@
       "geography": "UK",
       "period": "current estimate cited 2026",
       "source": "bsl-government",
-      "definition": "Deaf people estimated to use BSL."
+      "definition": "Deaf people estimated to use BSL.",
+      "type": "Estimate",
+      "tooltipLabel": "Estimated Deaf BSL users"
     },
     {
       "label": "BSL as main language",
@@ -112,7 +116,9 @@
       "geography": "England & Wales",
       "period": "Census 2021",
       "source": "ons-language",
-      "definition": "Usual residents aged three years and over who reported BSL as their main language."
+      "definition": "Usual residents aged three years and over who reported BSL as their main language.",
+      "type": "Census count",
+      "tooltipLabel": "BSL reported as main language"
     }
   ]
 }
