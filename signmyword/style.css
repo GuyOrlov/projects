@@ -4848,3 +4848,53 @@ select {
   }
 }
 /* End SignMyWord compact share workflow + transparent PNG icons */
+
+
+/* Fix trending flag rendering across Windows/mobile — 2026-10-03 */
+.popular-word__flag.flag-icon {
+  width: 18px;
+  height: 12px;
+  flex: 0 0 18px;
+  margin: 0;
+  font-size: 0;
+  box-shadow: inset 0 0 0 1px rgba(16, 42, 86, .14);
+}
+
+.popular-searches__total {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.popular-searches__language-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.popular-searches__language-total .flag-icon {
+  width: 18px;
+  height: 12px;
+  flex-basis: 18px;
+}
+
+.popular-searches__separator {
+  opacity: .55;
+}
+
+@media (max-width: 760px) {
+  .popular-searches__total {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .popular-word__flag.flag-icon {
+    width: 17px;
+    height: 11px;
+    flex-basis: 17px;
+  }
+}
+/* End fix trending flag rendering */
