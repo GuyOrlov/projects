@@ -1,5 +1,5 @@
 const ISSUE_DATA_URL = "data/issues.json?v=20261003-plain-english-v2";
-const SOURCE_DATA_URL = "data/sources.json?v=20261003-evidence-v2";
+const SOURCE_DATA_URL = "data/sources.json?v=20261003-plain-english-v2";
 
 document.addEventListener("DOMContentLoaded", initIssues);
 
