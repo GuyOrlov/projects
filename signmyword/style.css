@@ -5109,3 +5109,124 @@ select {
   }
 }
 /* End merged trending hero */
+
+
+/* SignMyWord brand + tagline lockup — 2026-10-03 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between !important;
+  gap: 24px !important;
+}
+
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 14px;
+}
+
+.brand-lockup .brand {
+  flex: 0 0 auto;
+}
+
+.brand-tagline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  padding-left: 14px;
+  color: var(--smw-text-secondary);
+  font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .015em;
+  white-space: nowrap;
+}
+
+.brand-tagline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 1px;
+  height: 20px;
+  background: var(--smw-border);
+}
+
+.marketing-hero__eyebrow {
+  display: none !important;
+}
+
+@media (max-width: 920px) {
+  .brand-lockup {
+    gap: 10px;
+  }
+
+  .brand-tagline {
+    max-width: 170px;
+    padding-left: 10px;
+    font-size: 10px;
+    white-space: normal;
+  }
+
+  .brand-tagline::before {
+    height: 28px;
+  }
+}
+
+@media (max-width: 760px) {
+  .header {
+    min-height: 66px;
+    gap: 10px !important;
+  }
+
+  .brand-lockup {
+    flex: 1 1 auto;
+    gap: 8px;
+  }
+
+  .brand-tagline {
+    max-width: 118px;
+    padding-left: 8px;
+    font-size: 8.5px;
+    line-height: 1.15;
+    white-space: normal;
+  }
+
+  .brand-tagline::before {
+    height: 26px;
+  }
+
+  .header .language-switcher {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 470px) {
+  .header {
+    flex-wrap: wrap;
+    row-gap: 6px !important;
+    padding-block: 9px !important;
+  }
+
+  .brand-lockup {
+    flex: 1 1 100%;
+  }
+
+  .brand-tagline {
+    max-width: none;
+    font-size: 9px;
+    white-space: nowrap;
+  }
+
+  .brand-tagline::before {
+    height: 18px;
+  }
+
+  .header .language-switcher {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+/* End brand + tagline lockup */
