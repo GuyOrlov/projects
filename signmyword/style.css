@@ -5230,3 +5230,10 @@ select {
   }
 }
 /* End brand + tagline lockup */
+
+
+/* Result jump target — 2026-10-03 */
+.result-section {
+  scroll-margin-top: 18px;
+}
+/* End result jump target */
