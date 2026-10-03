@@ -3428,3 +3428,105 @@ select {
     width: 100%;
   }
 }
+
+
+/* SignMyWord mobile image-maker step — 2026-10-03 */
+@keyframes smw-image-step-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@media (max-width: 760px) {
+  .image-modal {
+    display: block;
+    padding: 0;
+    background: #fff;
+  }
+
+  .image-modal__backdrop {
+    display: none;
+  }
+
+  .image-modal__dialog {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow-y: auto;
+    padding: 0 18px calc(24px + env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+    animation: smw-image-step-in 220ms ease-out;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .image-modal__header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin: 0 -18px;
+    padding: calc(14px + env(safe-area-inset-top)) 18px 14px;
+    border-bottom: 1px solid var(--smw-border);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+  }
+
+  .image-modal__header > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .image-modal__header h2 {
+    font-size: 21px;
+  }
+
+  .image-modal__eyebrow {
+    margin-bottom: 2px;
+    font-size: 10px;
+  }
+
+  .image-modal__close {
+    order: -1;
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    font-size: 0;
+    background: var(--smw-bg-subtle);
+  }
+
+  .image-modal__close::before {
+    content: "←";
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .image-style-picker {
+    margin-top: 18px;
+  }
+
+  .image-format-picker {
+    margin-bottom: 14px;
+  }
+
+  .share-image-preview-wrap {
+    min-height: 0;
+    border-radius: 18px;
+  }
+
+  .image-modal__actions {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .image-modal__actions .button {
+    min-height: 52px;
+    font-size: 16px;
+  }
+}
+/* End SignMyWord mobile image-maker step */
