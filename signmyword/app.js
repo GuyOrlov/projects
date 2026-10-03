@@ -79,6 +79,7 @@ const el = {
   imageFormatButtons: [...document.querySelectorAll('[data-card-format]')],
   copyImage: document.querySelector('#copy-image'),
   imageCustomise: document.querySelector('#image-customise'),
+  imageCustomiseHint: document.querySelector('#image-customise-hint'),
 };
 
 const shareImageState = {
@@ -160,6 +161,16 @@ function imageFileName() {
 
 function setImageModalStatus(message = '') {
   if (el.imageModalStatus) el.imageModalStatus.textContent = message;
+}
+
+function imageChoiceLabel(value = '') {
+  return String(value).charAt(0).toUpperCase() + String(value).slice(1);
+}
+
+function updateImageCustomiseHint() {
+  if (!el.imageCustomiseHint) return;
+  el.imageCustomiseHint.textContent =
+    `${imageChoiceLabel(shareImageState.style)} · ${imageChoiceLabel(shareImageState.format)}`;
 }
 
 function blobToDataUrl(blob) {
@@ -603,6 +614,7 @@ async function openImageMaker() {
 
   trackMetric('image_maker_opened', { lang: state.lang });
   el.imageCustomise?.removeAttribute('open');
+  updateImageCustomiseHint();
   el.imageModal.hidden = false;
   document.body.classList.add('modal-open');
   setImageModalStatus('');
@@ -1380,6 +1392,8 @@ el.imageFormatButtons.forEach((button) => {
       item.setAttribute('aria-pressed', String(active));
     });
 
+    updateImageCustomiseHint();
+    updateImageCustomiseHint();
     invalidateShareImage();
 
     try {
@@ -1419,4 +1433,5 @@ applyEmbedMode();
 render();
 renderRecentSearches();
 updatePracticeMode();
+updateImageCustomiseHint();
 refreshPopularSearches();
