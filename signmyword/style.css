@@ -4898,3 +4898,214 @@ select {
   }
 }
 /* End fix trending flag rendering */
+
+
+/* Merge live trending data into the search hero — 2026-10-03 */
+.popular-searches--hero {
+  width: min(900px, 100%);
+  margin: 18px auto 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.popular-searches--hero .popular-searches__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 10px;
+  text-align: left;
+}
+
+.popular-searches--hero .popular-searches__eyebrow {
+  display: inline;
+  margin: 0 8px 0 0;
+  color: var(--smw-blue);
+  font-size: 12px;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+
+.popular-searches--hero h2 {
+  display: inline;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--smw-text-secondary);
+}
+
+.popular-searches--hero .popular-searches__subtitle {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.popular-searches--hero .popular-searches__total {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  font-size: 11px;
+  color: var(--smw-text-secondary);
+}
+
+.popular-searches--hero .popular-word-cloud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 0;
+}
+
+.popular-searches--hero .popular-word {
+  width: auto;
+  min-height: 38px;
+  display: inline-flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid var(--smw-border);
+  border-radius: 999px;
+  background: rgba(255,255,255,.92);
+  box-shadow: none;
+  font-size: 13px !important;
+  letter-spacing: 0;
+  transform: none;
+}
+
+.popular-searches--hero .popular-word:hover,
+.popular-searches--hero .popular-word:focus-visible {
+  border-color: var(--smw-blue);
+  box-shadow: 0 5px 15px rgba(16,42,86,.07);
+  transform: translateY(-1px);
+}
+
+.popular-searches--hero .popular-word__count {
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  font-size: 11px;
+}
+
+.popular-searches--hero .popular-word__label {
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.popular-searches--hero .popular-word__language {
+  gap: 4px;
+  margin: 0;
+  padding: 4px 6px;
+  font-size: 9px;
+}
+
+.popular-searches--hero .popular-word__flag.flag-icon {
+  width: 16px;
+  height: 10px;
+  flex-basis: 16px;
+}
+
+/* The live trending row replaces the old Try / Recent UI. */
+.hero-examples,
+.recent-searches {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .popular-searches--hero {
+    display: block !important;
+    width: 100% !important;
+    margin: 14px 0 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .popular-searches--hero .popular-searches__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .popular-searches--hero .popular-searches__header > div {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .popular-searches--hero .popular-searches__eyebrow {
+    font-size: 11px;
+  }
+
+  .popular-searches--hero h2 {
+    font-size: 11px;
+  }
+
+  .popular-searches--hero .popular-searches__total {
+    flex: 0 0 auto;
+    font-size: 9px;
+  }
+
+  .popular-searches--hero .popular-searches__language-total {
+    gap: 3px;
+  }
+
+  .popular-searches--hero .popular-searches__language-total .flag-icon {
+    width: 15px;
+    height: 10px;
+    flex-basis: 15px;
+  }
+
+  .popular-searches--hero .popular-word-cloud {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 7px;
+    width: calc(100vw - 32px);
+    overflow-x: auto;
+    padding: 1px 0 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .popular-searches--hero .popular-word-cloud::-webkit-scrollbar {
+    display: none;
+  }
+
+  .popular-searches--hero .popular-word {
+    flex: 0 0 auto;
+    width: auto;
+    min-height: 36px;
+    padding: 6px 9px;
+    font-size: 12px !important;
+  }
+
+  .popular-searches--hero .popular-word__label {
+    font-size: 12px;
+  }
+
+  .popular-searches--hero .popular-word__count {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    font-size: 10px;
+  }
+
+  .popular-searches--hero .popular-word__language {
+    justify-self: auto;
+    padding: 3px 5px;
+    font-size: 9px;
+  }
+}
+/* End merged trending hero */
