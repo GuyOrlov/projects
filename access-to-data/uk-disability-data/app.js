@@ -1,6 +1,6 @@
-const DATA_URL = "data/dashboard.json?v=20261003-wording-v1";
+const DATA_URL = "data/dashboard.json?v=20261003-plain-english-v1";
 const SOURCES_URL = "data/sources.json?v=20261003-evidence-v2";
-const ISSUES_URL = "data/issues.json?v=20261003-evidence-v2";
+const ISSUES_URL = "data/issues.json?v=20261003-plain-english-v1";
 let dashboardData = null;
 let sourceRegistry = [];
 let issueEvidence = null;
@@ -26,7 +26,7 @@ async function init(){
   }catch(error){
     console.error(error);
     const main = document.getElementById("metricGrid");
-    if(main) main.innerHTML = '<p class="load-error">The dashboard data could not be loaded. Please use the downloadable CSV while this is fixed.</p>';
+    if(main) main.innerHTML = '<p class="load-error">We could not load the data. You can still use the downloadable CSV.</p>';
   }
 }
 
@@ -140,7 +140,7 @@ function renderMetrics(){
   grid.innerHTML = dashboardData.headline.map(function(item){
     const anchor = item.id === "employment-gap" ? ' id="employment-kpi"' : item.id === "pip-caseload" ? ' id="pip-kpi"' : "";
     const help = item.id === "employment-gap"
-      ? '<details class="metric-help"><summary>What are percentage points?</summary><p>A percentage point is the direct difference between two percentages. For example, 82.5% minus 52.8% equals 29.7 percentage points.</p></details>'
+      ? '<details class="metric-help"><summary>What are percentage points?</summary><p>Percentage points are used to compare two percentages. For example, 82.5% minus 52.8% is a gap of 29.7 percentage points.</p></details>'
       : "";
     return '<article class="metric-card"' + anchor + '>' +
       '<div class="metric-label">' + escapeHtml(item.label) + '</div>' +
@@ -166,9 +166,9 @@ function renderPrevalence(filter){
   if(summary){
     if(rows.length > 1){
       const sorted = rows.slice().sort(function(a,b){return b.value-a.value;});
-      summary.textContent = sorted[0].label + " has the highest selected estimate at " + sorted[0].value + "%, while " + sorted[sorted.length-1].label + " has the lowest at " + sorted[sorted.length-1].value + "%.";
+      summary.textContent = sorted[0].label + " has the highest figure shown at " + sorted[0].value + "%, while " + sorted[sorted.length-1].label + " has the lowest at " + sorted[sorted.length-1].value + "%.";
     }else if(rows.length === 1){
-      summary.textContent = rows[0].label + " has an estimated disability prevalence of " + rows[0].value + "% for " + rows[0].period + ".";
+      summary.textContent = rows[0].label + " has an estimated disabled population share of " + rows[0].value + "% for " + rows[0].period + ".";
     }
   }
   const source = sourceById("frs");
@@ -229,7 +229,7 @@ function renderEvidenceHighlights(){
       '<p class="evidence-highlight-comparison">' + escapeHtml(item.comparison) + '</p>' +
       '<p>' + escapeHtml(item.detail) + '</p>' +
       '<small>' + escapeHtml(item.geography + " · " + item.period) + '</small>' +
-      (source ? '<a href="' + escapeAttribute(source.url) + '" target="_blank" rel="noopener">Open source ↗</a>' : '') +
+      (source ? '<a href="' + escapeAttribute(source.url) + '" target="_blank" rel="noopener">View source ↗</a>' : '') +
       '</article>';
   }).join("");
 }
@@ -243,8 +243,8 @@ function renderSources(){
       '<h3>' + escapeHtml(source.name) + '</h3>' +
       '<div class="evidence-badge">' + escapeHtml(source.evidenceType || "Published evidence") + '</div>' +
       '<p>' + escapeHtml(source.covers) + '</p>' +
-      '<div class="source-meta"><span>' + escapeHtml(source.updateFrequency) + '</span><span>' + escapeHtml(source.automation) + '</span></div>' +
-      '<a href="' + escapeAttribute(source.url) + '" target="_blank" rel="noopener">Open official source ↗</a>' +
+      '<div class="source-meta"><span>Updated: ' + escapeHtml(source.updateFrequency) + '</span></div>' +
+      '<a href="' + escapeAttribute(source.url) + '" target="_blank" rel="noopener">View source ↗</a>' +
       '</article>';
   }).join("");
 }
@@ -362,7 +362,7 @@ function bindBslShare(){
   button.addEventListener("click", async function(){
     const url = location.origin + location.pathname + "#bsl-card";
     const title = "How many people use BSL in the UK?";
-    const text = "151k estimated BSL users · 87k estimated Deaf BSL users · 22k reported BSL as their main language in England and Wales Census 2021. These figures measure different groups.";
+    const text = "About 151,000 estimated BSL users · about 87,000 estimated Deaf BSL users · about 22,000 people reported BSL as their main language in England and Wales in Census 2021. These figures count different groups.";
     try{
       if(navigator.share){
         await navigator.share({title:title,text:text,url:url});
