@@ -78,6 +78,7 @@ const el = {
   copyEmbed: document.querySelector('#copy-embed'),
   imageFormatButtons: [...document.querySelectorAll('[data-card-format]')],
   copyImage: document.querySelector('#copy-image'),
+  imageCustomise: document.querySelector('#image-customise'),
 };
 
 const shareImageState = {
@@ -154,7 +155,7 @@ function imageFileName() {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'word';
 
-  return `signmyword-${state.lang}-${safeWord}-${shareImageState.format}.png`;
+  return `signmyword-${state.lang}-${safeWord}-${shareImageState.format}.jpg`;
 }
 
 function setImageModalStatus(message = '') {
@@ -577,7 +578,7 @@ async function generateShareImageBlob() {
     canvas.toBlob((result) => {
       if (result) resolve(result);
       else reject(new Error('Could not create the image.'));
-    }, 'image/png');
+    }, 'image/jpeg', 0.9);
   });
 
   shareImageState.blob = blob;
@@ -601,6 +602,9 @@ async function openImageMaker() {
   if (!el.imageModal) return;
 
   trackMetric('image_maker_opened', { lang: state.lang });
+  if (window.matchMedia('(max-width: 760px)').matches) {
+    el.imageCustomise?.removeAttribute('open');
+  }
   el.imageModal.hidden = false;
   document.body.classList.add('modal-open');
   setImageModalStatus('');
@@ -647,7 +651,7 @@ async function downloadShareImage() {
 async function shareGeneratedImage() {
   try {
     const blob = await ensureShareImageBlob();
-    const file = new File([blob], imageFileName(), { type: 'image/png' });
+    const file = new File([blob], imageFileName(), { type: 'image/jpeg' });
     const data = {
       title: `How to fingerspell ${state.word}`,
       text: `How to fingerspell “${state.word}” in ${LANGUAGES[state.lang].name} (${LANGUAGES[state.lang].label})`,
@@ -674,16 +678,63 @@ async function shareGeneratedImage() {
 
 
 
+function jpegBlobToPngBlob(jpegBlob) {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(jpegBlob);
+    const image = new Image();
+
+    image.addEventListener('load', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d');
+      context.drawImage(image, 0, 0);
+      URL.revokeObjectURL(objectUrl);
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Could not prepare the image for copying.'));
+      }, 'image/png');
+    }, { once: true });
+
+    image.addEventListener('error', () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Could not prepare the image for copying.'));
+    }, { once: true });
+
+    image.src = objectUrl;
+  });
+}
+
 async function copyGeneratedImage() {
   try {
     if (!navigator.clipboard || typeof ClipboardItem === 'undefined') {
       throw new Error('Copy image is not supported in this browser.');
     }
 
-    const blob = await ensureShareImageBlob();
-    await navigator.clipboard.write([
-      new ClipboardItem({ 'image/png': blob }),
-    ]);
+    const jpegBlob = await ensureShareImageBlob();
+    let blob = jpegBlob;
+    let type = 'image/jpeg';
+
+    if (typeof ClipboardItem.supports === 'function' && !ClipboardItem.supports(type)) {
+      blob = await jpegBlobToPngBlob(jpegBlob);
+      type = 'image/png';
+    }
+
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ [type]: blob }),
+      ]);
+    } catch (error) {
+      if (type !== 'image/png') {
+        blob = await jpegBlobToPngBlob(jpegBlob);
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob }),
+        ]);
+      } else {
+        throw error;
+      }
+    }
+
     trackMetric('image_copied', { format: shareImageState.format });
     setImageModalStatus('Image copied ✓');
   } catch (error) {
@@ -1223,6 +1274,12 @@ function setWord(value, options = {}) {
   if (options.track !== false) {
     recordPopularSearch(next);
     trackMetric('word_generated', { lang: state.lang, letters: letterCount(next), words: phraseWords(next).length });
+  }
+
+  if (options.scroll !== false && window.matchMedia('(max-width: 760px)').matches) {
+    window.setTimeout(() => {
+      document.querySelector('.result-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
   }
 }
 
