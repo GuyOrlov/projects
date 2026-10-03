@@ -4647,3 +4647,204 @@ select {
   }
 }
 /* End SignMyWord automatic share-card icons */
+
+
+/* SignMyWord compact share workflow + transparent PNG icons — 2026-10-03 */
+/* Transparent PNG artwork: no emoji font rendering, no white/grey badge box. */
+.share-card__emoji-badge {
+  display: block !important;
+  width: 58px !important;
+  height: 58px !important;
+  flex: 0 0 58px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  object-fit: contain;
+}
+
+.share-card__emoji-badge[hidden] {
+  display: none !important;
+}
+
+.share-card--dense .share-card__emoji-badge {
+  width: 52px !important;
+  height: 52px !important;
+  flex-basis: 52px !important;
+}
+
+.share-card--very-dense .share-card__emoji-badge {
+  width: 44px !important;
+  height: 44px !important;
+  flex-basis: 44px !important;
+}
+
+.share-card--format-square .share-card__emoji-badge {
+  width: 50px !important;
+  height: 50px !important;
+  flex-basis: 50px !important;
+}
+
+.share-card--format-story .share-card__emoji-badge {
+  width: 64px !important;
+  height: 64px !important;
+  flex-basis: 64px !important;
+}
+
+/* Desktop becomes a compact workspace: preview left, actions always visible right. */
+@media (min-width: 761px) {
+  .image-modal__dialog {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-rows: auto auto auto 1fr auto;
+    column-gap: 28px;
+    row-gap: 12px;
+    width: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    padding: 0 max(24px, calc((100vw - 1180px) / 2)) 20px !important;
+  }
+
+  .image-modal__header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    position: relative !important;
+    min-height: 72px !important;
+    padding: 14px 0 !important;
+  }
+
+  .share-image-preview-wrap {
+    grid-column: 1;
+    grid-row: 2 / 6;
+    width: 100% !important;
+    height: calc(100vh - 100px) !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 12px 0 0;
+    overflow: hidden !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .share-image-preview {
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: calc(100vh - 125px) !important;
+    margin: 0 auto !important;
+    object-fit: contain !important;
+    border-radius: 16px !important;
+  }
+
+  .image-customise {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100% !important;
+    margin: 16px 0 0 !important;
+    align-self: start;
+  }
+
+  .image-modal__actions {
+    grid-column: 2;
+    grid-row: 3;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .image-modal__actions .button {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  #copy-image {
+    display: none !important;
+  }
+
+  .image-modal__status {
+    grid-column: 2;
+    grid-row: 4;
+    margin: 0 !important;
+    align-self: start;
+  }
+
+  .image-attribution {
+    grid-column: 2;
+    grid-row: 5;
+    margin: 0 0 4px !important;
+    align-self: end;
+  }
+}
+
+/* Mobile: keep the preview short enough that Share / Download are reached immediately. */
+@media (max-width: 760px) {
+  .image-modal__dialog {
+    overflow-y: auto !important;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .share-image-preview-wrap {
+    order: 1 !important;
+    width: 100% !important;
+    height: min(42vh, 360px) !important;
+    min-height: 230px !important;
+    margin-top: 12px !important;
+    overflow: hidden !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .share-image-preview {
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: min(42vh, 360px) !important;
+    margin: 0 auto !important;
+    object-fit: contain !important;
+    border-radius: 14px !important;
+  }
+
+  .image-modal__actions {
+    order: 2 !important;
+    width: 100% !important;
+    margin-top: 12px !important;
+    gap: 8px !important;
+  }
+
+  .image-modal__actions .button {
+    min-height: 46px !important;
+  }
+
+  .image-customise {
+    order: 3 !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+  }
+
+  .image-modal__status {
+    order: 4 !important;
+    margin: 8px 0 0 !important;
+  }
+
+  .image-attribution {
+    order: 5 !important;
+    margin-top: 10px !important;
+  }
+
+  .image-customise__summary {
+    min-height: 46px !important;
+    padding-block: 9px !important;
+  }
+
+  .image-customise__hint {
+    max-width: 58%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+/* End SignMyWord compact share workflow + transparent PNG icons */
