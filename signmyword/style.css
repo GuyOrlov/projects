@@ -4506,3 +4506,144 @@ select {
   }
 }
 /* End show trending language data on mobile */
+
+
+/* SignMyWord automatic share-card icons — 2026-10-03 */
+.image-icon-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--smw-border);
+}
+
+.image-icon-picker__label {
+  grid-column: 1 / -1;
+  margin: 0 0 2px;
+  color: var(--smw-text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.image-icon-pill {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--smw-border);
+  border-radius: 12px;
+  padding: 7px 10px;
+  background: #fff;
+  color: var(--smw-text-primary);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.image-icon-pill--active {
+  border-color: var(--smw-blue);
+  background: var(--smw-bg-blue-soft);
+  color: var(--smw-blue);
+}
+
+.share-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 22px;
+  margin: 0 0 26px;
+}
+
+.share-card__title-row .share-card__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 !important;
+}
+
+.share-card__emoji-badge {
+  width: 86px;
+  height: 86px;
+  flex: 0 0 86px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 12px 28px rgba(16,42,86,.14);
+  font-size: 48px;
+  line-height: 1;
+}
+
+.share-card__emoji-badge[hidden] {
+  display: none !important;
+}
+
+.share-card--dark .share-card__emoji-badge,
+.share-card--colourful .share-card__emoji-badge,
+.share-card--love .share-card__emoji-badge,
+.share-card--birthday .share-card__emoji-badge,
+.share-card--school .share-card__emoji-badge {
+  background: rgba(255,255,255,.94);
+}
+
+.share-card--dense .share-card__title-row {
+  margin-bottom: 20px;
+}
+
+.share-card--dense .share-card__emoji-badge {
+  width: 70px;
+  height: 70px;
+  flex-basis: 70px;
+  border-radius: 20px;
+  font-size: 39px;
+}
+
+.share-card--very-dense .share-card__title-row {
+  margin-bottom: 14px;
+}
+
+.share-card--very-dense .share-card__emoji-badge {
+  width: 58px;
+  height: 58px;
+  flex-basis: 58px;
+  border-radius: 17px;
+  font-size: 32px;
+}
+
+.share-card--format-square .share-card__title-row {
+  margin-bottom: 18px;
+}
+
+.share-card--format-square .share-card__emoji-badge {
+  width: 66px;
+  height: 66px;
+  flex-basis: 66px;
+  border-radius: 18px;
+  font-size: 36px;
+}
+
+.share-card--format-story .share-card__title-row {
+  margin-bottom: 42px;
+}
+
+.share-card--format-story .share-card__emoji-badge {
+  width: 104px;
+  height: 104px;
+  flex-basis: 104px;
+  border-radius: 28px;
+  font-size: 58px;
+}
+
+@media (max-width: 760px) {
+  .image-icon-picker {
+    margin-top: 11px;
+    padding-top: 11px;
+    gap: 7px;
+  }
+
+  .image-icon-pill {
+    min-height: 40px;
+    font-size: 11px;
+  }
+}
+/* End SignMyWord automatic share-card icons */
