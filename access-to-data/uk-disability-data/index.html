@@ -6,6 +6,9 @@
   <meta name="description" content="UK Disability Data Hub: clear, accessible, source-linked UK disability statistics covering prevalence, employment, benefits, Deaf and BSL data.">
   <meta name="theme-color" content="#163300">
   <title>UK Disability Data Hub | Access to Data</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"></script>
   <script defer src="app.js"></script>
@@ -24,7 +27,16 @@
       </span>
     </a>
 
-    <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="primaryNav">Menu</button>
+    <div class="header-actions">
+      <button class="accessibility-button" id="accessibilityButton" type="button" aria-expanded="false" aria-controls="accessibilityPanel">Aa Accessibility</button>
+      <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="primaryNav">Menu</button>
+    </div>
+
+    <div class="accessibility-panel" id="accessibilityPanel" hidden>
+      <strong>Accessibility</strong>
+      <button type="button" id="textSizeButton" aria-pressed="false">Larger text</button>
+      <button type="button" id="contrastButton" aria-pressed="false">High contrast</button>
+    </div>
 
     <nav class="primary-nav" id="primaryNav" aria-label="Primary">
       <a class="active" href="#overview">Overview</a>
@@ -108,8 +120,8 @@
         <article class="data-card" id="prevalence-card">
           <div class="card-heading">
             <div>
-              <h3>Disability prevalence by area</h3>
-              <p>Selected Family Resources Survey 2024–25 estimates. Figures are not age-standardised.</p>
+              <h3>Percentage of people who are disabled</h3>
+              <p><strong>Measure:</strong> disability prevalence · Selected Family Resources Survey 2024–25 estimates. Figures are not age-standardised.</p>
             </div>
             <div class="view-switch" role="group" aria-label="Prevalence view">
               <button class="view-button active" type="button" data-view="chart" data-target="prevalence">Chart</button>
@@ -117,7 +129,8 @@
             </div>
           </div>
           <div class="chart-panel" id="prevalence-chart-panel">
-            <div class="echart" id="prevalenceChart" role="img" aria-label="Horizontal bar chart showing disability prevalence by selected UK area"></div>
+            <div class="echart" id="prevalenceChart" role="img" aria-label="Horizontal bar chart showing the percentage of people who are disabled in selected UK areas"></div>
+            <div class="mobile-bar-list" id="prevalenceMobileBars" aria-hidden="true"></div>
           </div>
           <div class="table-panel" id="prevalence-table-panel" hidden>
             <div class="table-scroll">
@@ -128,6 +141,7 @@
               </table>
             </div>
           </div>
+          <p class="chart-summary" id="prevalenceSummary"></p>
           <p class="source-line">Source: <a id="prevalenceSourceLink" href="#" target="_blank" rel="noopener">DWP Family Resources Survey 2024–25 ↗</a></p>
         </article>
 
@@ -144,6 +158,7 @@
           </div>
           <div class="chart-panel" id="bsl-chart-panel">
             <div class="echart" id="bslChart" role="img" aria-label="Horizontal bar chart comparing three different British Sign Language population measures"></div>
+            <div class="mobile-bar-list" id="bslMobileBars" aria-hidden="true"></div>
           </div>
           <div class="table-panel" id="bsl-table-panel" hidden>
             <div class="table-scroll">
@@ -154,6 +169,7 @@
               </table>
             </div>
           </div>
+          <p class="chart-summary" id="bslSummary"></p>
           <div class="definition-note">
             <strong>Do not combine these into one “Deaf population” number.</strong>
             <span>Use scope, source and year to explain what each figure means.</span>
@@ -200,10 +216,7 @@
           <h2 id="sourcesTitle">Source library</h2>
           <p>Official releases and data services used by the dashboard.</p>
         </div>
-        <div class="accessibility-actions" aria-label="Display controls">
-          <button type="button" id="textSizeButton" aria-pressed="false">Larger text</button>
-          <button type="button" id="contrastButton" aria-pressed="false">High contrast</button>
-        </div>
+        <a class="source-accessibility-link" href="#top">Accessibility controls are available at the top ↑</a>
       </div>
       <div class="source-grid" id="sourceGrid"></div>
     </section>

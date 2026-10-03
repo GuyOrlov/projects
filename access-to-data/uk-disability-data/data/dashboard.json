@@ -86,7 +86,7 @@
   "bslMeasures": [
     {
       "label": "Estimated BSL users",
-      "shortLabel": "Estimated BSL users",
+      "shortLabel": "Estimated BSL users — UK",
       "display": "151k",
       "value": 151,
       "geography": "UK",
@@ -96,7 +96,7 @@
     },
     {
       "label": "Estimated Deaf BSL users",
-      "shortLabel": "Estimated Deaf BSL users",
+      "shortLabel": "Estimated Deaf BSL users — UK",
       "display": "87k",
       "value": 87,
       "geography": "UK",
@@ -106,7 +106,7 @@
     },
     {
       "label": "BSL as main language",
-      "shortLabel": "BSL main language",
+      "shortLabel": "BSL as main language — E&W Census 2021",
       "display": "22k",
       "value": 22,
       "geography": "England & Wales",

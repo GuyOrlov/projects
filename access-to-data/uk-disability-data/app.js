@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init(){
   bindNavigation();
+  bindAccessibilityPanel();
   bindViewSwitches();
   bindDisplayControls();
   try{
@@ -37,6 +38,31 @@ function bindNavigation(){
     if(event.target.closest("a") && window.innerWidth <= 720){
       nav.classList.remove("open");
       button.setAttribute("aria-expanded","false");
+    }
+  });
+}
+
+function bindAccessibilityPanel(){
+  const button = document.getElementById("accessibilityButton");
+  const panel = document.getElementById("accessibilityPanel");
+  if(!button || !panel) return;
+  button.addEventListener("click", function(){
+    const willOpen = panel.hidden;
+    panel.hidden = !willOpen;
+    button.setAttribute("aria-expanded", String(willOpen));
+  });
+  document.addEventListener("click", function(event){
+    if(panel.hidden) return;
+    if(!panel.contains(event.target) && event.target !== button){
+      panel.hidden = true;
+      button.setAttribute("aria-expanded","false");
+    }
+  });
+  document.addEventListener("keydown", function(event){
+    if(event.key === "Escape" && !panel.hidden){
+      panel.hidden = true;
+      button.setAttribute("aria-expanded","false");
+      button.focus();
     }
   });
 }
@@ -108,10 +134,14 @@ function renderMetrics(){
   if(!grid) return;
   grid.innerHTML = dashboardData.headline.map(function(item){
     const anchor = item.id === "employment-gap" ? ' id="employment-kpi"' : item.id === "pip-caseload" ? ' id="pip-kpi"' : "";
+    const help = item.id === "employment-gap"
+      ? '<details class="metric-help"><summary>What does “percentage points” mean?</summary><p>Percentage points show the direct difference between two percentages. For example, 82.5% minus 52.8% equals a 29.7 percentage-point gap.</p></details>'
+      : "";
     return '<article class="metric-card"' + anchor + '>' +
       '<div class="metric-label">' + escapeHtml(item.label) + '</div>' +
       '<strong class="metric-value">' + escapeHtml(item.display) + '</strong>' +
       '<p class="metric-description">' + escapeHtml(item.description) + '</p>' +
+      help +
       '<small class="metric-source">' + escapeHtml(item.period + " · " + item.geography) + '</small>' +
       '</article>';
   }).join("");
@@ -125,6 +155,16 @@ function renderPrevalence(filter){
     body.innerHTML = rows.map(function(row){
       return '<tr><th scope="row">' + escapeHtml(row.label) + '</th><td>' + row.value + '%</td><td>' + escapeHtml(row.period) + '</td></tr>';
     }).join("");
+  }
+  renderMobileBars("prevalenceMobileBars", rows.map(function(r){return {label:r.label,value:r.value,display:r.value+"%"};}), 30);
+  const summary = document.getElementById("prevalenceSummary");
+  if(summary){
+    if(rows.length > 1){
+      const sorted = rows.slice().sort(function(a,b){return b.value-a.value;});
+      summary.textContent = sorted[0].label + " has the highest selected estimate at " + sorted[0].value + "%, while " + sorted[sorted.length-1].label + " has the lowest at " + sorted[sorted.length-1].value + "%.";
+    }else if(rows.length === 1){
+      summary.textContent = rows[0].label + " has an estimated disability prevalence of " + rows[0].value + "% for " + rows[0].period + ".";
+    }
   }
   const source = sourceById("frs");
   const link = document.getElementById("prevalenceSourceLink");
@@ -140,6 +180,9 @@ function renderBsl(){
       return '<tr><th scope="row">' + escapeHtml(row.label) + '</th><td>' + escapeHtml(row.display) + '</td><td>' + escapeHtml(row.geography + " · " + row.period) + '</td></tr>';
     }).join("");
   }
+  renderMobileBars("bslMobileBars", rows.map(function(r){return {label:r.shortLabel,value:r.value,display:r.display};}), 160);
+  const summary = document.getElementById("bslSummary");
+  if(summary) summary.textContent = "These figures answer different questions: estimated BSL users, estimated Deaf BSL users, and people who reported BSL as their main language in the England and Wales Census. They should not be added together.";
   const gov = sourceById("bsl-government");
   const ons = sourceById("ons-language");
   const govLink = document.getElementById("bslGovSourceLink");
@@ -213,7 +256,7 @@ function drawHorizontalBar(key,elementId,labels,values,suffix,maxValue){
     series:[{
       type:"bar",
       data:values,
-      barWidth:compact?12:14,
+      barWidth:compact?15:18,
       showBackground:true,
       backgroundStyle:{color:background,borderRadius:8},
       itemStyle:{color:ink,borderRadius:8},
@@ -227,6 +270,18 @@ function drawHorizontalBar(key,elementId,labels,values,suffix,maxValue){
       }
     }]
   },true);
+}
+
+function renderMobileBars(elementId,rows,maxValue){
+  const element = document.getElementById(elementId);
+  if(!element) return;
+  element.innerHTML = rows.map(function(row){
+    const width = Math.max(3, Math.min(100, (row.value / maxValue) * 100));
+    return '<div class="mobile-bar-item">' +
+      '<div class="mobile-bar-head"><span>' + escapeHtml(row.label) + '</span><strong>' + escapeHtml(row.display) + '</strong></div>' +
+      '<div class="mobile-bar-track" aria-hidden="true"><div class="mobile-bar-fill" style="width:' + width.toFixed(1) + '%"></div></div>' +
+      '</div>';
+  }).join("");
 }
 
 function resizeCharts(){
