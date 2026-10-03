@@ -1,4 +1,4 @@
-const ISSUE_DATA_URL = "data/issues.json?v=20261003-plain-english-v1";
+const ISSUE_DATA_URL = "data/issues.json?v=20261003-plain-english-v2";
 const SOURCE_DATA_URL = "data/sources.json?v=20261003-evidence-v2";
 
 document.addEventListener("DOMContentLoaded", initIssues);
@@ -31,7 +31,7 @@ function renderIssueEvidence(items,sources){
     target.innerHTML=grouped[issue].map(function(item){
       const source=item.source?sources.find(function(s){return s.id===item.source;}):null;
       return '<article class="issue-evidence-card">' +
-        '<div class="evidence-highlight-top"><span class="evidence-badge">' + esc(item.evidenceType) + '</span>' +
+        '<div class="evidence-highlight-top"><span class="evidence-badge">' + esc(displayEvidenceType(item.evidenceType)) + '</span>' +
         (item.freshness?'<span class="freshness-badge">'+esc(item.freshness)+'</span>':'') + '</div>' +
         '<h3>' + esc(item.title) + '</h3>' +
         '<div class="issue-stat-line"><strong>' + esc(item.value) + '</strong><span>' + esc(item.comparison) + '</span></div>' +
@@ -42,6 +42,21 @@ function renderIssueEvidence(items,sources){
       '</article>';
     }).join("");
   });
+}
+
+
+function displayEvidenceType(value){
+  const labels={
+    "Administrative statistics":"Public-service records",
+    "Official statistical analysis":"Official statistics",
+    "Accredited official statistics / survey":"Official survey statistics",
+    "Accredited official statistics":"Official statistics",
+    "Official statistics / police-recorded crime":"Police-recorded statistics",
+    "Official statistics / survey":"Official survey statistics",
+    "Survey analysis · older evidence":"Survey analysis · older data",
+    "Scope note":"About this section"
+  };
+  return labels[value] || value;
 }
 
 function esc(value){
