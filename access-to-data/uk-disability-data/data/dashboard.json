@@ -2,7 +2,7 @@
   "meta": {
     "title": "UK Disability Data Hub",
     "lastChecked": "2026-10-03",
-    "notes": "Figures retain their original population, geography, period and definition. Survey, census and administrative data are not treated as interchangeable."
+    "notes": "Figures keep the original area, period, population and definition used by the source. Different types of data are not treated as if they measure exactly the same thing."
   },
   "headline": [
     {
@@ -10,7 +10,7 @@
       "label": "Disabled people",
       "display": "25%",
       "value": 25,
-      "description": "One in four people were classified as disabled.",
+      "description": "Around one in four people were classed as disabled in the survey.",
       "geography": "UK",
       "period": "2024–25",
       "source": "frs"
@@ -20,7 +20,7 @@
       "label": "Disabled people in the UK",
       "display": "16.7 million",
       "value": 16.7,
-      "description": "Estimated number of disabled people in the UK.",
+      "description": "Estimated number of disabled people living in the UK.",
       "geography": "UK",
       "period": "2024–25",
       "source": "frs"
@@ -30,7 +30,7 @@
       "label": "Disability employment gap",
       "display": "29.7 percentage points",
       "value": 29.7,
-      "description": "Difference between the employment rates of disabled and non-disabled people.",
+      "description": "The difference between the employment rates of disabled and non-disabled people.",
       "geography": "UK",
       "period": "Apr–Jun 2025",
       "source": "employment"
@@ -40,7 +40,7 @@
       "label": "People receiving PIP",
       "display": "4.1 million",
       "value": 4.1,
-      "description": "People with an entitlement to Personal Independence Payment (PIP).",
+      "description": "People entitled to Personal Independence Payment (PIP).",
       "geography": "England & Wales",
       "period": "31 Jul 2026",
       "source": "pip"
@@ -90,9 +90,9 @@
       "display": "151k",
       "value": 151,
       "geography": "UK",
-      "period": "current estimate cited 2026",
+      "period": "Estimate quoted in 2026 report",
       "source": "bsl-government",
-      "definition": "People estimated to use BSL, not necessarily as their main language.",
+      "definition": "Estimated number of people who use BSL, whether or not it is their main language.",
       "type": "Estimate",
       "tooltipLabel": "Estimated BSL users"
     },
@@ -102,9 +102,9 @@
       "display": "87k",
       "value": 87,
       "geography": "UK",
-      "period": "current estimate cited 2026",
+      "period": "Estimate quoted in 2026 report",
       "source": "bsl-government",
-      "definition": "Deaf people estimated to use BSL.",
+      "definition": "Estimated number of Deaf people who use BSL.",
       "type": "Estimate",
       "tooltipLabel": "Estimated Deaf BSL users"
     },
@@ -116,7 +116,7 @@
       "geography": "England & Wales",
       "period": "Census 2021",
       "source": "ons-language",
-      "definition": "Usual residents aged three years and over who reported BSL as their main language.",
+      "definition": "People aged 3 and over who said BSL was their main language in Census 2021.",
       "type": "Census count",
       "tooltipLabel": "BSL reported as main language"
     }
