@@ -1,7 +1,9 @@
-const DATA_URL = "data/dashboard.json?v=20261003-issues-v1";
-const SOURCES_URL = "data/sources.json?v=20261003-issues-v1";
+const DATA_URL = "data/dashboard.json?v=20261003-evidence-v2";
+const SOURCES_URL = "data/sources.json?v=20261003-evidence-v2";
+const ISSUES_URL = "data/issues.json?v=20261003-evidence-v2";
 let dashboardData = null;
 let sourceRegistry = [];
+let issueEvidence = null;
 const charts = new Map();
 
 document.addEventListener("DOMContentLoaded", init);
@@ -13,10 +15,11 @@ async function init(){
   bindDisplayControls();
   bindBslShare();
   try{
-    const responses = await Promise.all([fetch(DATA_URL), fetch(SOURCES_URL)]);
-    if(!responses[0].ok || !responses[1].ok) throw new Error("Data files could not be loaded");
+    const responses = await Promise.all([fetch(DATA_URL), fetch(SOURCES_URL), fetch(ISSUES_URL)]);
+    if(!responses[0].ok || !responses[1].ok || !responses[2].ok) throw new Error("Data files could not be loaded");
     dashboardData = await responses[0].json();
     sourceRegistry = await responses[1].json();
+    issueEvidence = await responses[2].json();
     renderDashboard();
     bindFilters();
     window.addEventListener("resize", debounce(resizeCharts, 120));
@@ -116,6 +119,7 @@ function renderDashboard(){
   renderMetrics();
   renderPrevalence("all");
   renderBsl();
+  renderEvidenceHighlights();
   renderSources();
   const checked = dashboardData.meta && dashboardData.meta.lastChecked ? dashboardData.meta.lastChecked : "";
   const status = document.getElementById("sourceStatusText");
@@ -206,6 +210,28 @@ function renderBsl(){
   const onsLink = document.getElementById("bslOnsSourceLink");
   if(govLink && gov) govLink.href = gov.url;
   if(onsLink && ons) onsLink.href = ons.url;
+}
+
+function renderEvidenceHighlights(){
+  const grid = document.getElementById("evidenceHighlightGrid");
+  if(!grid || !issueEvidence) return;
+  const ids = issueEvidence.highlights || [];
+  const items = ids.map(function(id){
+    return issueEvidence.items.find(function(item){ return item.id === id; });
+  }).filter(Boolean);
+  grid.innerHTML = items.map(function(item){
+    const source = item.source ? sourceById(item.source) : null;
+    const freshness = item.freshness ? '<span class="freshness-badge">' + escapeHtml(item.freshness) + '</span>' : '';
+    return '<article class="evidence-highlight-card">' +
+      '<div class="evidence-highlight-top"><span class="evidence-badge">' + escapeHtml(item.evidenceType) + '</span>' + freshness + '</div>' +
+      '<h3>' + escapeHtml(item.title) + '</h3>' +
+      '<strong class="evidence-highlight-value">' + escapeHtml(item.value) + '</strong>' +
+      '<p class="evidence-highlight-comparison">' + escapeHtml(item.comparison) + '</p>' +
+      '<p>' + escapeHtml(item.detail) + '</p>' +
+      '<small>' + escapeHtml(item.geography + " · " + item.period) + '</small>' +
+      (source ? '<a href="' + escapeAttribute(source.url) + '" target="_blank" rel="noopener">Open source ↗</a>' : '') +
+      '</article>';
+  }).join("");
 }
 
 function renderSources(){

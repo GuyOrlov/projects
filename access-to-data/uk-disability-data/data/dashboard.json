@@ -38,11 +38,11 @@
     {
       "id": "pip-caseload",
       "label": "PIP caseload",
-      "display": "4.0m",
-      "value": 4,
-      "description": "Claimants entitled to Personal Independence Payment.",
+      "display": "4.1m",
+      "value": 4.1,
+      "description": "Claims with entitlement to PIP.",
       "geography": "England & Wales",
-      "period": "30 Apr 2026",
+      "period": "31 Jul 2026",
       "source": "pip"
     }
   ],

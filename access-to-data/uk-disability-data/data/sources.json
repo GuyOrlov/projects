@@ -16,8 +16,8 @@
     "shortName": "DWP Employment of Disabled People",
     "name": "The employment of disabled people 2025",
     "organisation": "Department for Work and Pensions",
-    "covers": "Employment rates, disability employment gap, underemployment and related breakdowns.",
-    "updateFrequency": "Annual",
+    "covers": "UK working-age disability employment, employment rates, gaps and related breakdowns.",
+    "updateFrequency": "Annual with quarterly measures",
     "automation": "Release/file check",
     "status": "ready",
     "url": "https://www.gov.uk/government/statistics/the-employment-of-disabled-people-2025/the-employment-of-disabled-people-2025",
@@ -38,13 +38,13 @@
   {
     "id": "pip",
     "shortName": "DWP PIP statistics",
-    "name": "Personal Independence Payment statistics",
+    "name": "Personal Independence Payment statistics to July 2026",
     "organisation": "Department for Work and Pensions",
     "covers": "PIP caseload, registrations, decisions and awards for England and Wales.",
     "updateFrequency": "Quarterly",
     "automation": "Stat-Xplore / release check",
     "status": "ready",
-    "url": "https://www.gov.uk/government/collections/personal-independence-payment-statistics",
+    "url": "https://www.gov.uk/government/statistics/personal-independence-payment-statistics-to-july-2026/personal-independence-payment-statistics-to-july-2026",
     "evidenceType": "Administrative statistics"
   },
   {
@@ -106,5 +106,101 @@
     "status": "next",
     "url": "https://www.nisra.gov.uk/statistics/census/2021-census",
     "evidenceType": "Census"
+  },
+  {
+    "id": "hbai-2025",
+    "shortName": "DWP HBAI",
+    "name": "Households Below Average Income: FYE 1995 to FYE 2025",
+    "organisation": "Department for Work and Pensions",
+    "covers": "UK household income and low-income measures, including family disability status.",
+    "updateFrequency": "Annual",
+    "automation": "Release/file check",
+    "status": "ready",
+    "evidenceType": "Official statistical analysis",
+    "url": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-an-analysis-of-the-uk-income-distribution-fye-1995-to-fye-2025"
+  },
+  {
+    "id": "uc-health-2026",
+    "shortName": "DWP UC Health",
+    "name": "Universal Credit Health statistics: April 2019 to June 2026",
+    "organisation": "Department for Work and Pensions",
+    "covers": "Great Britain Universal Credit claimants with a health condition or disability restricting ability to work.",
+    "updateFrequency": "Quarterly",
+    "automation": "Release/Stat-Xplore check",
+    "status": "ready",
+    "evidenceType": "Administrative statistics",
+    "url": "https://www.gov.uk/government/statistics/universal-credit-health-statistics-april-2019-to-june-2026/universal-credit-health-statistics-april-2019-to-june-2026"
+  },
+  {
+    "id": "nts-disability-2025",
+    "shortName": "DfT National Travel Survey",
+    "name": "National Travel Survey 2025: Disability",
+    "organisation": "Department for Transport",
+    "covers": "Travel patterns of disabled and non-disabled adults in England, including trips, modes and driving.",
+    "updateFrequency": "Annual",
+    "automation": "Release/table check",
+    "status": "ready",
+    "evidenceType": "Accredited official statistics / survey",
+    "url": "https://www.gov.uk/government/statistics/national-travel-survey-2025/nts-2025-disability"
+  },
+  {
+    "id": "sen-2026",
+    "shortName": "DfE SEN statistics",
+    "name": "Special educational needs in England 2025/26",
+    "organisation": "Department for Education",
+    "covers": "Pupils in England with SEN support or an education, health and care plan.",
+    "updateFrequency": "Annual",
+    "automation": "Explore Education Statistics check",
+    "status": "ready",
+    "evidenceType": "Accredited official statistics",
+    "url": "https://explore-education-statistics.service.gov.uk/find-statistics/special-educational-needs-in-england/2025-26"
+  },
+  {
+    "id": "hate-crime-2025",
+    "shortName": "Home Office hate crime",
+    "name": "Hate crime, England and Wales, year ending March 2025",
+    "organisation": "Home Office",
+    "covers": "Police-recorded hate crime by monitored strand, including disability.",
+    "updateFrequency": "Annual",
+    "automation": "Release/table check",
+    "status": "ready",
+    "evidenceType": "Official statistics / police-recorded crime",
+    "url": "https://www.gov.uk/government/statistics/hate-crime-england-and-wales-year-ending-march-2025/hate-crime-england-and-wales-year-ending-march-2025"
+  },
+  {
+    "id": "civic-2026",
+    "shortName": "Community and Engagement Survey",
+    "name": "Community and Engagement Survey 2025/26: civic engagement",
+    "organisation": "DCMS / MHCLG",
+    "covers": "Civic participation, consultation and activism in England, including disability-status breakdowns.",
+    "updateFrequency": "Annual",
+    "automation": "Release/table check",
+    "status": "ready",
+    "evidenceType": "Official statistics / survey",
+    "url": "https://www.gov.uk/government/statistics/community-and-engagement-survey-202526-civic-engagement/community-and-engagement-survey-202526-civic-engagement-report--2"
+  },
+  {
+    "id": "ons-deprivation-2021",
+    "shortName": "ONS Census 2021 disability",
+    "name": "Disability by age, sex and deprivation, England and Wales: Census 2021",
+    "organisation": "Office for National Statistics",
+    "covers": "Disability prevalence by age, sex, deprivation, region and local authority in England and Wales.",
+    "updateFrequency": "Census / irregular",
+    "automation": "Version check",
+    "status": "ready",
+    "evidenceType": "Census",
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/disability/articles/disabilitybyagesexanddeprivationenglandandwales/census2021"
+  },
+  {
+    "id": "ons-housing-2021",
+    "shortName": "ONS disability and housing",
+    "name": "Disability and housing, UK: 2021",
+    "organisation": "Office for National Statistics",
+    "covers": "Housing outcomes for disabled people aged 16 to 64 in the UK using Annual Population Survey data.",
+    "updateFrequency": "Irregular",
+    "automation": "Version check",
+    "status": "ready",
+    "evidenceType": "Survey analysis · older evidence",
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/disability/articles/outcomesfordisabledpeopleintheuk/2021/previous/v1"
   }
 ]
