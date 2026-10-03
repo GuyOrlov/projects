@@ -224,6 +224,45 @@
       "source": null,
       "evidenceType": "Scope note",
       "caveat": "A future health section should use direct data about health services, outcomes or care, with clear definitions of who is included."
+    },
+    {
+      "id": "type-children-social-behavioural",
+      "issue": "types",
+      "title": "Disabled children: social or behavioural impairment",
+      "value": "61%",
+      "comparison": "of disabled children",
+      "detail": "61% of disabled children were reported as having a social or behavioural impairment.",
+      "geography": "UK",
+      "period": "2024–25",
+      "source": "frs",
+      "evidenceType": "Survey estimate",
+      "caveat": "Children can have more than one impairment. This percentage should not be added to other impairment percentages."
+    },
+    {
+      "id": "type-working-age-mental-health",
+      "issue": "types",
+      "title": "Working-age disabled adults: mental health impairment",
+      "value": "46%",
+      "comparison": "of working-age disabled adults",
+      "detail": "46% of working-age disabled adults were reported as having a mental health impairment.",
+      "geography": "UK",
+      "period": "2024–25",
+      "source": "frs",
+      "evidenceType": "Survey estimate",
+      "caveat": "People can report more than one impairment. This age group should not be directly compared with children or pension-age adults as if they were the same population."
+    },
+    {
+      "id": "type-pension-age-mobility",
+      "issue": "types",
+      "title": "Disabled pension-age adults: mobility impairment",
+      "value": "68%",
+      "comparison": "of disabled pension-age adults",
+      "detail": "68% of disabled pension-age adults were reported as having a mobility impairment.",
+      "geography": "UK",
+      "period": "2024–25",
+      "source": "frs",
+      "evidenceType": "Survey estimate",
+      "caveat": "People can report more than one impairment. This age group should not be directly compared with younger groups as if they were the same population."
     }
   ]
 }
