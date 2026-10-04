@@ -22,6 +22,7 @@ const printButton = document.querySelector('#classroom-print');
 const quiz = document.querySelector('#classroom-quiz');
 const classroomStatus = document.querySelector('#classroom-status');
 const classroomTemplate = document.querySelector('#classroom-template');
+const classroomPrintLanguage = document.querySelector('#classroom-print-language');
 const languageButtons = [...document.querySelectorAll('[data-classroom-language]')];
 
 function isBlockedClassroomInput(value) {
@@ -133,6 +134,10 @@ function setClassroomLanguage(language) {
     button.classList.toggle('language-pill--active', active);
     button.setAttribute('aria-pressed', String(active));
   });
+
+  if (classroomPrintLanguage) {
+    classroomPrintLanguage.textContent = `${CLASSROOM_LANGUAGES[language].name} (${CLASSROOM_LANGUAGES[language].label})`;
+  }
 
   renderClassroom();
 }
