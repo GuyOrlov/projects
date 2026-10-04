@@ -12,13 +12,13 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SignMyWord">
   <meta property="og:locale" content="en_GB">
-  <meta property="og:image" content="https://guyorlov.com/projects/signmyword/assets/social-preview.svg">
+  <meta property="og:image" content="https://signmyword.com/assets/social-preview.svg">
   <meta property="og:image:alt" content="SignMyWord — type it, fingerspell it, share it">
   <title>Free BSL & ASL Fingerspelling Generator | SignMyWord</title>
-  <link rel="canonical" href="https://guyorlov.com/projects/signmyword/">
-  <meta property="og:url" content="https://guyorlov.com/projects/signmyword/">
+  <link rel="canonical" href="https://signmyword.com/">
+  <meta property="og:url" content="https://signmyword.com/">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://guyorlov.com/projects/signmyword/assets/social-preview.svg">
+  <meta name="twitter:image" content="https://signmyword.com/assets/social-preview.svg">
   <meta name="twitter:title" content="Free BSL & ASL Fingerspelling Generator | SignMyWord">
   <meta name="twitter:description" content="Type any name, word or phrase and see it fingerspelled in BSL or ASL.">
   <script type="application/ld+json">
@@ -27,9 +27,9 @@
   "@graph": [
     {
       "@type": "WebApplication",
-      "@id": "https://guyorlov.com/projects/signmyword/#app",
+      "@id": "https://signmyword.com/#app",
       "name": "SignMyWord",
-      "url": "https://guyorlov.com/projects/signmyword/",
+      "url": "https://signmyword.com/",
       "applicationCategory": "EducationalApplication",
       "description": "Free British Sign Language (BSL) and American Sign Language (ASL) fingerspelling generator for names, words and short phrases.",
       "operatingSystem": "Any modern web browser",
@@ -48,7 +48,7 @@
     },
     {
       "@type": "BreadcrumbList",
-      "@id": "https://guyorlov.com/projects/signmyword/#breadcrumbs",
+      "@id": "https://signmyword.com/#breadcrumbs",
       "itemListElement": [
         {
           "@type": "ListItem",
@@ -66,13 +66,13 @@
           "@type": "ListItem",
           "position": 3,
           "name": "SignMyWord",
-          "item": "https://guyorlov.com/projects/signmyword/"
+          "item": "https://signmyword.com/"
         }
       ]
     },
     {
       "@type": "FAQPage",
-      "@id": "https://guyorlov.com/projects/signmyword/#faq-schema",
+      "@id": "https://signmyword.com/#faq-schema",
       "mainEntity": [
         {
           "@type": "Question",
@@ -114,7 +114,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261004-1128">
+  <link rel="stylesheet" href="./style.css?v=20261004-1245">
 </head>
 <body>
   <a class="skip-link" href="#word-input">Skip to fingerspelling tool</a>
@@ -336,25 +336,29 @@
   <div class="share-card-capture" aria-hidden="true">
     <article class="share-card share-card--light" id="share-card">
       <div class="share-card__topline">
-        <div class="share-card__brand">
-          <span class="share-card__brand-name">SignMyWord</span>
+        <div class="share-card__brand" aria-label="SignMyWord">
+          <span class="share-card__brand-name"><span class="share-card__brand-accent">Sign</span><span class="share-card__brand-word">MyWord</span></span>
         </div>
         <div class="share-card__language" id="share-card-language"><span class="flag-icon flag-icon--gb" aria-hidden="true"></span><span>BSL</span></div>
       </div>
 
-      <div class="share-card__title-row">
-        <h2 class="share-card__title" id="share-card-title">How to fingerspell “HELLO” in British Sign Language (BSL)</h2>
-      </div>
+      <div class="share-card__main">
+        <div class="share-card__main-inner">
+          <div class="share-card__title-row">
+            <h2 class="share-card__title" id="share-card-title">How to fingerspell “HELLO” in British Sign Language (BSL)</h2>
+          </div>
 
-      <div class="share-card__letters" id="share-card-letters"></div>
+          <div class="share-card__letters" id="share-card-letters"></div>
 
-      <div class="share-card__icon-row">
-        <img class="share-card__emoji-badge" id="share-card-emoji" alt="" hidden aria-hidden="true">
+          <div class="share-card__icon-row">
+            <span class="share-card__emoji-badge" id="share-card-emoji" hidden></span>
+          </div>
+        </div>
       </div>
 
       <div class="share-card__footer">
         <div class="share-card__footer-copy">
-          <strong>guyorlov.com/projects/signmyword/</strong>
+          <strong id="share-card-site">signmyword.com</strong>
           <span>Type a word. See the signs. Share your own.</span>
         </div>
         <div class="share-card__qr" id="share-card-qr" aria-hidden="true"></div>
@@ -364,6 +368,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <script src="./blocked-words.js" defer></script>
-  <script src="./app.js?v=20261004-1128" defer></script>
+  <script src="./app.js?v=20261004-1245" defer></script>
 </body>
 </html>
