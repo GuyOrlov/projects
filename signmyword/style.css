@@ -6430,3 +6430,18 @@ summary:focus-visible {
   margin-top: 18px;
 }
 /* End bottom export icon */
+
+
+/* SignMyWord SEO FAQ and author */
+.seo-home .seo-breadcrumb{margin-bottom:22px}
+.seo-home__intro h2{margin:0 0 12px}
+.seo-home__intro p{margin:0}
+.seo-faq{max-width:900px;margin-top:46px}
+.seo-faq details{border-top:1px solid var(--smw-border);padding:16px 0}
+.seo-faq details:last-child{border-bottom:1px solid var(--smw-border)}
+.seo-faq summary{cursor:pointer;font-weight:800}
+.seo-faq p{margin:10px 0 0;color:var(--smw-text-secondary);font-family:"Atkinson Hyperlegible Next",Inter,sans-serif;line-height:1.65}
+.seo-author{max-width:900px;margin-top:42px;padding:20px 22px;border-radius:var(--smw-radius-lg);background:var(--smw-bg-subtle);border:1px solid var(--smw-border)}
+.seo-author h2{margin-top:0}
+.seo-author p{margin-bottom:0;color:var(--smw-text-secondary);font-family:"Atkinson Hyperlegible Next",Inter,sans-serif;line-height:1.65}
+.seo-author a{color:var(--smw-blue);font-weight:700}
