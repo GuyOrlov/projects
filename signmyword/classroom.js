@@ -21,6 +21,7 @@ const generate = document.querySelector('#classroom-generate');
 const printButton = document.querySelector('#classroom-print');
 const quiz = document.querySelector('#classroom-quiz');
 const classroomStatus = document.querySelector('#classroom-status');
+const classroomTemplate = document.querySelector('#classroom-template');
 const languageButtons = [...document.querySelectorAll('[data-classroom-language]')];
 
 function isBlockedClassroomInput(value) {
@@ -95,11 +96,26 @@ function phraseBlock(value) {
   return section;
 }
 
+function renderAlphabetPoster() {
+  const section = document.createElement('article');
+  section.className = 'classroom-word';
+  const title = document.createElement('h2');
+  title.textContent = `${CLASSROOM_LANGUAGES[classroomLanguage].label} fingerspelling alphabet A–Z`;
+  const letters = document.createElement('div');
+  letters.className = 'classroom-word__letters';
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((letter) => letters.appendChild(letterCard(letter)));
+  section.append(title, letters);
+  return section;
+}
+
 function renderClassroom() {
   const allItems = classroomLines(wordsInput.value);
   const blockedCount = allItems.filter(isBlockedClassroomInput).length;
   const items = classroomItems();
-  preview.replaceChildren(...items.map(phraseBlock));
+  const mode = classroomTemplate?.value || 'worksheet';
+  document.body.classList.toggle('classroom-name-cards', mode === 'name-cards');
+  document.body.classList.toggle('classroom-alphabet', mode === 'alphabet');
+  preview.replaceChildren(...(mode === 'alphabet' ? [renderAlphabetPoster()] : items.map(phraseBlock)));
 
   if (classroomStatus) {
     classroomStatus.textContent = blockedCount
@@ -133,6 +149,7 @@ languageButtons.forEach((button) => {
 });
 
 generate.addEventListener('click', renderClassroom);
+classroomTemplate?.addEventListener('change', renderClassroom);
 printButton.addEventListener('click', () => window.print());
 quiz.addEventListener('change', () => {
   document.body.classList.toggle('quiz-mode', quiz.checked);
