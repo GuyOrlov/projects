@@ -4,24 +4,109 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1479f8">
-  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="author" content="Guy Orlov">
   <meta name="description" content="Free BSL and ASL fingerspelling generator. Type any name, word or phrase, see each letter clearly, and create a shareable result with SignMyWord.">
-  <meta property="og:title" content="BSL & ASL Fingerspelling Generator | SignMyWord">
+  <meta property="og:title" content="Free BSL & ASL Fingerspelling Generator | SignMyWord">
   <meta property="og:description" content="Type any name, word or phrase and see it fingerspelled in BSL or ASL.">
   <meta property="og:type" content="website">
-  <title>BSL & ASL Fingerspelling Generator | SignMyWord</title>
+  <meta property="og:site_name" content="SignMyWord">
+  <meta property="og:locale" content="en_GB">
+  <title>Free BSL & ASL Fingerspelling Generator | SignMyWord</title>
   <link rel="canonical" href="https://guyorlov.com/projects/signmyword/">
   <meta property="og:url" content="https://guyorlov.com/projects/signmyword/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Free BSL & ASL Fingerspelling Generator | SignMyWord">
+  <meta name="twitter:description" content="Type any name, word or phrase and see it fingerspelled in BSL or ASL.">
   <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"WebApplication",
-    "name":"SignMyWord",
-    "url":"https://guyorlov.com/projects/signmyword/",
-    "applicationCategory":"EducationalApplication",
-    "description":"Create clear British Sign Language (BSL) or American Sign Language (ASL) fingerspelling for a word or phrase and share the result.",
-    "operatingSystem":"Any modern web browser"
-  }
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://guyorlov.com/projects/signmyword/#app",
+      "name": "SignMyWord",
+      "url": "https://guyorlov.com/projects/signmyword/",
+      "applicationCategory": "EducationalApplication",
+      "description": "Free British Sign Language (BSL) and American Sign Language (ASL) fingerspelling generator for names, words and short phrases.",
+      "operatingSystem": "Any modern web browser",
+      "inLanguage": "en-GB",
+      "isAccessibleForFree": true,
+      "creator": {
+        "@type": "Person",
+        "name": "Guy Orlov",
+        "url": "https://guyorlov.com/"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "GBP"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://guyorlov.com/projects/signmyword/#breadcrumbs",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Guy Orlov",
+          "item": "https://guyorlov.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Projects",
+          "item": "https://guyorlov.com/#portfolio"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "SignMyWord",
+          "item": "https://guyorlov.com/projects/signmyword/"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://guyorlov.com/projects/signmyword/#faq-schema",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is fingerspelling?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Fingerspelling uses a manual alphabet to represent written letters with handshapes. It is often used for names, places and words without an established sign."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is BSL fingerspelling the same as ASL fingerspelling?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. British Sign Language and American Sign Language use different manual alphabets. BSL fingerspelling is commonly two-handed, while ASL fingerspelling is one-handed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does SignMyWord translate English into sign language?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. SignMyWord shows fingerspelling letter by letter. It does not translate English sentences into BSL or ASL grammar and it does not replace a sign-language dictionary or interpreter."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I use SignMyWord to fingerspell a name?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Type a name and choose BSL or ASL to see each written letter represented with that manual alphabet. This is different from receiving a sign name."
+          }
+        }
+      ]
+    }
+  ]
+}
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -116,6 +201,40 @@
         <input class="share-url" id="share-url" type="text" readonly>
         <div class="qr-wrap" id="qr-code" aria-label="QR code for this fingerspelling link"></div>
       </div>
+    </section>
+
+    <section class="seo-home site-shell" aria-labelledby="learn-signmyword-title">
+      <nav class="seo-breadcrumb" aria-label="Breadcrumb"><a href="https://guyorlov.com/">Guy Orlov</a><span>›</span><span>SignMyWord</span></nav>
+      <div class="seo-home__intro">
+        <h2 id="learn-signmyword-title">Learn BSL and ASL fingerspelling</h2>
+        <p>SignMyWord is a free fingerspelling tool for learning how written letters, names and short words can be represented with the British Sign Language or American Sign Language manual alphabet. It shows fingerspelling rather than full sign-language translation.</p>
+      </div>
+      <div class="seo-card-grid">
+        <a class="seo-card" href="./bsl-fingerspelling.html"><strong>BSL fingerspelling alphabet A–Z</strong><span>See every British Sign Language manual alphabet letter and open any letter in the generator.</span></a>
+        <a class="seo-card" href="./asl-fingerspelling.html"><strong>ASL fingerspelling alphabet A–Z</strong><span>Explore every American Sign Language manual alphabet letter.</span></a>
+        <a class="seo-card" href="./fingerspell-your-name.html"><strong>Fingerspell your name</strong><span>Try a name in BSL or ASL and learn the sequence letter by letter.</span></a>
+      </div>
+      <section class="seo-copy" aria-labelledby="popular-examples-title">
+        <h2 id="popular-examples-title">Popular examples</h2>
+        <div class="seo-example-links">
+          <a href="./words/love-bsl.html">LOVE in BSL</a>
+          <a href="./words/thank-you-bsl.html">THANK YOU in BSL</a>
+          <a href="./words/name-bsl.html">NAME in BSL</a>
+          <a href="./words/hello-asl.html">HELLO in ASL</a>
+          <a href="./classroom.html">Classroom worksheet</a>
+        </div>
+      </section>
+      <section class="seo-faq" id="faq" aria-labelledby="signmyword-faq-title">
+        <h2 id="signmyword-faq-title">Fingerspelling questions</h2>
+        <details><summary>What is fingerspelling?</summary><p>Fingerspelling uses a manual alphabet to represent written letters with handshapes. It is often used for names, places and words without an established sign.</p></details>
+        <details><summary>Is BSL fingerspelling the same as ASL fingerspelling?</summary><p>No. British Sign Language and American Sign Language use different manual alphabets. BSL fingerspelling is commonly two-handed, while ASL fingerspelling is one-handed.</p></details>
+        <details><summary>Does SignMyWord translate English into sign language?</summary><p>No. SignMyWord shows fingerspelling letter by letter. It does not translate English sentences into BSL or ASL grammar and it does not replace a sign-language dictionary or interpreter.</p></details>
+        <details><summary>Can I use SignMyWord to fingerspell a name?</summary><p>Yes. Type a name and choose BSL or ASL to see each written letter represented with that manual alphabet. This is different from receiving a sign name.</p></details>
+      </section>
+      <section class="seo-author" aria-labelledby="signmyword-author-title">
+        <h2 id="signmyword-author-title">About SignMyWord</h2>
+        <p>SignMyWord was created by <a rel="author" href="https://guyorlov.com/">Guy Orlov</a> as an accessibility-focused learning and sharing tool. The project separates fingerspelling from full sign-language translation so the purpose of the tool is clear.</p>
+      </section>
     </section>
 
     <p class="site-shell mobile-disclaimer">Fingerspelling tool · not full sign-language translation</p>
