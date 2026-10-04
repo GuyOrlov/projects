@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261002-2051">
+  <link rel="stylesheet" href="./style.css?v=20261004-1040">
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -71,7 +71,7 @@
     <section class="classroom-toolbar">
       <div>
         <h1>Classroom fingerspelling sheet</h1>
-        <p>Enter up to 10 words or phrases, one per line. Print it or save it as a PDF.</p>
+        <p>Create a worksheet, name cards or an A–Z alphabet poster. Print it or save it as a PDF.</p>
         <label for="classroom-words" class="sr-only">Words or phrases</label>
         <textarea class="classroom-textarea" id="classroom-words">HELLO
 THANK YOU
@@ -79,9 +79,16 @@ I LOVE YOU</textarea>
         <p class="form-message" id="classroom-status" aria-live="polite"></p>
       </div>
       <div class="classroom-controls">
+        <label class="classroom-template-picker">Sheet type
+          <select id="classroom-template">
+            <option value="worksheet">Word worksheet</option>
+            <option value="name-cards">Name cards</option>
+            <option value="alphabet">A–Z alphabet poster</option>
+          </select>
+        </label>
         <button class="button button--primary" id="classroom-generate" type="button">Generate sheet</button>
         <button class="button button--secondary" id="classroom-print" type="button">Print / Save PDF</button>
-        <label><input id="classroom-quiz" type="checkbox"> Hide answers for quiz</label>
+        <label><input id="classroom-quiz" type="checkbox"> Hide letters for quiz / reveal activity</label>
         <a class="button button--secondary" href="./">Back to SignMyWord</a>
       </div>
     </section>
@@ -98,6 +105,6 @@ I LOVE YOU</textarea>
   </footer>
 
   <script src="./blocked-words.js" defer></script>
-  <script src="./classroom.js" defer></script>
+  <script src="./classroom.js?v=20261004-1040" defer></script>
 </body>
 </html>
