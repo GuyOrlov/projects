@@ -6569,3 +6569,158 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   }
 }
 /* End desktop SEO content width + popular example alignment */
+
+
+/* SignMyWord classroom print/PDF layout — 2026-10-04 */
+.classroom-print-heading{display:none}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html,
+  body.classroom-page {
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #102a56 !important;
+  }
+
+  .classroom-page .header,
+  .classroom-page > .seo-breadcrumb,
+  .classroom-toolbar,
+  .classroom-page .seo-author,
+  .classroom-page .legal-footer {
+    display: none !important;
+  }
+
+  .classroom-shell {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .classroom-print-heading {
+    display: flex !important;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 8mm;
+    padding: 0 0 4mm;
+    border-bottom: 1.5px solid #102a56;
+  }
+
+  .classroom-print-heading > div {
+    display: grid;
+    gap: 1mm;
+  }
+
+  .classroom-print-brand {
+    font: 800 18pt/1 Inter, Arial, sans-serif;
+    letter-spacing: -.03em;
+  }
+
+  .classroom-print-subtitle,
+  .classroom-print-language {
+    font: 600 9pt/1.25 "Atkinson Hyperlegible Next", Arial, sans-serif;
+    color: #52657d;
+  }
+
+  .classroom-print-language {
+    text-align: right;
+  }
+
+  .classroom-preview {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 5mm !important;
+  }
+
+  .classroom-word {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin: 0 !important;
+    padding: 4mm !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4mm !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+
+  .classroom-word h2 {
+    margin: 0 0 3mm !important;
+    font: 800 14pt/1.1 Inter, Arial, sans-serif !important;
+    text-align: left !important;
+  }
+
+  .classroom-word__letters {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(22mm, 1fr)) !important;
+    gap: 2.5mm !important;
+    align-items: stretch !important;
+  }
+
+  .classroom-letter {
+    min-height: 0 !important;
+    padding: 2.5mm !important;
+    gap: 1.5mm !important;
+    border: 1px solid #d9e2ef !important;
+    border-radius: 3mm !important;
+    background: #f8fafc !important;
+    break-inside: avoid !important;
+  }
+
+  .classroom-letter strong {
+    font: 800 11pt/1 Inter, Arial, sans-serif !important;
+    text-align: center !important;
+  }
+
+  .classroom-letter img {
+    display: block !important;
+    width: 100% !important;
+    height: 24mm !important;
+    max-height: 24mm !important;
+    object-fit: contain !important;
+    padding: 1mm !important;
+    border-radius: 2mm !important;
+    background: #fff !important;
+  }
+
+  .classroom-page.quiz-mode .classroom-word h2 {
+    visibility: visible !important;
+  }
+
+  .classroom-page.quiz-mode .classroom-letter strong {
+    visibility: hidden !important;
+  }
+
+  .classroom-page.classroom-name-cards .classroom-preview {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 5mm !important;
+  }
+
+  .classroom-page.classroom-name-cards .classroom-word h2 {
+    text-align: center !important;
+    font-size: 16pt !important;
+  }
+
+  .classroom-page.classroom-alphabet .classroom-word__letters {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 2mm !important;
+  }
+
+  .classroom-page.classroom-alphabet .classroom-letter {
+    padding: 1.5mm !important;
+  }
+
+  .classroom-page.classroom-alphabet .classroom-letter img {
+    height: 18mm !important;
+    max-height: 18mm !important;
+  }
+}
+/* End classroom print/PDF layout */
