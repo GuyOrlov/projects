@@ -6476,3 +6476,96 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .classroom-page.classroom-name-cards .classroom-preview{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
 .classroom-page.classroom-name-cards .classroom-word{text-align:center}
 .classroom-page.classroom-alphabet .classroom-word__letters{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+
+
+/* SignMyWord desktop SEO content width + popular example alignment — 2026-10-04 */
+@media (min-width: 1000px) {
+  .seo-home {
+    width: min(1400px, calc(100% - 72px)) !important;
+    max-width: none !important;
+  }
+
+  .seo-home__intro,
+  .seo-copy,
+  .seo-faq,
+  .seo-author {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .seo-home__intro p,
+  .seo-faq details,
+  .seo-author p {
+    max-width: none !important;
+  }
+
+  .seo-example-links {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+  }
+
+  .seo-example-links a {
+    width: 100%;
+    min-height: 54px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 12px 14px !important;
+    text-align: center;
+    white-space: normal;
+    box-sizing: border-box;
+  }
+
+  .seo-faq {
+    margin-top: 46px;
+  }
+
+  .seo-faq details {
+    box-sizing: border-box;
+  }
+
+  .seo-author {
+    box-sizing: border-box;
+    padding: 26px 28px;
+  }
+}
+
+.seo-example-links a .flag-icon {
+  width: 24px;
+  height: 16px;
+  flex: 0 0 24px;
+  border-radius: 3px;
+}
+
+.seo-example-links .example-icon {
+  flex: 0 0 auto;
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (min-width: 761px) and (max-width: 999px) {
+  .seo-example-links {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .seo-example-links a {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 760px) {
+  .seo-example-links a {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 7px;
+  }
+}
+/* End desktop SEO content width + popular example alignment */
