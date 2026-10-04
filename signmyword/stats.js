@@ -2,6 +2,7 @@ const METRICS_STORAGE_KEY = 'signmyword-metrics-v1';
 
 const LABELS = {
   word_generated: 'Words generated',
+  result_shown: 'Results shown',
   image_maker_opened: 'Image maker opened',
   image_downloaded: 'Images downloaded',
   image_shared: 'Images shared',
@@ -61,6 +62,7 @@ function render() {
 
   const rows = [
     ['Words generated', generated],
+    ['Results shown', Number(metrics.result_shown) || 0],
     ['Image maker opened', Number(metrics.image_maker_opened) || 0],
     ['Image downloaded', Number(metrics.image_downloaded) || 0],
     ['Image shared', Number(metrics.image_shared) || 0],
