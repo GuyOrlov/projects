@@ -544,6 +544,25 @@ async function shareCardLetter(letter, language) {
   return card;
 }
 
+function shareColumnsForCount(count, format = shareImageState.format) {
+  if (count <= 0) return 1;
+  const oneRowMax = format === 'square' ? 5 : 6;
+  if (count <= oneRowMax) return count;
+  if (count <= 10) return Math.ceil(count / 2);
+  if (count <= 12) return 4;
+  if (count <= 15) return 5;
+  return 4;
+}
+
+function applyShareLetterLayout(container, count) {
+  if (!container) return;
+  const columns = shareColumnsForCount(count);
+  container.style.setProperty('--share-columns', String(columns));
+  container.dataset.letterCount = String(count);
+  container.classList.toggle('share-letter-row', count <= (shareImageState.format === 'square' ? 5 : 6));
+  container.classList.toggle('share-letter-balanced', count > (shareImageState.format === 'square' ? 5 : 6));
+}
+
 async function shareCardWordGroup(word, language, index) {
   const group = document.createElement('section');
   group.className = 'share-card__word-group';
@@ -556,12 +575,12 @@ async function shareCardWordGroup(word, language, index) {
   const letters = document.createElement('div');
   letters.className = 'share-card__word-letters';
 
+  const letterChars = [...word].filter((char) => /[A-Z]/.test(char));
   const cards = await Promise.all(
-    [...word]
-      .filter((char) => /[A-Z]/.test(char))
-      .map((letter) => shareCardLetter(letter, language))
+    letterChars.map((letter) => shareCardLetter(letter, language))
   );
 
+  applyShareLetterLayout(letters, letterChars.length);
   letters.append(...cards);
   group.setAttribute('aria-labelledby', heading.id);
   group.append(heading, letters);
@@ -611,6 +630,7 @@ async function renderShareCard() {
     el.shareCardLetters.append(...groups);
   } else {
     const letters = [...word].filter((char) => /[A-Z]/.test(char));
+    applyShareLetterLayout(el.shareCardLetters, letters.length);
     const cards = await Promise.all(letters.map((letter) => shareCardLetter(letter, language)));
     el.shareCardLetters.append(...cards);
   }
