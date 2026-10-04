@@ -12,10 +12,13 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SignMyWord">
   <meta property="og:locale" content="en_GB">
+  <meta property="og:image" content="https://guyorlov.com/projects/signmyword/assets/social-preview.svg">
+  <meta property="og:image:alt" content="SignMyWord — type it, fingerspell it, share it">
   <title>Free BSL & ASL Fingerspelling Generator | SignMyWord</title>
   <link rel="canonical" href="https://guyorlov.com/projects/signmyword/">
   <meta property="og:url" content="https://guyorlov.com/projects/signmyword/">
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://guyorlov.com/projects/signmyword/assets/social-preview.svg">
   <meta name="twitter:title" content="Free BSL & ASL Fingerspelling Generator | SignMyWord">
   <meta name="twitter:description" content="Type any name, word or phrase and see it fingerspelled in BSL or ASL.">
   <script type="application/ld+json">
@@ -111,9 +114,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=20261003-2238">
+  <link rel="stylesheet" href="./style.css?v=20261004-1040">
 </head>
 <body>
+  <a class="skip-link" href="#word-input">Skip to fingerspelling tool</a>
   <header class="site-shell header">
     <div class="brand-lockup">
       <a class="brand" href="./" aria-label="SignMyWord home"><span class="brand__accent">Sign</span><span class="brand__word">MyWord</span></a>
@@ -150,14 +154,15 @@
           >
           <button class="button button--primary hero-go" type="submit">Show signs</button>
         </form>
+        <p class="fingerspelling-disclaimer"><strong>Fingerspelling, not full sign-language translation.</strong> SignMyWord shows written letters with the BSL or ASL manual alphabet.</p>
         <p class="message hero-message" id="form-message" aria-live="polite"></p>
 
         <section class="popular-searches popular-searches--hero" id="popular-searches" aria-labelledby="popular-searches-title" hidden>
           <div class="popular-searches__header">
             <div>
-              <p class="popular-searches__eyebrow">Trending now</p>
+              <p class="popular-searches__eyebrow" id="popular-searches-eyebrow">Trending now</p>
               <h2 id="popular-searches-title">Popular fingerspelling</h2>
-              <p class="popular-searches__subtitle" id="popular-searches-subtitle">Based on genuine BSL and ASL searches over the last 7 days.</p>
+              <p class="popular-searches__subtitle" id="popular-searches-subtitle">Only common, privacy-safe words are eligible to appear here.</p>
             </div>
             <p class="popular-searches__total" id="popular-searches-total"></p>
           </div>
@@ -192,9 +197,33 @@
 
       <div class="result-tools" aria-label="More SignMyWord tools">
         <button class="result-tool" id="practice-mode" type="button" aria-pressed="false">Practice mode</button>
-        <a class="result-tool" id="classroom-link" href="./classroom.html">Classroom sheet</a>
+        <a class="result-tool" id="classroom-link" href="./classroom.html">Classroom sheets</a>
         <button class="result-tool" id="copy-embed" type="button">Copy embed</button>
+        <a class="result-tool" id="report-problem" href="mailto:guyorlov@gmail.com?subject=SignMyWord%20hand%20image%20report">Report a hand image or problem</a>
       </div>
+
+      <section class="practice-panel" id="practice-panel" aria-labelledby="practice-title" hidden>
+        <div class="practice-panel__heading">
+          <div><p class="result-section__eyebrow">Practice</p><h3 id="practice-title">One letter at a time</h3></div>
+          <span id="practice-progress" aria-live="polite"></span>
+        </div>
+        <div class="practice-stage">
+          <img id="practice-image" alt="">
+          <strong id="practice-answer" hidden></strong>
+        </div>
+        <div class="practice-controls">
+          <button class="button button--secondary" id="practice-prev" type="button">Previous</button>
+          <button class="button button--primary" id="practice-reveal" type="button">Reveal answer</button>
+          <button class="button button--secondary" id="practice-next" type="button">Next</button>
+          <label class="practice-speed">Auto next
+            <select id="practice-speed">
+              <option value="0">Off</option>
+              <option value="5">5 sec</option>
+              <option value="3">3 sec</option>
+            </select>
+          </label>
+        </div>
+      </section>
 
       <div class="share-utility" aria-label="Share link and QR code">
         <label class="sr-only" for="share-url">Shareable URL</label>
@@ -217,10 +246,10 @@
       <section class="seo-copy" aria-labelledby="popular-examples-title">
         <h2 id="popular-examples-title">Popular examples</h2>
         <div class="seo-example-links">
-          <a href="./words/love-bsl.html">LOVE in BSL</a>
-          <a href="./words/thank-you-bsl.html">THANK YOU in BSL</a>
-          <a href="./words/name-bsl.html">NAME in BSL</a>
-          <a href="./words/hello-asl.html">HELLO in ASL</a>
+          <a href="./words/love-bsl.html">Fingerspell LOVE in BSL</a>
+          <a href="./words/thank-you-bsl.html">Fingerspell THANK YOU in BSL</a>
+          <a href="./words/name-bsl.html">Fingerspell NAME in BSL</a>
+          <a href="./words/hello-asl.html">Fingerspell HELLO in ASL</a>
           <a href="./classroom.html">Classroom worksheet</a>
         </div>
       </section>
@@ -275,9 +304,9 @@
 
           <div class="image-format-picker" aria-label="Choose image size">
             <span class="image-format-picker__label">Size</span>
-            <button class="image-format-pill image-format-pill--active" type="button" data-card-format="portrait" aria-pressed="true">Portrait</button>
-            <button class="image-format-pill" type="button" data-card-format="square" aria-pressed="false">Square</button>
-            <button class="image-format-pill" type="button" data-card-format="story" aria-pressed="false">Story</button>
+            <button class="image-format-pill image-format-pill--active" type="button" data-card-format="portrait" aria-pressed="true">Portrait · 1080×1350</button>
+            <button class="image-format-pill" type="button" data-card-format="square" aria-pressed="false">Square · 1080×1080</button>
+            <button class="image-format-pill" type="button" data-card-format="story" aria-pressed="false">Story · 1080×1920</button>
           </div>
 
           <div class="image-icon-picker" aria-label="Choose icon option">
@@ -297,7 +326,7 @@
 
       <div class="image-modal__actions">
         <button class="button button--primary" id="share-image-file" type="button">Share image</button>
-        <button class="button button--secondary" id="download-share-image" type="button">Download JPG</button>
+        <button class="button button--secondary" id="download-share-image" type="button">Download PNG</button>
         <button class="button button--secondary" id="copy-image" type="button">Copy image</button>
       </div>
       <p class="image-attribution"><a href="./terms.html#artwork">Info &amp; licences</a></p>
@@ -325,7 +354,7 @@
 
       <div class="share-card__footer">
         <div class="share-card__footer-copy">
-          <strong>SignMyWord.com</strong>
+          <strong>guyorlov.com/projects/signmyword/</strong>
           <span>Type a word. See the signs. Share your own.</span>
         </div>
         <div class="share-card__qr" id="share-card-qr" aria-hidden="true"></div>
@@ -335,6 +364,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
   <script src="./blocked-words.js" defer></script>
-  <script src="./app.js?v=20261003-2238" defer></script>
+  <script src="./app.js?v=20261004-1040" defer></script>
 </body>
 </html>
