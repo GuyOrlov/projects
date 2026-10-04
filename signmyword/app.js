@@ -70,6 +70,7 @@ const el = {
   popularSection: document.querySelector('#popular-searches'),
   popularCloud: document.querySelector('#popular-word-cloud'),
   popularSubtitle: document.querySelector('#popular-searches-subtitle'),
+  popularEyebrow: document.querySelector('#popular-searches-eyebrow'),
   popularTotal: document.querySelector('#popular-searches-total'),
   surpriseWord: document.querySelector('#surprise-word'),
   recentSection: document.querySelector('#recent-searches'),
@@ -82,6 +83,15 @@ const el = {
   copyImage: document.querySelector('#copy-image'),
   imageCustomise: document.querySelector('#image-customise'),
   imageCustomiseHint: document.querySelector('#image-customise-hint'),
+  reportProblem: document.querySelector('#report-problem'),
+  practicePanel: document.querySelector('#practice-panel'),
+  practiceImage: document.querySelector('#practice-image'),
+  practiceAnswer: document.querySelector('#practice-answer'),
+  practiceProgress: document.querySelector('#practice-progress'),
+  practicePrev: document.querySelector('#practice-prev'),
+  practiceReveal: document.querySelector('#practice-reveal'),
+  practiceNext: document.querySelector('#practice-next'),
+  practiceSpeed: document.querySelector('#practice-speed'),
 };
 
 let html2canvasLoadPromise = null;
@@ -179,6 +189,8 @@ const SURPRISE_WORDS = [
 const RECENT_STORAGE_KEY = 'signmyword-recent-v1';
 const METRICS_STORAGE_KEY = 'signmyword-metrics-v1';
 let practiceModeActive = false;
+let practiceIndex = 0;
+let practiceTimer = null;
 
 function trackMetric(name, detail = {}) {
   try {
@@ -236,13 +248,13 @@ function invalidateShareImage() {
   }
 }
 
-function imageFileName() {
+function imageFileName(extension = 'jpg') {
   const safeWord = state.word
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'word';
 
-  return `signmyword-${state.lang}-${safeWord}-${shareImageState.format}.jpg`;
+  return `signmyword-${state.lang}-${safeWord}-${shareImageState.format}.${extension}`;
 }
 
 function setImageModalStatus(message = '') {
@@ -728,12 +740,13 @@ function closeImageMaker() {
 
 async function downloadShareImage() {
   try {
-    const blob = await ensureShareImageBlob();
-    trackMetric('image_downloaded', { format: shareImageState.format, style: shareImageState.style });
+    const jpegBlob = await ensureShareImageBlob();
+    const blob = await jpegBlobToPngBlob(jpegBlob);
+    trackMetric('image_downloaded', { format: shareImageState.format, style: shareImageState.style, file_type: 'png' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = imageFileName();
+    link.download = imageFileName('png');
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -888,17 +901,65 @@ function renderRecentSearches() {
   el.recentSection.hidden = !el.recentChips.children.length;
 }
 
+function practiceLetters() {
+  return (state.word.match(/[A-Z]/g) || []);
+}
+
+function stopPracticeTimer() {
+  if (practiceTimer) window.clearInterval(practiceTimer);
+  practiceTimer = null;
+}
+
+function renderPracticeCard() {
+  const letters = practiceLetters();
+  if (!letters.length || !el.practicePanel) return;
+  practiceIndex = Math.max(0, Math.min(practiceIndex, letters.length - 1));
+  const letter = letters[practiceIndex];
+  const config = LANGUAGES[state.lang];
+  el.practicePanel.hidden = !practiceModeActive;
+  if (el.practiceImage) {
+    el.practiceImage.src = config.file(letter);
+    el.practiceImage.alt = `${config.name} fingerspelling handshape to identify`;
+  }
+  if (el.practiceAnswer) {
+    el.practiceAnswer.textContent = letter;
+    el.practiceAnswer.hidden = true;
+  }
+  if (el.practiceProgress) el.practiceProgress.textContent = `${practiceIndex + 1} of ${letters.length}`;
+  if (el.practiceReveal) el.practiceReveal.textContent = 'Reveal answer';
+}
+
+function restartPracticeTimer() {
+  stopPracticeTimer();
+  const seconds = Number(el.practiceSpeed?.value || 0);
+  if (!practiceModeActive || !seconds) return;
+  practiceTimer = window.setInterval(() => {
+    const letters = practiceLetters();
+    if (!letters.length) return;
+    practiceIndex = (practiceIndex + 1) % letters.length;
+    renderPracticeCard();
+  }, seconds * 1000);
+}
+
 function updatePracticeMode() {
   document.body.classList.toggle('practice-mode', practiceModeActive);
-  if (!el.practiceMode) return;
-  el.practiceMode.setAttribute('aria-pressed', String(practiceModeActive));
-  el.practiceMode.textContent = practiceModeActive ? 'Reveal answer' : 'Practice mode';
+  if (el.practiceMode) {
+    el.practiceMode.setAttribute('aria-pressed', String(practiceModeActive));
+    el.practiceMode.textContent = practiceModeActive ? 'Exit practice' : 'Practice mode';
+  }
+  if (el.practicePanel) el.practicePanel.hidden = !practiceModeActive;
+  if (practiceModeActive) renderPracticeCard();
+  else stopPracticeTimer();
 }
 
 function togglePracticeMode() {
   practiceModeActive = !practiceModeActive;
+  practiceIndex = 0;
   updatePracticeMode();
-  trackMetric(practiceModeActive ? 'practice_started' : 'practice_revealed');
+  if (practiceModeActive) {
+    trackMetric('practice_started', { lang: state.lang });
+    restartPracticeTimer();
+  }
 }
 
 function classroomUrl() {
@@ -940,9 +1001,16 @@ function applyEmbedMode() {
 const POPULAR_STORAGE_KEY = 'signmyword-popular-searches-v1';
 const POPULAR_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 const POPULAR_API_URL = window.SIGNMYWORD_POPULAR_API || '';
+const POPULAR_MIN_COUNT = 3;
+const SAFE_POPULAR_WORDS = [
+  'HELLO','THANK YOU','LOVE','NAME','WELCOME','FAMILY','FRIEND','SCHOOL',
+  'TEACHER','STUDENT','GOOD MORNING','GOODBYE','HAPPY BIRTHDAY','PLEASE',
+  'SORRY','YES','NO','WEEKEND','SMILE','MUM','DAD','SISTER','BROTHER'
+];
+const SAFE_POPULAR_SET = new Set(SAFE_POPULAR_WORDS);
 
 function eligiblePopularWord(word) {
-  return /^[A-Z]+(?: [A-Z]+){0,4}$/.test(word) && word.length <= 32 && !isBlockedInput(word);
+  return SAFE_POPULAR_SET.has(word) && !isBlockedInput(word);
 }
 
 function readLocalPopularEvents() {
@@ -984,6 +1052,7 @@ function localPopularSummary() {
       const [lang, word] = key.split('\u0000');
       return { word, lang, count };
     })
+    .filter((item) => item.count >= POPULAR_MIN_COUNT)
     .sort((a, b) =>
       b.count - a.count ||
       a.word.localeCompare(b.word) ||
@@ -1018,7 +1087,7 @@ async function remotePopularSummary() {
     const words = data.words
       .filter((item) =>
         eligiblePopularWord(String(item?.word || '').toUpperCase()) &&
-        Number(item?.count) > 0 &&
+        Number(item?.count) >= POPULAR_MIN_COUNT &&
         LANGUAGES[item?.lang]
       )
       .map((item) => ({
@@ -1058,14 +1127,38 @@ function cloudSize(count, min, max) {
   return Math.round(16 + ratio * 22);
 }
 
+function renderPopularSuggestions() {
+  if (!el.popularSection || !el.popularCloud || !el.popularTotal || !el.popularSubtitle) return;
+  const suggestions = SAFE_POPULAR_WORDS.slice(0, 6);
+  el.popularCloud.replaceChildren();
+  suggestions.forEach((word) => {
+    const button = document.createElement('button');
+    button.className = 'popular-word';
+    button.type = 'button';
+    button.dataset.tier = 'low';
+    button.style.setProperty('--popular-size', '18px');
+    const label = document.createElement('span');
+    label.className = 'popular-word__label';
+    label.textContent = word;
+    button.appendChild(label);
+    button.addEventListener('click', () => setWord(word, { track: false }));
+    el.popularCloud.appendChild(button);
+  });
+  if (el.popularEyebrow) el.popularEyebrow.textContent = 'Try these words';
+  el.popularSubtitle.textContent = 'Popular data is not shown until a common word has enough searches. No names or private phrases are published.';
+  el.popularTotal.textContent = '';
+  el.popularSection.hidden = false;
+}
+
 function renderPopularSummary(summary) {
   if (!el.popularSection || !el.popularCloud || !el.popularTotal || !el.popularSubtitle) return;
 
   const words = (summary?.words || []).slice(0, 6);
   if (!words.length) {
-    el.popularSection.hidden = true;
+    renderPopularSuggestions();
     return;
   }
+  if (el.popularEyebrow) el.popularEyebrow.textContent = 'Trending now';
 
   const counts = words.map((item) => item.count);
   const min = Math.min(...counts);
@@ -1432,13 +1525,22 @@ function renderShare() {
   }
 }
 
+function updateReportLink() {
+  if (!el.reportProblem) return;
+  const subject = `SignMyWord hand image report — ${state.lang.toUpperCase()} ${state.word}`;
+  const body = `Please describe the hand image, letter or usability problem.\n\nLanguage: ${LANGUAGES[state.lang].name} (${LANGUAGES[state.lang].label})\nWord/phrase: ${state.word}\nPage: ${shareLink()}\n\nWhat looks wrong or could be clearer?\n`;
+  el.reportProblem.href = `mailto:guyorlov@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 function render() {
   renderLanguage();
   renderWord();
   updateUrl();
   renderShare();
   updateClassroomLink();
+  updateReportLink();
   renderRecentSearches();
+  if (practiceModeActive) renderPracticeCard();
   invalidateShareImage();
 }
 
@@ -1475,6 +1577,7 @@ function setWord(value, options = {}) {
       words: phraseWords(next).length,
       category: wordCategory(next),
     });
+    trackMetric('result_shown', { lang: state.lang });
   }
 
   if (options.scroll !== false) {
@@ -1567,6 +1670,27 @@ el.surpriseWord?.addEventListener('click', () => {
 });
 
 el.practiceMode?.addEventListener('click', togglePracticeMode);
+el.practicePrev?.addEventListener('click', () => {
+  const letters = practiceLetters();
+  if (!letters.length) return;
+  practiceIndex = (practiceIndex - 1 + letters.length) % letters.length;
+  renderPracticeCard();
+  restartPracticeTimer();
+});
+el.practiceNext?.addEventListener('click', () => {
+  const letters = practiceLetters();
+  if (!letters.length) return;
+  practiceIndex = (practiceIndex + 1) % letters.length;
+  renderPracticeCard();
+  restartPracticeTimer();
+});
+el.practiceReveal?.addEventListener('click', () => {
+  if (!el.practiceAnswer) return;
+  el.practiceAnswer.hidden = false;
+  el.practiceReveal.textContent = 'Answer shown';
+  trackMetric('practice_revealed', { lang: state.lang });
+});
+el.practiceSpeed?.addEventListener('change', restartPracticeTimer);
 el.copyEmbed?.addEventListener('click', copyEmbedCode);
 
 el.copy.addEventListener('click', copyLink);
