@@ -84,6 +84,24 @@ const el = {
   imageCustomiseHint: document.querySelector('#image-customise-hint'),
 };
 
+let html2canvasLoadPromise = null;
+
+function ensureHtml2Canvas() {
+  if (window.html2canvas) return Promise.resolve(window.html2canvas);
+  if (html2canvasLoadPromise) return html2canvasLoadPromise;
+
+  html2canvasLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.async = true;
+    script.onload = () => window.html2canvas ? resolve(window.html2canvas) : reject(new Error('Image generator could not load.'));
+    script.onerror = () => reject(new Error('Image generator could not load.'));
+    document.head.appendChild(script);
+  });
+
+  return html2canvasLoadPromise;
+}
+
 const shareImageState = {
   style: 'light',
   format: 'portrait',
@@ -625,9 +643,7 @@ async function waitForShareCardImages() {
 }
 
 async function generateShareImageBlob() {
-  if (!window.html2canvas) {
-    throw new Error('Image generator is still loading. Please try again.');
-  }
+  await ensureHtml2Canvas();
 
   if (el.imageLoading) {
     el.imageLoading.hidden = false;
