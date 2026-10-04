@@ -6724,3 +6724,226 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   }
 }
 /* End classroom print/PDF layout */
+
+
+/* SignMyWord content-aware export layout — 2026-10-04 */
+.share-card{
+  --share-footer-height:176px;
+  --share-footer-gap:24px;
+}
+
+.share-card__letters{
+  grid-template-columns:repeat(var(--share-columns,3),minmax(0,1fr))!important;
+  flex:0 0 auto!important;
+  width:100%;
+}
+
+.share-card__word-letters{
+  grid-template-columns:repeat(var(--share-columns,4),minmax(0,1fr))!important;
+  justify-content:center!important;
+  width:100%;
+}
+
+.share-card__letters.share-letter-row,
+.share-card__word-letters.share-letter-row{
+  align-items:stretch;
+}
+
+.share-card__word-letters[data-letter-count="1"],
+.share-card__word-letters[data-letter-count="2"],
+.share-card__word-letters[data-letter-count="3"],
+.share-card__word-letters[data-letter-count="4"]{
+  width:min(100%,720px);
+  margin-inline:auto;
+}
+
+.share-card__word-letters[data-letter-count="3"]{
+  width:min(100%,560px);
+}
+
+.share-card__word-letters[data-letter-count="2"]{
+  width:min(100%,390px);
+}
+
+.share-card__word-letters[data-letter-count="1"]{
+  width:min(100%,200px);
+}
+
+.share-card__icon-row{
+  width:100%;
+  justify-content:center!important;
+  min-height:0!important;
+  margin:26px auto 0!important;
+}
+
+.share-card__icon-row .share-card__emoji-badge{
+  margin:0 auto!important;
+}
+
+.share-card__footer{
+  box-sizing:border-box;
+  min-height:var(--share-footer-height);
+  width:100%;
+  flex:0 0 var(--share-footer-height);
+  margin-top:auto!important;
+  padding:22px 0 0!important;
+  border-top:2px solid rgba(16,42,86,.12);
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 150px;
+  align-items:center!important;
+  gap:var(--share-footer-gap)!important;
+}
+
+.share-card--dark .share-card__footer,
+.share-card--colourful .share-card__footer,
+.share-card--love .share-card__footer,
+.share-card--birthday .share-card__footer,
+.share-card--school .share-card__footer{
+  border-top-color:rgba(255,255,255,.28);
+}
+
+.share-card__footer-copy{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  align-content:center;
+  gap:7px!important;
+  min-width:0;
+  max-width:100%;
+  font-size:19px!important;
+  line-height:1.22!important;
+}
+
+.share-card__footer-copy strong,
+.share-card__footer-copy span{
+  display:block!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+}
+
+.share-card__footer-copy strong{
+  font-size:23px!important;
+  line-height:1.12!important;
+}
+
+.share-card__qr{
+  box-sizing:border-box;
+  width:142px!important;
+  height:142px!important;
+  min-width:142px!important;
+  flex-basis:142px!important;
+  margin:0!important;
+  padding:10px!important;
+  justify-self:end;
+  border:1px solid #d7e3f4;
+  border-radius:18px!important;
+}
+
+.share-card__qr img,
+.share-card__qr canvas{
+  width:122px!important;
+  height:122px!important;
+  max-width:122px!important;
+  max-height:122px!important;
+}
+
+.share-card--phrase .share-card__letters--phrase{
+  flex:0 0 auto!important;
+}
+
+.share-card--phrase .share-card__word-group:first-child .share-card__word-letters,
+.share-card--phrase .share-card__word-group:last-child .share-card__word-letters{
+  grid-template-columns:repeat(var(--share-columns,4),minmax(0,1fr))!important;
+}
+
+.share-card--format-square{
+  --share-footer-height:150px;
+}
+
+.share-card--format-square .share-card__footer{
+  grid-template-columns:minmax(0,1fr) 124px;
+  gap:18px!important;
+  padding-top:16px!important;
+}
+
+.share-card--format-square .share-card__qr{
+  width:118px!important;
+  height:118px!important;
+  min-width:118px!important;
+}
+
+.share-card--format-square .share-card__qr img,
+.share-card--format-square .share-card__qr canvas{
+  width:98px!important;
+  height:98px!important;
+  max-width:98px!important;
+  max-height:98px!important;
+}
+
+.share-card--format-square .share-card__footer-copy{
+  font-size:16px!important;
+}
+
+.share-card--format-square .share-card__footer-copy strong{
+  font-size:20px!important;
+}
+
+.share-card--format-story{
+  --share-footer-height:190px;
+}
+
+.share-card--format-story .share-card__footer{
+  grid-template-columns:minmax(0,1fr) 154px;
+  padding-top:26px!important;
+}
+
+.share-card--dense .share-card__footer,
+.share-card--very-dense .share-card__footer{
+  margin-top:auto!important;
+}
+
+.share-card--very-dense .share-card__qr{
+  width:126px!important;
+  height:126px!important;
+  min-width:126px!important;
+}
+
+.share-card--very-dense .share-card__qr img,
+.share-card--very-dense .share-card__qr canvas{
+  width:106px!important;
+  height:106px!important;
+  max-width:106px!important;
+  max-height:106px!important;
+}
+
+/* Keep one-row words readable instead of wrapping the final letter by itself. */
+.share-card__letters.share-letter-row .share-card__letter,
+.share-card__word-letters.share-letter-row .share-card__letter{
+  padding:11px!important;
+}
+
+.share-card__letters.share-letter-row .share-card__letter-name,
+.share-card__word-letters.share-letter-row .share-card__letter-name{
+  font-size:24px!important;
+  margin-bottom:6px!important;
+}
+
+.share-card__letters.share-letter-row .share-card__letter-box,
+.share-card__word-letters.share-letter-row .share-card__letter-box{
+  min-height:104px!important;
+}
+
+.share-card__letters.share-letter-row .share-card__letter-box img,
+.share-card__word-letters.share-letter-row .share-card__letter-box img{
+  max-height:98px!important;
+}
+
+.share-card--format-story .share-card__letters.share-letter-row .share-card__letter-box,
+.share-card--format-story .share-card__word-letters.share-letter-row .share-card__letter-box{
+  min-height:140px!important;
+}
+
+.share-card--format-story .share-card__letters.share-letter-row .share-card__letter-box img,
+.share-card--format-story .share-card__word-letters.share-letter-row .share-card__letter-box img{
+  max-height:132px!important;
+}
+/* End content-aware export layout */
