@@ -29,7 +29,7 @@
 <main class="main-panel" id="main" tabindex="-1">
 <div class="tool-head"><div><h2 id="tool-title">Photo to PDF</h2><p id="tool-desc">Turn photos into one PDF.</p></div><span class="tag" id="tool-tag">Private</span></div>
 <section class="card" id="upload-panel"><h3 id="upload-title">1. Choose files</h3><label class="dropzone" id="dropzone" for="file-input"><span class="drop-icon" aria-hidden="true">🗂️</span><strong id="drop-label">Choose photos or drop them here</strong><small id="upload-hint">Add one or several files.</small><span class="btn primary" aria-hidden="true">+ Choose files</span></label><input id="file-input" class="file-picker" type="file" accept="image/*" multiple aria-label="Select files">
-<div id="file-list" class="file-list" aria-live="polite"></div>
+<div id="camera-actions" class="inline-actions hidden" style="margin-top:12px"><button class="btn" id="take-photo" type="button">📷 Take a photo with camera</button><input id="camera-input" type="file" accept="image/*" capture="environment" class="file-picker" aria-label="Capture document with camera"></div><div id="file-list" class="file-list" aria-live="polite"></div>
 <div class="inline-actions hidden" id="file-toolbar"><button class="btn small" id="add-more" type="button">+ Add more</button><button class="btn danger small" id="clear-files" type="button">Clear</button><small class="muted" id="file-count"></small></div>
 </section>
 <section class="card"><h3 id="options-heading">2. Set your options</h3><div id="options" class="tool-options"></div><div style="height:16px"></div><button class="btn primary full" type="button" id="run">Create PDF</button><div class="note" id="privacy-note" style="margin-top:12px">Processed in your browser. Your files are not uploaded.</div>
