@@ -1,30 +1,34 @@
-# PricePals — mobile barcode price comparison layout
+# PricePals — real UK supermarket price snapshots
 
-A single-page mobile website designed to be easy for a 10-year-old to understand.
+Live site: **https://guyorlov.com/projects/pricepals/**
 
-## What already works
-- Colourful responsive mobile design, large buttons and clear UK £ prices.
-- Camera barcode scanning, using `html5-qrcode` v2.3.8 (internet required, camera requires HTTPS or localhost, and permission).
-- Upload an image of a barcode, or type an 8–14 digit barcode.
-- Food product name/image lookup via the public Open Food Facts API when available.
-- Ten **fictional example shops** and **made-up example prices** for the demo.
-- Price offers sorted from cheapest at top to most expensive at bottom, with savings comparisons.
+PricePals is a simple mobile barcode reader designed for children around age 10. Its price comparison now uses **real published observations**, not invented offers.
 
-## Important: real prices are NOT connected
-Open Food Facts can identify some products, but it does not provide an authoritative live price feed for 10 UK retailers. To show real shop offers, connect your licensed data source or backend to a price feed. Do **not** give users the example prices as actual retail prices.
+## What is connected
 
-An integration hook is ready in `index.html`: update `PRICE_API_URL = ''` near the beginning of the script. It expects an HTTPS endpoint taking `?barcode=...` and replying:
+1. **UK Supermarket Price Scraper (Apify)** — a publicly readable, daily updated index of a limited selection of groceries from **Tesco, Sainsbury's, Asda and Aldi**. We match exact EAN/UPC barcodes, take the most recently published price for each supermarket, exclude out-of-stock online products, and link to the retailer's product page. This is a **sample basket**, not a complete catalogue and not a retailer partnership. Source: https://apify.com/yappman/uk-supermarket-price-scraper . Dataset: https://api.apify.com/v2/datasets/ynAT9NPps2EdjMOJa/items
+2. **Open Prices (Open Food Facts)** — crowdsourced receipt and shelf-label prices from UK locations, filtered to GBP, UK shops, exact product barcodes and a 45-day window. We accept the most recent reported price per supermarket and display the recorded date. Source: https://prices.openfoodfacts.org/ ; API https://prices.openfoodfacts.org/api/docs .
 
-```json
-{
-  "offers": [
-    { "shop": "Shop Name", "price": 1.49, "url": "https://shop.example/product" },
-    { "shop": "Another Shop", "price": 1.79, "url": "https://another.example/product" }
-  ]
-}
-```
+Product names and photos also use Open Food Facts' public barcode database.
 
-The page sorts offers ascending and displays the cheapest 10. Use a server-side provider for any API credentials, and make sure the feed is allowed to be displayed publicly. Check matching product **size and variant** before comparing; add last-updated times and delivery costs to a production version. If the price feed is missing or unavailable, the page clearly falls back to demo mode.
+## How it works
 
-## Run it
-Upload `index.html` to GitHub Pages, Netlify, Vercel, or another HTTPS static host. For local development run `python -m http.server 8000` in this folder, then visit `http://localhost:8000`. Camera access requires user permission and browser support.
+- Scan a barcode with your phone (HTTPS + camera permission), upload a photo of a barcode, or enter an 8–14-digit number.
+- Tap **Try a real UK price example** to look up barcode `5063334029012` (a Sainsbury's olive oil entry in the free daily dataset).
+- We compare **only exactly matching barcodes**. Different pack sizes are **not** treated as equivalent products.
+- Show up to 10 different UK supermarkets from cheapest to most expensive. If only one shop has a recorded price, show one; if none do, show **no price**, not examples or guessed values.
+- Date and source are shown per record, along with any loyalty-card price published by the daily source. Normal shelf prices determine the ranking, not member-only offers.
+- Page sends the barcode to public data APIs for lookup, including Apify, Open Prices and Open Food Facts. No account or API key is needed for this free integration.
+
+## Accuracy limitations
+
+**Not live shelf/checkout prices.** The daily dataset is refreshed by its publisher; Open Prices is contributed by volunteers. Prices, availability, promotions, loyalty schemes and delivery fees can vary by location and time. The site uses observations up to 45 days old and clearly marks recording dates. Never promise that a price is available at checkout. Open Prices entries from local branches may not match current national online shelf prices.
+
+Some products and supermarkets are not covered. 10 results is a maximum, not a guaranteed count. We do not scrape supermarket websites in this project, and we do not have formal retailer API partnerships. An optional paid/authorised UK retailer data integration would be needed for broad near-real-time coverage.
+
+## Licensing and credits
+
+- UK Supermarket Price Scraper (Apify, yappman) — public dataset with attribution requested; review publisher terms before commercial redistribution: https://apify.com/yappman/uk-supermarket-price-scraper
+- Open Prices / Open Food Facts — Open Database License (ODbL). Respect attribution/share-alike obligations when combining or distributing this dataset: https://openfoodfacts.github.io/open-prices/guides/data/
+
+This is a static GitHub Pages project and does not store scan history on a server.
