@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b2740">
+<meta name="description" content="FilePixa is a free, accessible online photo studio. Remove photo backgrounds, sharpen soft images, resize, crop, enhance and download, all in your browser.">
+<title>FilePixa — Free Online Photo Editor</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<a href="#editor" class="skip-link">Skip to editor</a>
+<header class="header"><div class="header-inner">
+  <a class="brand" href="./" aria-label="FilePixa home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><rect x="3" y="3" width="26" height="26" rx="7" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="21.5" cy="10.5" r="3.2" fill="currentColor"/><path d="M6 24l8-9 6 6 3-3 4 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>File<b>Pixa</b></span></a>
+  <nav aria-label="Main navigation"><a href="#editor">Photo editor</a><a href="#features">Features</a><a href="#privacy">Privacy</a></nav>
+  <span class="head-chip">Free to use</span>
+</div></header>
+<section class="hero"><div class="hero-inner">
+ <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR CREATIVE SPACE, SIMPLIFIED</div>
+ <h1>Make every photo<br><em>look its best.</em></h1>
+ <p>Remove backgrounds, fix minor blur, enhance colours and resize your images. Simple editing tools, right in your browser.</p>
+ <div class="hero-pills" aria-label="Main features"><span>✦ AI background removal</span><span>✧ Sharpen photos</span><span>▣ Export PNG, JPG & WebP</span></div>
+</div></section>
+<main id="editor" class="app-shell">
+<div class="workspace-heading">
+  <div><div class="section-kicker">FILEPIXA STUDIO</div><h2>Your photo workspace</h2><p>Start with a photo. Adjust it, compare, then download.</p></div>
+  <div class="work-actions"><button id="undo" class="btn btn-subtle" type="button" disabled>↶ Undo</button><button id="reset" class="btn btn-subtle" type="button" disabled>Reset edits</button></div>
+</div>
+<div class="editor-grid">
+ <section class="preview-column" aria-label="Image preview">
+  <div id="dropzone" class="preview-stage" tabindex="0" role="button" aria-label="Choose an image or drop an image here">
+   <div id="empty-state" class="empty-state">
+     <div class="empty-art" aria-hidden="true"><div class="art-back"></div><div class="art-front"><span>◉</span><i></i></div><div class="art-star">✦</div></div>
+     <h3>Drop your photo here</h3><p>Or choose a photo to start creating</p>
+     <span class="btn btn-primary" aria-hidden="true">＋ Choose photo</span>
+     <small>JPG, PNG, WebP · Up to 25 MB recommended</small>
+   </div>
+   <div id="photo-stage" class="photo-stage hidden">
+      <div id="checker" class="checker">
+       <div id="compare-view" class="compare-view">
+        <canvas id="before-canvas" aria-label="Original photo"></canvas>
+        <canvas id="after-canvas" aria-label="Edited photo"></canvas>
+        <div id="compare-line" class="compare-line" aria-hidden="true"><span>↔</span></div>
+       </div>
+      </div>
+   </div>
+   <div id="drop-overlay" class="drop-overlay hidden" aria-hidden="true">Drop image to open</div>
+  </div>
+  <div id="preview-bar" class="preview-bar hidden">
+    <label for="compare">Before <span aria-hidden="true">⟷</span> After</label>
+    <input id="compare" type="range" min="0" max="100" value="100" aria-label="Before and after comparison (0 original, 100 edited)">
+    <span id="image-info">No image</span>
+  </div>
+  <div class="help-strip"><span>◈</span><span>Photos are edited on your device, not uploaded to our server.</span></div>
+ </section>
+ <aside class="controls" aria-label="Photo editing controls">
+  <div class="controls-top"><h3>Edit your photo</h3><span class="local-tag">● Local editing</span></div>
+  <div class="control-group">
+    <div class="group-label"><span>01</span> QUICK ACTIONS</div>
+    <button id="remove-bg" class="action-card highlight" type="button" disabled><span class="action-icon">✂</span><span><strong>Remove background</strong><small>AI cutout · Transparent PNG</small></span><span class="action-arrow">↗</span></button>
+    <div class="action-duo"><button id="auto-enhance" class="action-card" type="button" disabled><span class="action-icon">✦</span><span><strong>Auto enhance</strong><small>Colour & light</small></span></button><button id="fix-blur" class="action-card" type="button" disabled><span class="action-icon">◈</span><span><strong>Fix minor blur</strong><small>Sharpen edges</small></span></button></div>
+    <p class="control-hint">Background removal downloads an AI model on first use. Sharpening improves mild softness but cannot recover missing details.</p>
+  </div>
+  <div class="control-group">
+   <div class="group-label"><span>02</span> FINE TUNE</div>
+   <div class="sliders">
+    <label class="slider-row" for="brightness"><span>Brightness <output id="brightness-val">100%</output></span><input id="brightness" data-control type="range" min="50" max="150" value="100" disabled></label>
+    <label class="slider-row" for="contrast"><span>Contrast <output id="contrast-val">100%</output></span><input id="contrast" data-control type="range" min="50" max="160" value="100" disabled></label>
+    <label class="slider-row" for="saturation"><span>Saturation <output id="saturation-val">100%</output></span><input id="saturation" data-control type="range" min="0" max="200" value="100" disabled></label>
+    <label class="slider-row" for="sharpen"><span>Sharpness <output id="sharpen-val">0%</output></span><input id="sharpen" data-control type="range" min="0" max="100" value="0" disabled></label>
+   </div>
+  </div>
+  <div class="control-group"><div class="group-label"><span>03</span> CROP & TRANSFORM</div>
+   <div class="field"><label for="aspect">Aspect ratio</label><select id="aspect" data-control disabled><option value="original">Original size</option><option value="1">Square (1:1)</option><option value="0.8">Portrait (4:5)</option><option value="1.7777778">Landscape (16:9)</option><option value="0.5625">Story (9:16)</option></select></div>
+   <div class="button-row"><button id="rotate-left" class="btn btn-subtle" type="button" disabled title="Rotate left">↶ 90°</button><button id="rotate-right" class="btn btn-subtle" type="button" disabled title="Rotate right">↷ 90°</button><button id="flip" class="btn btn-subtle" type="button" disabled>⇋ Flip</button></div>
+  </div>
+  <div class="control-group"><div class="group-label"><span>04</span> BACKGROUND</div>
+   <div class="swatches" role="group" aria-label="Background colour">
+     <button class="swatch selected transparent-swatch" data-bg="transparent" title="Transparent" aria-label="Transparent background" aria-pressed="true" disabled></button>
+     <button class="swatch" style="--swatch:#ffffff" data-bg="#ffffff" title="White" aria-label="White background" aria-pressed="false" disabled></button>
+     <button class="swatch" style="--swatch:#e8f4f5" data-bg="#e8f4f5" title="Pale teal" aria-label="Pale teal background" aria-pressed="false" disabled></button>
+     <button class="swatch" style="--swatch:#102b45" data-bg="#102b45" title="Dark navy" aria-label="Dark navy background" aria-pressed="false" disabled></button>
+     <label class="custom-swatch" for="custom-bg" title="Custom colour"><input id="custom-bg" type="color" value="#d8eff1" aria-label="Custom background colour" disabled></label>
+   </div>
+   <p class="control-hint">Colour fills transparent areas. Remove the original background first for a cutout.</p>
+  </div>
+  <div class="control-group export-group"><div class="group-label"><span>05</span> DOWNLOAD</div>
+   <div class="export-fields"><div class="field"><label for="format">Format</label><select id="format" disabled><option value="image/png">PNG</option><option value="image/jpeg">JPG</option><option value="image/webp">WebP</option></select></div><div class="field"><label for="scale">Resolution</label><select id="scale" disabled><option value="1">Original</option><option value="2">2× (resized)</option><option value="4">4× (resized)</option></select></div></div>
+   <button id="download" class="btn btn-primary download-btn" type="button" disabled>↓ Download image</button>
+   <p class="control-hint">2× and 4× enlarge the image using browser resizing; they do not create genuine new detail.</p>
+  </div>
+ </aside>
+</div>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+<input id="upload" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,.jpg,.jpeg,.png,.webp,.avif,.gif" hidden aria-label="Choose photo">
+</main>
+<section class="features-section" id="features"><div class="features-inner"><div class="section-kicker">POWERFUL. PRACTICAL. SIMPLE.</div><h2>All the essentials, without the fuss.</h2>
+  <div class="feature-grid"><article><span>✂</span><h3>Background remover</h3><p>Use an on-device AI model to isolate people, objects and products from the background.</p></article><article><span>◈</span><h3>Sharper photos</h3><p>Improve mildly soft edges with adjustable sharpening and instant comparison.</p></article><article><span>✦</span><h3>Photo enhancement</h3><p>Get brighter, clearer colours using instant presets and precise sliders.</p></article><article><span>▧</span><h3>Resize and export</h3><p>Crop for social posts, rotate, flip and export PNG, JPEG or WebP files.</p></article></div>
+</div></section>
+<section class="privacy-section" id="privacy"><div class="privacy-inner"><span>🔒</span><div><h2>Your photo stays yours.</h2><p>Photo editing and AI background segmentation happen locally in the browser. First-time background removal loads a model and code from third-party CDNs. FilePixa has no accounts or photo-upload server.</p></div></div></section>
+<footer><div class="footer-inner"><div class="footer-brand">File<b>Pixa</b><small>Photos, made simple.</small></div><p>Created by Guy Orlov · <a href="https://github.com/GuyOrlov/projects/tree/main/filepixa" target="_blank" rel="noopener noreferrer">View project source</a></p><p>© 2026 FilePixa · Free browser photo tools</p></div></footer>
+</body>
+</html>
