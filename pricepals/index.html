@@ -8,6 +8,7 @@
   <title>PricePals — Scan it. Save money.</title>
   <style>
     :root{--ink:#18233d;--muted:#606a80;--violet:#6552dc;--violetdark:#4a39be;--sky:#e5f3ff;--green:#227c53;--mint:#e7faed;--paper:#f8f8fd;--line:#e8eaf3;--shadow:0 8px 28px rgba(35,38,78,.055);font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    [hidden]{display:none!important}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-size:15px;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible{outline:3px solid #9589ef;outline-offset:3px}a{color:var(--violet)}
     .page{max-width:480px;margin:0 auto;min-height:100svh;background:var(--paper);padding-bottom:34px}
     .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 16px}
@@ -124,7 +125,7 @@
       for(const row of rows){
         if(!Array.isArray(row.ean)||!row.ean.some(e=>digits(e)===digits(code)))continue;
         const shop=shopName(row.retailer),price=Number(row.price);
-        if(!shop||!Number.isFinite(price)||price<0||!recentDate(row.scrapedAt))continue;
+        if(!shop||!Number.isFinite(price)||price<0||row.inStock===false||!recentDate(row.scrapedAt))continue;
         matched.push({shop,price,date:row.scrapedAt.slice(0,10),source:'UK daily supermarket data',url:row.url,
           stock:row.inStock,loyalty:row.loyaltyPrice==null?null:Number(row.loyaltyPrice),
           productName:row.name||'',quantity:row.packSize||'',discount:false});
