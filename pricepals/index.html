@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#6653de" />
-  <meta name="description" content="PricePals: a simple kid-friendly barcode scanner and price comparison demo." />
+  <meta name="description" content="PricePals scans barcodes and compares dated UK supermarket prices from public data sources. Check at the shop before you buy." />
   <title>PricePals — Scan it. Save money.</title>
   <style>
     :root{--ink:#18233d;--muted:#606a80;--violet:#6552dc;--violetdark:#4a39be;--sky:#e5f3ff;--green:#227c53;--mint:#e7faed;--paper:#f8f8fd;--line:#e8eaf3;--shadow:0 8px 28px rgba(35,38,78,.055);font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -39,7 +39,7 @@
       <div class="brand"><span class="brandmark" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M3 5v14M7 5v14M10 5v14M14 5v14M18 5v14M21 5v14" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M3 11h18" stroke="#c6ff8d" stroke-width="2.5"/></svg></span><span>PricePals<span style="color:#6d58df">.</span></span></div>
       <div class="helper-pill">✨ Super easy!</div>
     </header>
-    <section class="intro"><h1>Scan it.<br><span>Save money.</span> ✨</h1><p>Find the best price for your favourite things. The cheapest shop always comes first!</p></section>
+    <section class="intro"><h1>Scan it.<br><span>Save money.</span> ✨</h1><p>Find real prices reported by UK shops. We put the lowest price first when we have a match!</p></section>
     <section class="scan-card" aria-label="Scan a barcode">
       <div class="scan-inner">
         <div class="scan-top"><strong>What are you shopping for?</strong><div class="scan-art" aria-hidden="true"><svg width="55" height="49" viewBox="0 0 55 49"><rect x="3" y="3" width="49" height="43" rx="8" fill="white"/><path d="M10 12v20M15 12v20M19 12v20M25 12v20M28 12v20M35 12v20M41 12v20M46 12v20" stroke="#5741cb" stroke-width="2"/><path d="M9 36h37" stroke="#b0ec89" stroke-width="4"/></svg></div></div>
@@ -51,13 +51,13 @@
         <div id="photo-reader" class="sr-only" aria-hidden="true"></div>
       </div>
     </section>
-    <div id="status" role="status" aria-live="polite" class="message"></div>
-    <div id="demoBanner" class="demo-note"><span class="emoji" aria-hidden="true">🧪</span><span><strong>Demo prices:</strong> These are made-up shops and example prices so you can try the page. They are not real shop offers.</span></div>
+    <div id="status" role="status" aria-live="polite" class="message"></div><div class="section" style="margin-top:12px"><button id="tryLiveBtn" type="button" style="width:100%;min-height:45px;border-radius:13px;border:1px solid #dcd5fc;background:#eeeafd;color:#5140a7;font-weight:850">🛒 Try a real UK price example</button></div>
+    <div id="demoBanner" class="demo-note"><span class="emoji" aria-hidden="true">🛒</span><span><strong>Real UK prices:</strong> We check a public daily supermarket dataset and community-reported receipts. Prices are dated snapshots, not live checkout quotes. Some barcodes may have no prices. Always check the shop before buying.</span></div>
     <section class="section" aria-label="Selected product">
-      <div class="product-card"><div class="product-art" id="productArt" aria-hidden="true">🧃</div><div class="product-info"><div class="eyebrow" id="productEyebrow">⭐ Sample product</div><h2 id="productName">Berry Juice</h2><p id="productDetails">1 litre • Try scanning something!</p></div></div>
-      <div class="savings"><div class="savings-icon" aria-hidden="true">🎉</div><div><h3 id="saveTitle">Save up to £1.30!</h3><p id="saveText">That's the difference between the cheapest and most expensive example.</p></div></div>
-      <div class="heading-row"><div><h2>Compare 10 shops <span aria-hidden="true">🛒</span></h2><p id="listInfo">From the cheapest to the most expensive</p></div><div class="order-pill">↓ Cheapest first</div></div>
-      <div id="offerList" class="offer-list" aria-live="polite"></div>
+      <div class="product-card"><div class="product-art" id="productArt" aria-hidden="true">🧃</div><div class="product-info"><div class="eyebrow" id="productEyebrow">🔎 Ready to scan</div><h2 id="productName">Scan a product</h2><p id="productDetails">Use the camera, a photo or the barcode numbers</p></div></div>
+      <div class="savings" id="savingsCard" hidden><div class="savings-icon" aria-hidden="true">🎉</div><div><h3 id="saveTitle">Save up to £1.30!</h3><p id="saveText">That's the difference between the cheapest and most expensive example.</p></div></div>
+      <div class="heading-row"><div><h2>Compare up to 10 shops <span aria-hidden="true">🛒</span></h2><p id="listInfo">From the cheapest to the most expensive</p></div><div class="order-pill">↓ Cheapest first</div></div>
+      <div id="offerList" class="offer-list" aria-live="polite"></div><p style="font-size:11px;line-height:1.5;color:#626b80;margin-top:14px" id="dataCredit">Sources: <a href="https://apify.com/yappman/uk-supermarket-price-scraper" target="_blank" rel="noopener noreferrer">UK Supermarket Price Scraper (Apify)</a> and <a href="https://prices.openfoodfacts.org/" target="_blank" rel="noopener noreferrer">Open Prices / Open Food Facts</a> (ODbL). Not affiliated with supermarkets. Prices and availability can change.</p>
       <div class="teach-card"><span class="teach-icon" aria-hidden="true">💡</span><div><strong>Smart shopping tip:</strong> Check that the product size is the same at every shop. A bigger pack might cost more but give you more!</div></div>
     </section>
     <footer class="footer">Built for young price detectives 🕵️<br>Always check the real shop price before you buy.<div class="bottom-rule" aria-hidden="true"></div></footer>
@@ -67,90 +67,122 @@
   </div>
   <script>
     'use strict';
-    // Optional: set this to an HTTPS endpoint that responds with {"offers":[{"shop":"Shop name","price":1.49,"url":"https://..."}]}.
-    // Do not place private retailer API keys here: connect them through a server instead.
-    const PRICE_API_URL = '';
-    const exampleOffers = [
-      {shop:'Penny Place',price:1.45,emoji:'🪙',color:'#fff0c7'},
-      {shop:'Happy Mart',price:1.55,emoji:'😊',color:'#fff0de'},
-      {shop:'Blue Basket',price:1.65,emoji:'🧺',color:'#dfeeff'},
-      {shop:'Sunny Shop',price:1.79,emoji:'☀️',color:'#fff4ce'},
-      {shop:'Rainbow Market',price:1.95,emoji:'🌈',color:'#f0e5ff'},
-      {shop:'Little Grocer',price:2.05,emoji:'🥕',color:'#e0f7dd'},
-      {shop:'Town Store',price:2.19,emoji:'🏡',color:'#ffe8f1'},
-      {shop:'Big Basket',price:2.29,emoji:'🛍️',color:'#e4ecff'},
-      {shop:'Corner Shop',price:2.45,emoji:'🍀',color:'#e2f5dc'},
-      {shop:'Star Market',price:2.75,emoji:'⭐',color:'#fff0d7'}
-    ];
+    // Public, free datasets. No retailer API tokens or hidden keys are placed in browser code.
+    // Daily index covers a selected basket at Tesco, Sainsbury's, Asda and Aldi,
+    // NOT every barcode. Open Prices is crowdsourced and is NOT live till pricing.
+    const UK_DATASET='https://api.apify.com/v2/datasets/ynAT9NPps2EdjMOJa/items';
+    const UK_FIELDS='retailer,ean,name,brand,packSize,price,loyaltyPrice,inStock,url,scrapedAt,unitPrice,promotionText';
+    const OPEN_PRICES='https://prices.openfoodfacts.org/api/v1/prices';
     const el=id=>document.getElementById(id);
-    const fmt = x=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(x);
-    const escapeHtml = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-    let activeOffers=exampleOffers.slice(), isDemo=true, scanner=null, scanLock=false;
-    function showStatus(message,type='ok'){
-      const node=el('status'); node.textContent=message; node.className='message show '+type;
-    }
-    function setMode(demo){
-      isDemo=demo;
-      el('demoBanner').style.display=demo?'flex':'none';
-      el('listInfo').textContent=demo?'Example prices • cheapest to most expensive':'Shop prices • cheapest to most expensive';
-    }
+    const fmt=x=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(x);
+    const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#039;'}[c]));
+    const brands=[
+      [/^tesco\b/i,'Tesco'],[/^sainsbury/i,"Sainsbury's"],[/^asda\b/i,'Asda'],
+      [/^aldi\b/i,'Aldi'],[/^lidl\b/i,'Lidl'],[/^morrisons?\b/i,'Morrisons'],
+      [/^waitrose\b/i,'Waitrose'],[/^ocado\b/i,'Ocado'],[/^iceland\b/i,'Iceland'],
+      [/^co[\s-]?op\b/i,'Co-op'],[/^marks\s*(?:&|and)\s*spencer\b|^m&s\b/i,'M&S'],
+      [/^spar\b/i,'Spar'],[/^farmfoods\b/i,'Farmfoods'],[/^booths\b/i,'Booths']
+    ];
+    const shopName=v=>{const name=String(v||'').trim();return brands.find(([re])=>re.test(name))?.[1]||''};
+    const digits=v=>String(v||'').replace(/^0+(?=\d)/,'');
+    const validCode=v=>/^\d{8,14}$/.test(String(v));
+    const recentDate=d=>{const t=Date.parse(String(d||'').slice(0,10)+'T00:00:00Z');return Number.isFinite(t)&&t<=Date.now()+86400000&&Date.now()-t<=45*86400000};
+    const prettyDate=d=>{const t=Date.parse(String(d||'').slice(0,10)+'T00:00:00Z');return Number.isFinite(t)?new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(t):'Unknown date'};
+    let activeOffers=[],scanner=null,scanLock=false,searchCount=0,ukDataPromise=null;
+    function showStatus(message,type='ok'){const n=el('status');n.textContent=message;n.className='message show '+type}
     function renderOffers(){
-      const offers=[...activeOffers].filter(o=>Number.isFinite(Number(o.price))&&Number(o.price)>=0).sort((a,b)=>a.price-b.price).slice(0,10);
+      const offers=activeOffers.filter(o=>Number.isFinite(o.price)&&o.price>=0)
+        .sort((a,b)=>a.price-b.price||b.date.localeCompare(a.date)).slice(0,10);
       const list=el('offerList');
       list.innerHTML=offers.map((o,i)=>{
-        const more=Number(o.price)-Number(offers[0].price);
-        const sub=i===0?'🏆 BEST PRICE':(more<0.005?'Same as best price':fmt(more)+' more than the cheapest');
-        const safeShop=escapeHtml(o.shop||'Shop');
-        const icon=escapeHtml(o.emoji || '🛍️');
-        const bg=/^#[0-9a-fA-F]{6}$/.test(o.color||'')?o.color:'#f0effb';
-        const link= !isDemo && /^https:\/\//.test(o.url||'') ? '<a style="font-size:11px;font-weight:800;display:inline-block;margin-top:6px" href="'+escapeHtml(o.url)+'" target="_blank" rel="noopener noreferrer">Visit shop ↗</a>':'';
-        return '<article class="offer'+(i===0?' winner':'')+'" aria-label="Shop '+(i+1)+': '+safeShop+', '+fmt(Number(o.price))+'"><div class="rank">'+(i+1)+'</div><div class="shop-icon" style="background:'+bg+'" aria-hidden="true">'+icon+'</div><div class="shop-main"><div class="shop-name">'+safeShop+'</div><div class="shop-sub">'+sub+'</div>'+link+'</div><div><div class="price">'+fmt(Number(o.price))+'</div><div class="price-label">'+(i===0?'Lowest price!':'Example price'.replace('Example',isDemo?'Example':'Shop'))+'</div></div></article>';
-      }).join('') || '<p>No prices available for this product yet.</p>';
-      el('listInfo').textContent=(isDemo?'Example prices':'Shop prices')+' • '+offers.length+' '+(offers.length===1?'shop':'shops')+' • lowest first';
-      const low=offers.length?Number(offers[0].price):0, high=offers.length?Number(offers[offers.length-1].price):0;
-      el('saveTitle').textContent=offers.length>1?'Save up to '+fmt(high-low)+'!':'Compare shop prices';
-      el('saveText').textContent= isDemo?"That's the difference between the cheapest and most expensive example.":'Difference between the lowest and highest available shop prices.';
-      document.querySelector('.heading-row h2').innerHTML='Compare '+offers.length+' shops <span aria-hidden="true">🛒</span>';
+        const more=o.price-offers[0].price;
+        const sub=i===0?'🏆 LOWEST REPORTED':more<0.005?'Same reported price':fmt(more)+' more';
+        const link=/^https:\/\//.test(o.url||'')?'<a style="font-size:11px;font-weight:800;display:inline-block;margin-top:5px" href="'+escapeHtml(o.url)+'" target="_blank" rel="noopener noreferrer">Check shop ↗</a>':'';
+        const info='Seen '+prettyDate(o.date)+' · '+o.source+(o.stock===false?' · Out of stock online':'')+(o.discount?' · Offer price':'');
+        const extra=Number.isFinite(o.loyalty)&&o.loyalty<o.price?'<div class="shop-sub">With loyalty card: '+fmt(o.loyalty)+'</div>':'';
+        return '<article class="offer'+(i===0?' winner':'')+'" aria-label="'+escapeHtml(o.shop)+': '+fmt(o.price)+' recorded '+prettyDate(o.date)+'"><div class="rank">'+(i+1)+'</div><div class="shop-icon" style="background:#e5f3ff" aria-hidden="true">🛒</div><div class="shop-main"><div class="shop-name">'+escapeHtml(o.shop)+'</div><div class="shop-sub">'+sub+'</div><div class="shop-sub">'+escapeHtml(info)+'</div>'+extra+link+'</div><div><div class="price">'+fmt(o.price)+'</div><div class="price-label">Recorded</div></div></article>';
+      }).join('')||'<div class="offer" style="display:block;line-height:1.6"><strong>No recent UK supermarket prices found yet.</strong><div class="shop-sub">That is not a price of £0. Try another barcode or check the shop website. We only show genuine dated price records.</div></div>';
+      el('listInfo').textContent=offers.length+' '+(offers.length===1?'supermarket':'supermarkets')+' with reported prices · cheapest first';
+      document.querySelector('.heading-row h2').innerHTML='Compare '+offers.length+' of up to 10 shops <span aria-hidden="true">🛒</span>';
+      el('savingsCard').hidden=offers.length<2;
+      if(offers.length>1){
+        el('saveTitle').textContent='Price difference: '+fmt(offers[offers.length-1].price-offers[0].price);
+        el('saveText').textContent='Between these dated prices, not guaranteed savings today. Check the shop before you buy.';
+      }
+    }
+    async function fetchDaily(){
+      if(ukDataPromise)return ukDataPromise;
+      const params=new URLSearchParams({desc:'true',limit:'4000',fields:UK_FIELDS});
+      ukDataPromise=fetch(UK_DATASET+'?'+params,{headers:{Accept:'application/json'}})
+        .then(r=>{if(!r.ok)throw Error('Daily UK dataset unavailable');return r.json()})
+        .then(rows=>{if(!Array.isArray(rows))throw Error('Invalid daily UK data');return rows})
+        .catch(e=>{ukDataPromise=null;throw e});
+      return ukDataPromise;
+    }
+    async function fetchDailyOffers(code){
+      const rows=await fetchDaily(),matched=[];
+      for(const row of rows){
+        if(!Array.isArray(row.ean)||!row.ean.some(e=>digits(e)===digits(code)))continue;
+        const shop=shopName(row.retailer),price=Number(row.price);
+        if(!shop||!Number.isFinite(price)||price<0||!recentDate(row.scrapedAt))continue;
+        matched.push({shop,price,date:row.scrapedAt.slice(0,10),source:'UK daily supermarket data',url:row.url,
+          stock:row.inStock,loyalty:row.loyaltyPrice==null?null:Number(row.loyaltyPrice),
+          productName:row.name||'',quantity:row.packSize||'',discount:false});
+      }
+      return matched;
+    }
+    async function fetchCommunityOffers(code){
+      const params=new URLSearchParams({product_code:code,currency:'GBP',type:'PRODUCT',size:'100',order_by:'-date',duplicate_of__isnull:'true'});
+      const r=await fetch(OPEN_PRICES+'?'+params,{headers:{Accept:'application/json'}});
+      if(!r.ok)throw Error('Community prices unavailable');
+      const data=await r.json();if(!Array.isArray(data.items))throw Error('Invalid community prices');
+      return data.items.filter(p=>p&&p.product_code===code&&p.type==='PRODUCT'&&p.currency==='GBP'
+        &&p.location?.osm_address_country_code==='GB'&&(p.price_per==null||p.price_per==='UNIT')
+        &&p.duplicate_of==null&&recentDate(p.date)).map(p=>({
+          shop:shopName(p.location?.osm_brand)||shopName(p.location?.osm_name),
+          price:Number(p.price),date:p.date,source:'Open Prices receipt / label',discount:!!p.price_is_discounted,
+          productName:p.product?.product_name||'',quantity:p.product?.quantity||'',loyalty:null
+        })).filter(p=>p.shop&&Number.isFinite(p.price)&&p.price>=0);
     }
     async function fetchOffers(code){
-      if(!PRICE_API_URL) return null;
-      try{
-        const response=await fetch(PRICE_API_URL+'?barcode='+encodeURIComponent(code),{headers:{Accept:'application/json'}});
-        if(!response.ok)throw Error('Price service unavailable');
-        const data=await response.json();
-        if(!Array.isArray(data.offers) || data.offers.length===0)return null;
-        return data.offers.filter(x=>x&&typeof x.shop==='string'&&Number.isFinite(Number(x.price))&&Number(x.price)>=0)
-          .map(x=>({shop:x.shop.slice(0,70),price:Number(x.price),url:x.url,emoji:'🛍️',color:'#f0effb'}));
-      }catch(error){ console.warn('Could not load shop prices',error);return null; }
+      const results=await Promise.allSettled([fetchDailyOffers(code),fetchCommunityOffers(code)]);
+      const all=results.filter(r=>r.status==='fulfilled').flatMap(r=>r.value);
+      const byShop=new Map();
+      for(const row of all){
+        const existing=byShop.get(row.shop);
+        if(!existing||row.date>existing.date||(row.date===existing.date&&row.source==='UK daily supermarket data'))byShop.set(row.shop,row);
+      }
+      return {offers:[...byShop.values()].sort((a,b)=>a.price-b.price).slice(0,10),
+        failed:results.every(r=>r.status==='rejected'),
+        product:all.find(r=>r.productName)?.productName||'',
+        quantity:all.find(r=>r.quantity)?.quantity||''};
     }
     async function lookupBarcode(input){
       const code=String(input).replace(/\s/g,'');
-      if(!/^\d{8,14}$/.test(code)){showStatus('Oops! Please enter a barcode with 8 to 14 numbers. 😊','warn');return;}
-      el('productEyebrow').textContent='🔎 Looking up the barcode…';
-      showStatus('Barcode '+code+' scanned! Checking the product…');
+      if(!validCode(code)){showStatus('Oops! Please enter a barcode with 8 to 14 numbers. 😊','warn');return}
+      const ticket=++searchCount;
+      activeOffers=[];renderOffers();el('savingsCard').hidden=true;
+      el('productEyebrow').textContent='🔎 Checking UK prices…';
+      showStatus('Looking for this exact barcode in UK price records…');
       el('manualForm').classList.remove('open');
-      let found=false;
-      try{
-        const request=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'?fields=product_name,product_name_en,brands,quantity,image_front_small_url',{headers:{Accept:'application/json'}});
-        if(!request.ok)throw Error('Product lookup not available');
-        const data=await request.json();
-        if(data.status===1 && data.product){
-          const p=data.product;
-          found=true;
-          el('productName').textContent=(p.product_name_en||p.product_name||p.brands||'Product found').slice(0,100);
-          el('productDetails').textContent=[p.quantity, 'Barcode '+code].filter(Boolean).join(' • ');
-          if(p.image_front_small_url&&/^https:\/\//.test(p.image_front_small_url)){
-            el('productArt').textContent='';
-            const img=document.createElement('img');img.alt='';img.src=p.image_front_small_url;img.referrerPolicy='no-referrer';img.onerror=()=>{el('productArt').textContent='📦'};el('productArt').appendChild(img);
-          }else{el('productArt').textContent='📦';}
-        }
-      }catch(err){console.warn('Product database lookup unavailable',err);}
-      if(!found){el('productName').textContent='Scanned product';el('productDetails').textContent='Barcode '+code;el('productArt').textContent='📦';}
-      el('productEyebrow').textContent=found?'✅ Product found':'✅ Barcode read';
-      const fetched=await fetchOffers(code);
-      if(fetched&&fetched.length){activeOffers=fetched;setMode(false);showStatus('Great! Here are the available shop prices, starting with the cheapest.');}
-      else{activeOffers=exampleOffers.slice();setMode(true);showStatus(found?'Product found! The 10 prices below are examples, not real prices.':'Barcode read! Product details were not found. The prices below are only examples.','warn');}
-      renderOffers();el('productName').scrollIntoView({behavior:'smooth',block:'center'});
+      el('productArt').textContent='📦';
+      el('productName').textContent='Searching…';
+      el('productDetails').textContent='Barcode '+code;
+      const productPromise=fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'?fields=product_name,product_name_en,brands,quantity,image_front_small_url',{headers:{Accept:'application/json'}})
+        .then(r=>r.ok?r.json():null).catch(()=>null);
+      const [productData,result]=await Promise.all([productPromise,fetchOffers(code)]);if(ticket!==searchCount)return;
+      const p=productData?.status===1?productData.product:null;
+      el('productName').textContent=(p?.product_name_en||p?.product_name||result.product||'Scanned product').slice(0,100);
+      el('productDetails').textContent=[p?.quantity||result.quantity,'Barcode '+code].filter(Boolean).join(' • ');
+      if(p?.image_front_small_url&&/^https:\/\//.test(p.image_front_small_url)){
+        const img=document.createElement('img');img.alt='';img.src=p.image_front_small_url;img.referrerPolicy='no-referrer';img.onerror=()=>{el('productArt').textContent='📦'};
+        el('productArt').textContent='';el('productArt').appendChild(img);
+      }
+      el('productEyebrow').textContent=result.offers.length?'✅ UK price records':'✅ Barcode checked';
+      activeOffers=result.offers;renderOffers();
+      if(result.offers.length)showStatus('Found '+result.offers.length+' real UK '+(result.offers.length===1?'price':'shop prices')+'! Check the dates before buying.');
+      else showStatus(result.failed?'Price services could not be reached. Check your internet and try again.':'No recent UK supermarket prices for this barcode. We will not invent prices.','warn');
+      el('productName').scrollIntoView({behavior:'smooth',block:'center'});
     }
     function setOverlay(visible){el('scannerOverlay').classList.toggle('visible',visible);el('scannerOverlay').setAttribute('aria-hidden',visible?'false':'true');document.body.style.overflow=visible?'hidden':'';}
     async function stopCamera(){if(scanner){const s=scanner;scanner=null;try{if(s.isScanning)await s.stop();s.clear();}catch(err){console.warn('Closing camera',err);}}}
@@ -188,7 +220,8 @@
       }catch(err){showStatus('I could not see a clear barcode. Try a brighter photo, or type the numbers.','warn');console.warn('Photo scan failed',err)}
       finally{e.target.value='';}
     });
-    setMode(true);renderOffers();
+    el('tryLiveBtn').addEventListener('click',()=>lookupBarcode('5063334029012'));
+    renderOffers();
   </script>
 </body>
 </html>
