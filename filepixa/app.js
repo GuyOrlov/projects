@@ -230,6 +230,7 @@
       case "crop":jumpTo("aspect");$("aspect").focus({preventScroll:true});break;
       case "background":jumpTo("editing-panel");document.querySelector(".swatches")?.scrollIntoView({behavior:"smooth",block:"center"});break;
       case "export":jumpTo("export-group");$("format").focus({preventScroll:true});break;
+      case "download":$("download").click();break;
     }
   }
   function attachSocialUI(){
