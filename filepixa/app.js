@@ -157,6 +157,7 @@
   }
   async function removeBackground(){
     if(!s.file||s.busy||s.removed)return;
+    remember();
     setBusy(true,"Loading AI background remover. First use downloads a model and may take time…");
     await new Promise(resolve=>setTimeout(resolve,40));
     try{
@@ -177,12 +178,12 @@
       if(!(blob instanceof Blob)||blob.size===0)throw Error("AI returned an empty image.");
       const url=URL.createObjectURL(blob);
       const img=await loadFromUrl(url);
-      remember();
       s.urls.push(url);s.current=img;s.currentBlob=blob;s.removed=true;s.settings.bg="transparent";
       sync();scheduleRender();
       $("format").value="image/png";
       message("Background removed. Export as PNG or WebP to keep transparency.");
     }catch(e){
+      s.history.pop();
       console.error("FilePixa background removal error",e);
       message("Background removal could not run on this device or connection. "+(e.message||"Please retry while online.")+" Try a smaller photo or a desktop browser.",true);
     }finally{setBusy(false);sync();}
