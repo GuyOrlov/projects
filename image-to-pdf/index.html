@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#102a43">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Photo to PDF">
+  <meta name="description" content="Convert one or many photos into a PDF privately in your browser. No account, no upload, free to use.">
+  <title>Photo to PDF — Free, private photo converter</title>
+  <style>
+    :root{color-scheme:light;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#173047;background:#f5f7fb;--ink:#173047;--muted:#5a6e81;--line:#dce5ed;--blue:#1463e8;--navy:#102a43;--white:#fff;--mint:#d9f6ed}
+    *{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}
+    a{color:#1257bf}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,label:focus-visible{outline:3px solid #ffac38;outline-offset:3px}
+    .shell{max-width:1020px;margin:auto;padding:0 20px}
+    header{background:var(--navy);color:#fff;padding:17px 0}.header-row{display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.04em;font-size:20px}.logo{display:grid;place-items:center;border-radius:13px;background:#fff;color:#0d468f;height:40px;width:40px;font-size:22px}.header-meta{font-size:13px;color:#c8dce8}
+    main{padding-top:34px;padding-bottom:40px}.hero{text-align:center;max-width:730px;margin:0 auto 27px}.eyebrow{font-size:12px;color:#1463e8;text-transform:uppercase;font-weight:850;letter-spacing:.11em}.hero h1{font-size:clamp(32px,5vw,48px);line-height:1.09;letter-spacing:-.05em;margin:12px 0}.hero p{font-size:16px;color:var(--muted);line-height:1.6;margin:0}
+    .workspace{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(285px,1fr);gap:20px;align-items:start}.panel{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 8px 28px #122b4310;overflow:hidden}.panel-pad{padding:25px}.section-heading{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}.section-heading h2{font-size:19px;letter-spacing:-.025em;margin:0}.counter{background:#eef4ff;border-radius:20px;color:#25539d;padding:6px 11px;font-weight:750;font-size:12px}
+    .upload{background:#f7faff;border:2px dashed #a6c4f4;min-height:250px;border-radius:17px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px 18px;cursor:pointer;transition:border-color .2s,background .2s}.upload:hover,.upload.drag-over{border-color:#1463e8;background:#ecf4ff}.upload-icon{height:67px;width:67px;border-radius:20px;background:#e2eeff;display:grid;place-items:center;font-size:31px;margin-bottom:16px}.upload strong{font-size:17px}.upload small{display:block;color:var(--muted);line-height:1.6;margin:8px 0 14px}.upload .pick{border-radius:11px;padding:12px 19px;background:var(--blue);color:#fff;font-weight:750}.file-picker{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip-path:inset(50%)}.hint{color:var(--muted);font-size:13px;line-height:1.55;margin:15px 0 0}
+    .photo-list{display:grid;gap:10px;margin-top:16px}.photo-item{display:grid;grid-template-columns:31px 64px minmax(0,1fr) auto;align-items:center;gap:12px;background:#fbfcff;border:1px solid #e2eaf2;border-radius:13px;padding:10px}.photo-number{font-weight:850;color:#789;align-self:start;padding-top:4px}.thumb{width:64px;height:68px;object-fit:cover;border-radius:8px;background:#dce5ee}.photo-meta{min-width:0}.photo-name{font-size:13px;font-weight:760;word-break:break-word;margin:0 0 5px}.photo-size{font-size:12px;color:var(--muted);margin:0}.item-actions{display:flex;gap:5px;align-items:center}.icon-btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 9px;border-radius:9px;font-weight:700;min-height:34px}.icon-btn:hover:not(:disabled){background:#eaf2ff}.icon-btn.danger{color:#a43344}.photos-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:17px;flex-wrap:wrap}.link-button{border:0;padding:8px 0;background:transparent;color:#0f58be;font-weight:760}.link-button:hover{text-decoration:underline}
+    .settings{display:grid;gap:16px}.setting label{font-size:13px;font-weight:760;display:block;margin-bottom:7px}.setting select,.setting input{width:100%;background:#fff;color:var(--ink);border:1px solid #cbd8e3;border-radius:10px;padding:11px 12px;min-height:44px}.setting input{min-width:0}.divider{height:1px;background:#e7edf3;margin:5px 0}.generate{border:0;background:var(--blue);color:#fff;font-weight:830;padding:16px;border-radius:12px;width:100%;font-size:16px;min-height:55px;box-shadow:0 5px 14px #1463e822}.generate:hover:not(:disabled){background:#1054c9}.generate:disabled{background:#8ca8d6}.note{font-size:12px;color:var(--muted);line-height:1.55;text-align:center;margin:0}.status{margin-top:15px;font-size:14px;min-height:18px;line-height:1.5;color:#21598d;white-space:normal}.status.error{color:#a43344}.ready{display:grid;gap:10px;margin-top:12px}.ready a{display:block;text-align:center;padding:12px;border-radius:10px;border:1px solid #abc5e9;background:#f1f7ff;text-decoration:none;font-weight:760}
+    .reassurance{margin-top:19px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.reassurance>div{padding:17px;border:1px solid var(--line);background:#fff;border-radius:14px}.reassurance strong{display:block;font-size:14px;margin-bottom:5px}.reassurance span{color:var(--muted);font-size:12px;line-height:1.6}.foot{text-align:center;padding:20px;color:var(--muted);font-size:12px}
+    @media(max-width:750px){.workspace{grid-template-columns:1fr}.panel-pad{padding:18px}.hero{margin-bottom:22px}.reassurance{grid-template-columns:1fr}.reassurance>div{padding:14px}.header-meta{display:none}.photo-item{grid-template-columns:23px 53px minmax(0,1fr);gap:8px}.thumb{width:53px;height:59px}.item-actions{grid-column:3;justify-self:start}.upload{min-height:213px}.shell{padding:0 15px}main{padding-top:26px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.3/jspdf.umd.min.js" defer></script>
+</head>
+<body>
+<header><div class="shell header-row"><div class="brand"><span class="logo" aria-hidden="true">▤</span><span>Photo to PDF</span></div><span class="header-meta">A simple, private tool · by Guy Orlov</span></div></header>
+<main class="shell">
+  <div class="hero">
+    <div class="eyebrow">FREE IMAGE TO PDF CONVERTER</div>
+    <h1>Turn your photos into one PDF.</h1>
+    <p>Choose one or several pictures, put them in order and download a clean PDF. Works on iPhone, Android, tablet and desktop.</p>
+  </div>
+  <div class="workspace">
+    <section class="panel" aria-labelledby="photo-title">
+      <div class="panel-pad">
+        <div class="section-heading"><h2 id="photo-title">1. Add your photos</h2><span class="counter" id="count">0 photos</span></div>
+        <label class="upload" id="dropzone" for="picker">
+          <span class="upload-icon" aria-hidden="true">🖼️</span>
+          <strong>Choose photos or drop them here</strong>
+          <small>Select several photos at once, or take a photo with your phone.<br>JPEG, PNG, WebP and browser-supported HEIC.</small>
+          <span class="pick">+ Choose photos</span>
+        </label>
+        <input class="file-picker" id="picker" type="file" accept="image/*,.heic,.heif" multiple aria-label="Choose one or more photos">
+        <p class="hint" id="upload-hint">One photo becomes one PDF page. Add more photos at any time. Use the arrow buttons to change their order.</p>
+        <div id="photos" class="photo-list" aria-label="Photos in PDF order"></div>
+        <div class="photos-toolbar" id="toolbar" hidden>
+          <button type="button" class="link-button" id="addMore">+ Add more photos</button>
+          <button type="button" class="link-button" id="clearAll">Clear all</button>
+        </div>
+      </div>
+    </section>
+    <section class="panel" aria-labelledby="settings-title">
+      <div class="panel-pad">
+        <div class="section-heading"><h2 id="settings-title">2. PDF settings</h2></div>
+        <div class="settings">
+          <div class="setting"><label for="pageSize">Paper size</label><select id="pageSize"><option value="a4">A4 — standard UK paper</option><option value="a5">A5 — half-size</option><option value="letter">US Letter</option><option value="photo">4 × 6 inch photo</option></select></div>
+          <div class="setting"><label for="orientation">Page orientation</label><select id="orientation"><option value="auto">Automatic (match each photo)</option><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div>
+          <div class="setting"><label for="fit">Photo placement</label><select id="fit"><option value="contain">Show whole photo (recommended)</option><option value="cover">Fill the page (may crop edges)</option></select></div>
+          <div class="setting"><label for="margin">White page border</label><select id="margin"><option value="8">Small (8 mm)</option><option value="15">Normal (15 mm)</option><option value="0">None — edge to edge</option></select></div>
+          <div class="setting"><label for="quality">Image quality / file size</label><select id="quality"><option value="balanced">Balanced (recommended)</option><option value="high">High quality</option><option value="small">Smaller PDF</option></select></div>
+          <div class="setting"><label for="filename">PDF file name</label><input type="text" id="filename" maxlength="80" value="my-photos" autocomplete="off" spellcheck="false"></div>
+          <div class="divider" role="presentation"></div>
+          <button class="generate" id="generate" type="button" disabled>Download PDF</button>
+          <p class="note">Your pictures stay on your device. No sign-in, account or image upload is required.</p>
+        </div>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+        <div class="ready" id="ready" hidden>
+          <a id="downloadAgain" href="#" download="my-photos.pdf">⬇ Download again</a>
+          <a id="openPdf" href="#" target="_blank" rel="noopener">View PDF / share on iPhone ↗</a>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="reassurance" aria-label="Benefits">
+    <div><strong>🔒 Private by design</strong><span>All processing happens locally in your browser. Photos are not uploaded.</span></div>
+    <div><strong>📄 Multiple photos, one PDF</strong><span>Each photo gets its own page, in the order you choose.</span></div>
+    <div><strong>📱 Save it for later</strong><span>On iPhone, open the Safari Share menu and choose Add to Home Screen.</span></div>
+  </div>
+</main>
+<footer class="foot">Photo to PDF · A free utility by Guy Orlov. The PDF is only saved where you choose to download it.</footer>
+<script>
+(function () {
+  'use strict';
+  const items = [];
+  const MAX_FILES = 80;
+  const $ = (id) => document.getElementById(id);
+  const picker = $('picker'), gallery = $('photos'), count = $('count'), toolbar = $('toolbar');
+  const status = $('status'), generate = $('generate'), ready = $('ready');
+  let running = false, lastPdfUrl = null, draggedId = null;
+  const sizes = { a4: [210, 297], a5: [148, 210], letter: [215.9, 279.4], photo: [101.6, 152.4] };
+  const configs = { high: { max: 3000, jpg: 0.94 }, balanced: { max: 2100, jpg: 0.83 }, small: { max: 1300, jpg: 0.68 } };
+
+  function updateStatus(message, error) {
+    status.textContent = message;
+    status.classList.toggle('error', Boolean(error));
+  }
+  function clearOutput() {
+    ready.hidden = true;
+    if (lastPdfUrl) { URL.revokeObjectURL(lastPdfUrl); lastPdfUrl = null; }
+  }
+  function readableBytes(bytes) {
+    return bytes < 1048576 ? Math.max(1, Math.round(bytes / 1024)) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB';
+  }
+  function render() {
+    count.textContent = items.length + (items.length === 1 ? ' photo' : ' photos');
+    generate.disabled = running || items.length === 0;
+    generate.textContent = running ? 'Creating PDF…' : 'Download PDF';
+    toolbar.hidden = items.length === 0;
+    gallery.replaceChildren();
+    items.forEach(function(item, index) {
+      const article = document.createElement('article');
+      article.className = 'photo-item';
+      article.draggable = !running;
+      article.dataset.id = item.id;
+      const number = document.createElement('span');
+      number.className = 'photo-number';
+      number.textContent = index + 1;
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = item.url;
+      img.alt = 'Preview of ' + item.file.name;
+      const info = document.createElement('div');
+      info.className = 'photo-meta';
+      const name = document.createElement('p');
+      name.className = 'photo-name';
+      name.textContent = item.file.name;
+      const size = document.createElement('p');
+      size.className = 'photo-size';
+      size.textContent = readableBytes(item.file.size);
+      info.append(name, size);
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+      [['up','↑','Move photo up',index===0],['down','↓','Move photo down',index===items.length-1],['remove','×','Remove photo',false]].forEach(function(def) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'icon-btn' + (def[0] === 'remove' ? ' danger' : '');
+        btn.dataset.action = def[0];
+        btn.setAttribute('aria-label', def[2] + ': ' + item.file.name);
+        btn.title = def[2];
+        btn.textContent = def[1];
+        btn.disabled = running || def[3];
+        actions.append(btn);
+      });
+      article.append(number, img, info, actions);
+      gallery.append(article);
+    });
+  }
+  function addFiles(fileList) {
+    if (running) return;
+    let added = 0, ignored = 0;
+    Array.from(fileList || []).forEach(function(file) {
+      if (items.length >= MAX_FILES || !(file.type.startsWith('image/') || /\.(heic|heif)$/i.test(file.name))) {
+        ignored++; return;
+      }
+      items.push({ file: file, url: URL.createObjectURL(file), id: String(Date.now()) + '-' + String(Math.random()) });
+      added++;
+    });
+    if (added) clearOutput();
+    render();
+    if (ignored) updateStatus(ignored + ' file(s) skipped. Please use images only (maximum ' + MAX_FILES + ' photos).', true);
+    else if (added) updateStatus(added + (added === 1 ? ' photo added.' : ' photos added.') + ' Ready when you are.');
+  }
+  picker.addEventListener('change', function() { addFiles(picker.files); picker.value = ''; });
+  $('addMore').addEventListener('click', function() { picker.click(); });
+  $('clearAll').addEventListener('click', function() {
+    if (running) return;
+    items.forEach(function(item) { URL.revokeObjectURL(item.url); });
+    items.length = 0;
+    clearOutput(); render(); updateStatus('All photos cleared.');
+  });
+  gallery.addEventListener('click', function(event) {
+    if (running) return;
+    const btn = event.target.closest('button[data-action]');
+    if (!btn) return;
+    const item = btn.closest('.photo-item');
+    const index = items.findIndex(function(row) { return row.id === item.dataset.id; });
+    if (index < 0) return;
+    const action = btn.dataset.action;
+    if (action === 'remove') { URL.revokeObjectURL(items[index].url); items.splice(index, 1); }
+    else {
+      const target = index + (action === 'up' ? -1 : 1);
+      if (target < 0 || target >= items.length) return;
+      const moving = items.splice(index, 1)[0]; items.splice(target, 0, moving);
+    }
+    clearOutput(); render();
+  });
+  // Drag and drop files onto upload area. On desktop, reorder cards by dragging.
+  const dropzone = $('dropzone');
+  ['dragenter','dragover'].forEach(function(type) {
+    dropzone.addEventListener(type, function(event) { event.preventDefault(); dropzone.classList.add('drag-over'); });
+  });
+  ['dragleave','drop'].forEach(function(type) {
+    dropzone.addEventListener(type, function(event) { event.preventDefault(); dropzone.classList.remove('drag-over'); });
+  });
+  dropzone.addEventListener('drop', function(event) { addFiles(event.dataTransfer.files); });
+  gallery.addEventListener('dragstart', function(event) {
+    if (running) { event.preventDefault(); return; }
+    const item = event.target.closest('.photo-item');
+    draggedId = item ? item.dataset.id : null;
+    if (draggedId && event.dataTransfer) { event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', draggedId); }
+  });
+  gallery.addEventListener('dragover', function(event) { if (draggedId) event.preventDefault(); });
+  gallery.addEventListener('drop', function(event) {
+    if (!draggedId || running) return;
+    event.preventDefault();
+    const card = event.target.closest('.photo-item');
+    const from = items.findIndex(function(row) { return row.id === draggedId; });
+    const to = card ? items.findIndex(function(row) { return row.id === card.dataset.id; }) : -1;
+    if (from >= 0 && to >= 0 && from !== to) {
+      const moving = items.splice(from, 1)[0]; items.splice(to, 0, moving);
+      clearOutput(); render();
+    }
+    draggedId = null;
+  });
+  gallery.addEventListener('dragend', function() { draggedId = null; });
+
+  function loadImage(file) {
+    return new Promise(function(resolve, reject) {
+      const image = new Image(), imageUrl = URL.createObjectURL(file);
+      image.onload = function() { URL.revokeObjectURL(imageUrl); resolve(image); };
+      image.onerror = function() { URL.revokeObjectURL(imageUrl); reject(new Error('Could not read "' + file.name + '". Convert it to JPEG or PNG and try again.')); };
+      image.src = imageUrl;
+    });
+  }
+  function makeCanvas(image, pageW, pageH, fit, cfg) {
+    const naturalW = image.naturalWidth, naturalH = image.naturalHeight;
+    if (!naturalW || !naturalH) throw new Error('An image has no readable dimensions.');
+    let sx=0, sy=0, sw=naturalW, sh=naturalH;
+    if (fit === 'cover') {
+      const paperRatio = pageW / pageH, imgRatio = naturalW / naturalH;
+      if (imgRatio > paperRatio) { sw = naturalH * paperRatio; sx = (naturalW - sw) / 2; }
+      else { sh = naturalW / paperRatio; sy = (naturalH - sh) / 2; }
+    }
+    const scale = Math.min(1, cfg.max / Math.max(sw, sh));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(sw * scale));
+    canvas.height = Math.max(1, Math.round(sh * scale));
+    const context = canvas.getContext('2d', { alpha: false });
+    if (!context) throw new Error('Your browser could not create an image canvas.');
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(image, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    return canvas;
+  }
+  function filename() {
+    const entered = $('filename').value.trim().replace(/\.pdf$/i, '').replace(/[\\/:*?"<>|]+/g, '-').replace(/^\.+/, '');
+    return (entered || 'my-photos') + '.pdf';
+  }
+  function allowScreenPaint() {
+    return new Promise(function(resolve) { requestAnimationFrame(function() { setTimeout(resolve, 0); }); });
+  }
+  generate.addEventListener('click', async function() {
+    if (running || !items.length) return;
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      updateStatus('PDF library did not load. Check your internet connection and refresh this page.', true);
+      return;
+    }
+    running = true; clearOutput(); render();
+    try {
+      const selected = items.slice();
+      const format = sizes[$('pageSize').value] || sizes.a4;
+      const orientation = $('orientation').value;
+      const fit = $('fit').value;
+      const margin = Number($('margin').value);
+      const cfg = configs[$('quality').value] || configs.balanced;
+      let doc = null;
+      for (let i = 0; i < selected.length; i++) {
+        updateStatus('Creating page ' + (i + 1) + ' of ' + selected.length + '…');
+        await allowScreenPaint();
+        const img = await loadImage(selected[i].file);
+        const landscape = orientation === 'landscape' || (orientation === 'auto' && img.naturalWidth > img.naturalHeight);
+        const pw = landscape ? format[1] : format[0];
+        const ph = landscape ? format[0] : format[1];
+        if (!doc) {
+          doc = new window.jspdf.jsPDF({ orientation: landscape ? 'landscape' : 'portrait', unit: 'mm', format: [pw, ph], compress: true });
+        } else {
+          doc.addPage([pw, ph], landscape ? 'landscape' : 'portrait');
+        }
+        const areaW = pw - margin * 2, areaH = ph - margin * 2;
+        const canvas = makeCanvas(img, areaW, areaH, fit, cfg);
+        const imageRatio = canvas.width / canvas.height;
+        let drawW = areaW, drawH = areaH;
+        if (fit === 'contain') {
+          if (areaW / areaH > imageRatio) drawW = areaH * imageRatio;
+          else drawH = areaW / imageRatio;
+        }
+        const x = (pw - drawW) / 2, y = (ph - drawH) / 2;
+        const jpegData = canvas.toDataURL('image/jpeg', cfg.jpg);
+        doc.addImage(jpegData, 'JPEG', x, y, drawW, drawH, undefined, 'FAST');
+        canvas.width = 0; canvas.height = 0;
+      }
+      const blob = doc.output('blob');
+      lastPdfUrl = URL.createObjectURL(blob);
+      const name = filename();
+      const downloadLink = $('downloadAgain');
+      downloadLink.href = lastPdfUrl; downloadLink.download = name;
+      $('openPdf').href = lastPdfUrl;
+      ready.hidden = false;
+      updateStatus('PDF ready — ' + selected.length + ' page(s), ' + readableBytes(blob.size) + '.');
+      downloadLink.click();
+    } catch (error) {
+      console.error(error);
+      updateStatus((error && error.message ? error.message : 'Could not generate PDF.') + ' Try fewer photos or choose a smaller image quality.', true);
+    } finally {
+      running = false; render();
+    }
+  });
+  window.addEventListener('beforeunload', function() {
+    items.forEach(function(item) { URL.revokeObjectURL(item.url); });
+    if (lastPdfUrl) URL.revokeObjectURL(lastPdfUrl);
+  });
+  render();
+})();
+</script>
+</body>
+</html>
