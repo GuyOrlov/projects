@@ -13,24 +13,41 @@
 </head>
 <body>
 <a href="#editor" class="skip-link">Skip to editor</a>
+
 <header class="header"><div class="header-inner">
-  <a class="brand" href="./" aria-label="FilePixa home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" width="30" height="30"><rect x="3" y="3" width="26" height="26" rx="7" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="21.5" cy="10.5" r="3.2" fill="currentColor"/><path d="M6 24l8-9 6 6 3-3 4 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>File<b>Pixa</b></span></a>
-  <nav aria-label="Main navigation"><a href="#editor">Photo editor</a><a href="#features">Features</a><a href="#privacy">Privacy</a></nav>
-  <span class="head-chip">Free to use</span>
+  <a class="brand" href="./" aria-label="FilePixa homepage">
+    <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" width="26" height="26"><rect x="3" y="3" width="26" height="26" rx="7" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="21.5" cy="10.5" r="3.2" fill="currentColor"/><path d="M6 24l8-9 6 6 3-3 4 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span>File<b>Pixa</b></span>
+  </a>
+  <nav class="desktop-links" aria-label="Desktop navigation"><a href="#editor">Studio</a><a href="#editing-panel">Edit tools</a><a href="#features">About</a></nav>
+  <div class="header-actions"><span class="head-chip"><span class="online-dot"></span> Private by design</span><button type="button" class="header-new" id="header-upload" aria-label="Upload a new photo">＋ <span>New photo</span></button></div>
 </div></header>
+
 <section class="hero"><div class="hero-inner">
- <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR CREATIVE SPACE, SIMPLIFIED</div>
- <h1>Make every photo<br><em>look its best.</em></h1>
- <p>Remove backgrounds, fix minor blur, enhance colours and resize your images. Simple editing tools, right in your browser.</p>
- <div class="hero-pills" aria-label="Main features"><span>✦ AI background removal</span><span>✧ Sharpen photos</span><span>▣ Export PNG, JPG & WebP</span></div>
+ <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR CREATIVE PHOTO STUDIO</div>
+ <h1>Scroll. Edit. <em>Love your photo.</em></h1>
+ <p>All your favourite photo tools, in one beautifully simple editor. Upload a photo, tap a tool and make it yours.</p>
+ <div class="hero-pills" aria-label="Studio benefits"><span>✦ No account needed</span><span>✂ Background removal</span><span>↗ Instant downloads</span></div>
 </div></section>
 <main id="editor" class="app-shell">
+
 <div class="workspace-heading">
-  <div><div class="section-kicker">FILEPIXA STUDIO</div><h2>Your photo workspace</h2><p>Start with a photo. Adjust it, compare, then download.</p></div>
-  <div class="work-actions"><button id="undo" class="btn btn-subtle" type="button" disabled>↶ Undo</button><button id="reset" class="btn btn-subtle" type="button" disabled>Reset edits</button></div>
+  <div><div class="section-kicker">THE STUDIO</div><h2>Create something lovely <span aria-hidden="true">✳</span></h2><p>Choose an edit below, or upload a photo to begin.</p></div>
+  <div class="work-actions"><button id="undo" class="btn btn-subtle" type="button" disabled>↶ Undo</button><button id="reset" class="btn btn-subtle" type="button" disabled>⟲ Reset</button></div>
 </div>
+<nav class="story-tools" aria-label="Quick photo editing tools">
+  <button class="story-tool" data-shortcut="upload" type="button"><span class="story-ring"><span class="story-icon">＋</span></span><span>New photo</span></button>
+  <button class="story-tool" data-shortcut="remove-bg" type="button"><span class="story-ring"><span class="story-icon">✂</span></span><span>Cutout</span></button>
+  <button class="story-tool" data-shortcut="enhance" type="button"><span class="story-ring"><span class="story-icon">✦</span></span><span>Enhance</span></button>
+  <button class="story-tool" data-shortcut="sharpen" type="button"><span class="story-ring"><span class="story-icon">◈</span></span><span>Sharpen</span></button>
+  <button class="story-tool" data-shortcut="crop" type="button"><span class="story-ring"><span class="story-icon">▣</span></span><span>Crop</span></button>
+  <button class="story-tool" data-shortcut="background" type="button"><span class="story-ring"><span class="story-icon">◉</span></span><span>Backdrop</span></button>
+  <button class="story-tool" data-shortcut="export" type="button"><span class="story-ring"><span class="story-icon">↓</span></span><span>Export</span></button>
+</nav>
 <div class="editor-grid">
- <section class="preview-column" aria-label="Image preview">
+ <section class="preview-column" id="preview-panel" aria-label="Image preview">
+  <div class="feed-card">
+   <div class="post-head"><div class="post-avatar" aria-hidden="true">F</div><div class="post-identity"><strong>filepixa.studio <span class="verified" aria-label="FilePixa">✦</span></strong><small>Your creative workspace · Ready to edit</small></div><button id="post-upload" class="post-more" type="button" aria-label="Choose a new photo">＋</button></div>
   <div id="dropzone" class="preview-stage" tabindex="0" role="button" aria-label="Choose an image or drop an image here">
    <div id="empty-state" class="empty-state">
      <div class="empty-art" aria-hidden="true"><div class="art-back"></div><div class="art-front"><span>◉</span><i></i></div><div class="art-star">✦</div></div>
@@ -49,15 +66,22 @@
    </div>
    <div id="drop-overlay" class="drop-overlay hidden" aria-hidden="true">Drop image to open</div>
   </div>
+
+  <div class="post-actions" aria-label="Edit actions">
+    <div class="post-actions-left"><button class="post-tool-action" type="button" data-shortcut="enhance" aria-label="Auto enhance your photo"><span aria-hidden="true">✦</span> Enhance</button><button class="post-tool-action" type="button" data-shortcut="remove-bg" aria-label="Remove photo background"><span aria-hidden="true">✂</span> Cutout</button><button class="post-tool-action" type="button" data-shortcut="sharpen" aria-label="Sharpen photo"><span aria-hidden="true">◈</span> Sharpen</button></div>
+    <button class="post-export" type="button" data-shortcut="export" aria-label="Download your edited image">↓ <span>Save</span></button>
+  </div>
   <div id="preview-bar" class="preview-bar hidden">
     <label for="compare">Before <span aria-hidden="true">⟷</span> After</label>
     <input id="compare" type="range" min="0" max="100" value="100" aria-label="Before and after comparison (0 original, 100 edited)">
     <span id="image-info">No image</span>
   </div>
+  <div class="feed-caption"><strong>FilePixa</strong> A little creativity goes a long way. Edit, compare and download — no photo account required. <span aria-hidden="true">✨</span></div>
+  </div><!-- /feed-card -->
   <div class="help-strip"><span>◈</span><span>Photos are edited on your device, not uploaded to our server.</span></div>
  </section>
- <aside class="controls" aria-label="Photo editing controls">
-  <div class="controls-top"><h3>Edit your photo</h3><span class="local-tag">● Local editing</span></div>
+ <aside class="controls" id="editing-panel" aria-label="Photo editing controls">
+  <div class="controls-top"><h3>Make it yours <span aria-hidden="true">✦</span></h3><span class="local-tag">● On-device</span></div>
   <div class="control-group">
     <div class="group-label"><span>01</span> QUICK ACTIONS</div>
     <button id="remove-bg" class="action-card highlight" type="button" disabled><span class="action-icon">✂</span><span><strong>Remove background</strong><small>AI cutout · Transparent PNG</small></span><span class="action-arrow">↗</span></button>
@@ -87,7 +111,7 @@
    </div>
    <p class="control-hint">Colour fills transparent areas. Remove the original background first for a cutout.</p>
   </div>
-  <div class="control-group export-group"><div class="group-label"><span>05</span> DOWNLOAD</div>
+  <div class="control-group export-group" id="export-group"><div class="group-label"><span>05</span> DOWNLOAD</div>
    <div class="export-fields"><div class="field"><label for="format">Format</label><select id="format" disabled><option value="image/png">PNG</option><option value="image/jpeg">JPG</option><option value="image/webp">WebP</option></select></div><div class="field"><label for="scale">Resolution</label><select id="scale" disabled><option value="1">Original</option><option value="2">2× (resized)</option><option value="4">4× (resized)</option></select></div></div>
    <button id="download" class="btn btn-primary download-btn" type="button" disabled>↓ Download image</button>
    <p class="control-hint">2× and 4× enlarge the image using browser resizing; they do not create genuine new detail.</p>
@@ -102,5 +126,13 @@
 </div></section>
 <section class="privacy-section" id="privacy"><div class="privacy-inner"><span>🔒</span><div><h2>Your photo stays yours.</h2><p>Photo editing and AI background segmentation happen locally in the browser. First-time background removal loads a model and code from third-party CDNs. FilePixa has no accounts or photo-upload server.</p></div></div></section>
 <footer><div class="footer-inner"><div class="footer-brand">File<b>Pixa</b><small>Photos, made simple.</small></div><p>Created by Guy Orlov · <a href="https://github.com/GuyOrlov/projects/tree/main/filepixa" target="_blank" rel="noopener noreferrer">View project source</a></p><p>© 2026 FilePixa · Free browser photo tools</p></div></footer>
+
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  <button type="button" class="mobile-nav-item active" data-nav="home"><span aria-hidden="true">⌂</span><small>Studio</small></button>
+  <button type="button" class="mobile-nav-item" data-nav="edit"><span aria-hidden="true">✦</span><small>Edit</small></button>
+  <button type="button" class="mobile-nav-item nav-create" id="nav-upload" aria-label="Upload a new photo"><span aria-hidden="true">＋</span><small>Add</small></button>
+  <button type="button" class="mobile-nav-item" data-nav="compare"><span aria-hidden="true">◧</span><small>Compare</small></button>
+  <button type="button" class="mobile-nav-item" data-nav="export"><span aria-hidden="true">↓</span><small>Export</small></button>
+</nav>
 </body>
 </html>
