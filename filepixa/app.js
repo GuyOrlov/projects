@@ -16,6 +16,7 @@
     document.querySelectorAll("[data-bg]").forEach(el=>el.disabled=busy||!s.file);
     if(busy) message(label||"Working on your photo…");
     $("download").textContent=busy?"Working…":"↓ Download image";
+    document.querySelectorAll("[data-shortcut], [data-nav], #header-upload, #post-upload, #nav-upload").forEach(el=>{el.disabled=busy;});
   }
   function snapshot() {
     return {current:s.current,currentBlob:s.currentBlob,removed:s.removed,settings:{...s.settings}};
@@ -66,6 +67,7 @@
       $("upload").value="";
       $("empty-state").classList.add("hidden");$("photo-stage").classList.remove("hidden");$("preview-bar").classList.remove("hidden");
       $("dropzone").setAttribute("aria-label","Choose a different photo");
+      document.querySelectorAll("[data-nav]").forEach((button,i)=>button.classList.toggle("active",i===0));
       $("compare").value="100";setCompare();
       setBusy(false);sync();scheduleRender();
       message("Loaded "+file.name+" · "+humanSize(file.size)+". Ready to edit.");
@@ -208,7 +210,52 @@
     }catch(e){message("Could not export photo: "+(e.message||e),true);}
     finally{setBusy(false);sync();}
   }
+  function openPhotoPicker(){
+    if(!s.busy)$("upload").click();
+  }
+  function jumpTo(id){
+    const target=$(id);
+    if(!target)return;
+    const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({behavior:reduced?"auto":"smooth",block:"start"});
+  }
+  function shortcut(action){
+    if(action==="upload"){openPhotoPicker();return;}
+    if(s.busy)return;
+    if(!s.file){message("Choose a photo to start editing.");openPhotoPicker();return;}
+    switch(action){
+      case "remove-bg": if(!s.removed)$("remove-bg").click();else message("Background already removed. Undo or reset to start again.");break;
+      case "enhance":$("auto-enhance").click();break;
+      case "sharpen":$("fix-blur").click();break;
+      case "crop":jumpTo("aspect");$("aspect").focus({preventScroll:true});break;
+      case "background":jumpTo("editing-panel");document.querySelector(".swatches")?.scrollIntoView({behavior:"smooth",block:"center"});break;
+      case "export":jumpTo("export-group");$("format").focus({preventScroll:true});break;
+    }
+  }
+  function attachSocialUI(){
+    for(const button of document.querySelectorAll("[data-shortcut]")){
+      button.addEventListener("click",()=>shortcut(button.dataset.shortcut));
+    }
+    for(const id of ["header-upload","post-upload","nav-upload"]){
+      $(id)?.addEventListener("click",openPhotoPicker);
+    }
+    for(const button of document.querySelectorAll("[data-nav]")){
+      button.addEventListener("click",()=>{
+        if(s.busy)return;
+        const nav=button.dataset.nav;
+        if(nav==="compare"&&!s.file){message("Upload a photo to compare before and after.");openPhotoPicker();return;}
+        const target={home:"editor",edit:"editing-panel",compare:"preview-bar",export:"export-group"}[nav];
+        if(target){
+          if(nav==="export"&&!s.file){message("Upload a photo to prepare a download.");openPhotoPicker();return;}
+          jumpTo(target);
+          if(nav==="compare")$("compare").focus({preventScroll:true});
+          document.querySelectorAll("[data-nav]").forEach(btn=>btn.classList.toggle("active",btn===button));
+        }
+      });
+    }
+  }
   function attach(){
+    attachSocialUI();
     $("upload").addEventListener("change",e=>loadFile(e.target.files[0]));
     $("dropzone").addEventListener("click",()=>{if(!s.busy)$("upload").click();});
     $("dropzone").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();if(!s.busy)$("upload").click();}});
