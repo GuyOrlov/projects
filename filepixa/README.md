@@ -4,6 +4,19 @@
 
 > This is a **separate project** at `/filepixa`. It does not share files with, modify, or link into the existing `image-to-pdf` application.
 
+**Live website:** https://guyorlov.com/projects/filepixa/
+
+## Interface — social-style photo studio
+
+The October 2026 refresh introduces an Instagram-inspired (not Instagram-branded) photo workflow:
+
+- Compact FilePixa header and distinctive teal/pink brand colours.
+- A horizontally scrollable row of circular, story-inspired quick-edit tools.
+- Feed-style photo preview with profile header, before/after compare, post actions and a direct **Save/download** button.
+- Responsive editing controls for desktop, tablet and phone.
+- Fixed five-action mobile toolbar: **Studio**, **Edit**, **Add photo**, **Compare**, **Export**.
+- All shortcuts connect to the original working photo editor functions. No feed posting, social networking, profiles or cloud photo libraries are implied.
+
 ## Features
 
 - Upload a JPEG, PNG, WebP and, where supported, AVIF or GIF.
