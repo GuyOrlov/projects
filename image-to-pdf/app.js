@@ -59,7 +59,8 @@ function renderFiles(){
 function addFiles(input){
  const allowed=active.accept;if(!allowed)return;
  let skipped=0,added=0;for(const file of Array.from(input||[])){
-  if(files.length>=80||(!$("file-input").multiple&&files.length>=1)||(allowed.includes('.pdf')&&!allowed.includes('image/')&&!isPdf(file))||(allowed.includes('image/')&&!allowed.includes('.pdf')&&!file.type.startsWith('image/')&&!/\.(heic|heif)$/i.test(file.name))||(file.size>160*1024*1024)){skipped++;continue;}
+  const isImage=file.type.startsWith('image/')||/\.(heic|heif|jpg|jpeg|png|webp)$/i.test(file.name);
+  if(files.length>=80||(!$("file-input").multiple&&files.length>=1)||(!isPdf(file)&&!isImage)||(isPdf(file)&&!allowed.includes('.pdf'))||(isImage&&!isPdf(file)&&!allowed.includes('image/'))||(file.size>160*1024*1024)){skipped++;continue;}
   files.push({file,url:URL.createObjectURL(file)});added++;
  }
  if(added)clearResults();renderFiles();if(skipped)setMessage(skipped+' unsupported, oversized or excess file(s) skipped. For single-file tools, clear the current file before choosing another.',true);
@@ -71,6 +72,7 @@ function drawTools(){
 function renderTool(){
  drawTools();$('tool-title').textContent=active.title;$('tool-desc').textContent=active.desc;$('tool-tag').textContent=active.tag||'Local processing';
  $('upload-panel').classList.toggle('hidden',!active.accept);$('file-input').accept=active.accept||'';$('file-input').multiple=!['split','compress','numbers','sign','protect','watermark','toimages','drive'].includes(active.id);
+ $('camera-actions').classList.toggle('hidden',active.id!=='scan');
  $('drop-label').textContent=active.accept.includes('image/')?'Choose photos or drop them here':'Choose PDF files or drop them here';
  $('upload-hint').textContent=active.accept.includes('image/')?'Images from your phone, photo library or files':'PDF files from your device';
  $('options').innerHTML=active.options;$('run').textContent=active.button;$('options-heading').textContent=active.id==='history'?'Your saved files':'2. Choose options';
@@ -170,12 +172,15 @@ async function rasterizePdf(protect){
  requireFiles();const js=jsPdf(),source=await openPdf(files[0].file),quality=photoOptions();if(protect){if(read('password').length<4)throw Error('Choose a password of at least 4 characters.');if(read('password')!==read('password-confirm'))throw Error('Passwords do not match.');}
  let dest=null;for(let n=1;n<=source.numPages;n++){
  setMessage((protect?'Protecting':'Compressing')+' page '+n+' of '+source.numPages+'…');const p=await source.getPage(n),v=p.getViewport({scale:1}),ratio=Math.min(1,quality.max/Math.max(v.width,v.height));
- const can=await renderPage(p,(protect?1.65:1.8)*ratio),pw=v.width*25.4/72,ph=v.height*25.4/72;
+ const preset=read('quality','balanced'),scale=protect?1.65:preset==='high'?1.85:preset==='small'?1.1:1.4;
+ const can=await renderPage(p,scale*ratio),pw=v.width*25.4/72,ph=v.height*25.4/72;
  if(!dest){const options={unit:'mm',format:[pw,ph],orientation:pw>ph?'landscape':'portrait',compress:true};if(protect)options.encryption={userPassword:read('password'),ownerPassword:read('password'),userPermissions:['print']};dest=new js(options);}
  else dest.addPage([pw,ph],pw>ph?'landscape':'portrait');
- dest.addImage(can.toDataURL('image/jpeg',quality.jpg),'JPEG',0,0,pw,ph);can.width=0;can.height=0;await delay();
+ const jpeg=protect?quality.jpg:preset==='high'?.79:preset==='small'?.5:.64;
+ dest.addImage(can.toDataURL('image/jpeg',jpeg),'JPEG',0,0,pw,ph);can.width=0;can.height=0;await delay();
  }
- await source.destroy();await finish(dest.output('blob'),makeName('pdf'));
+ await source.destroy();const blob=dest.output('blob');if(!protect&&blob.size>=files[0].file.size){setMessage('The optimised copy is '+bytes(blob.size)+', compared with the original '+bytes(files[0].file.size)+'. No size reduction achieved. Try “Smaller file”, or retain your original.',true);output(blob,makeName('pdf'),'Download optimised copy anyway');return;}
+ await finish(blob,makeName('pdf'));
 }
 async function numberPages(){
  requireFiles();const {PDFDocument,rgb}=pdfLib(),src=await openEditable(files[0].file),font=await src.embedFont('Helvetica'),pos=read('position','bottom'),start=Math.max(0,Number(read('start','1')));
@@ -218,12 +223,13 @@ async function getCanvases(max=15){
  return result;
 }
 async function performOcr(){
- requireFiles();const canvases=await getCanvases(),lang=read('ocr-lang','eng'),mode=read('ocr-output','text'),all=[],js=mode==='searchable'?jsPdf():null;let doc=null;
+ requireFiles();const lang=read('ocr-lang','eng'),mode=read('ocr-output','text');if(lang!=='eng'&&mode==='searchable')throw Error('Searchable PDF text overlays currently support English only. Choose Text file for Hebrew or other languages.');const canvases=await getCanvases(),all=[],js=mode==='searchable'?jsPdf():null;let doc=null;
  try{
  for(let i=0;i<canvases.length;i++){setMessage('OCR page '+(i+1)+' of '+canvases.length+'…');const canvas=canvases[i],data=await ocrCanvas(canvas,lang);all.push((data.text||'').trim());
  if(mode==='searchable'){const width=210,height=width*canvas.height/canvas.width;if(!doc)doc=new js({unit:'mm',format:[width,height],compress:true});else doc.addPage([width,height],width>height?'landscape':'portrait');
  doc.addImage(canvas.toDataURL('image/jpeg',.86),'JPEG',0,0,width,height);
- const words=data.words||[];for(const w of words){if(!w.text||!w.bbox)continue;const bb=w.bbox,x=bb.x0/canvas.width*width,y=bb.y1/canvas.height*height;const size=Math.max(2,Math.min(22,(bb.y1-bb.y0)/canvas.height*height*.9));doc.setFontSize(size*72/25.4);doc.text(String(w.text),x,y,{renderingMode:'invisible'});}
+ const words=data.words?.length?data.words:(data.blocks||[]).flatMap(b=>(b.paragraphs||[]).flatMap(p=>(p.lines||[]).flatMap(l=>l.words||[])));
+ for(const w of words){if(!w.text||!w.bbox)continue;const bb=w.bbox,x=bb.x0/canvas.width*width,y=bb.y1/canvas.height*height;const size=Math.max(2,Math.min(22,(bb.y1-bb.y0)/canvas.height*height*.9));doc.setFontSize(size*72/25.4);doc.text(String(w.text),x,y,{renderingMode:'invisible'});}
  if(!words.length&&data.text){doc.text(data.text.slice(0,3000),3,3,{renderingMode:'invisible'});}
  }
  canvas.width=0;canvas.height=0;await delay();}
@@ -239,11 +245,11 @@ async function getText(){
  await doc.destroy();}else{const img=await loadImage(entry.file),canvas=imageCanvas(img,1900);const ocr=await ocrCanvas(canvas,read('ocr-lang','eng'));result.push(ocr.text||'');canvas.width=0;canvas.height=0;}}
  return result.join('\n\n');
 }
-function segmentText(t,max=400){const list=[];let remaining=t.trim();while(remaining){let i=Math.min(max,remaining.length);if(i<remaining.length){const b=remaining.lastIndexOf(' ',i);if(b>max/2)i=b;}list.push(remaining.slice(0,i));remaining=remaining.slice(i).trimStart();}return list;}
+function segmentText(t,maxBytes=350){const list=[];const encoder=new TextEncoder();let part='';for(const character of t.trim()){if(part&&encoder.encode(part+character).length>maxBytes){list.push(part);part=character;}else part+=character;}if(part)list.push(part);return list;}
 async function translate(){
  requireFiles();const from=read('source-lang','en'),to=read('target-lang','he');if(from===to)throw Error('Source and target languages must differ.');
  const txt=await getText();if(!txt.trim())throw Error('No text found in the document.');
- const chunks=segmentText(txt,400);if(chunks.length>15)throw Error('Free translation limit: this document is too long. Try fewer pages (about 6,000 characters).');
+ const chunks=segmentText(txt,350);if(chunks.length>15)throw Error('Free translation limit: the extracted text is too long. Try fewer pages (around 5,000 bytes).');
  const outputs=[];for(let i=0;i<chunks.length;i++){setMessage('Sending text to translation service: '+(i+1)+' of '+chunks.length+'…');
  const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(chunks[i])+'&langpair='+encodeURIComponent(from+'|'+to),res=await fetch(url);if(!res.ok)throw Error('Translation service unavailable ('+res.status+').');const data=await res.json();if(data.responseStatus!==200||!data.responseData?.translatedText)throw Error('Translation service reached a limit or returned an error.');outputs.push(data.responseData.translatedText);await delay();}
  const translated=outputs.join(' ');setMessage('Translation complete. Please review it for accuracy.');download(new Blob([translated],{type:'text/plain;charset=utf-8'}),'translated-document.txt');showText(translated);
@@ -294,6 +300,8 @@ async function perform(){
 }
 $('tools').addEventListener('click',e=>{if(busy)return;const button=e.target.closest('[data-tool]');if(!button)return;const found=TOOL.find(t=>t.id===button.dataset.tool);if(!found)return;active=found;renderTool();history.replaceState(null,'','#'+found.id);});
 $('file-input').addEventListener('change',e=>{addFiles(e.target.files);e.target.value='';});
+$('take-photo').addEventListener('click',()=>$('camera-input').click());
+$('camera-input').addEventListener('change',e=>{addFiles(e.target.files);e.target.value='';});
 $('add-more').onclick=()=>$('file-input').click();
 $('clear-files').onclick=()=>{if(!busy){releaseFiles();clearResults();$('preview-section').classList.add('hidden');}};
 $('file-list').addEventListener('click',e=>{if(busy)return;const button=e.target.closest('[data-action]');if(!button)return;const i=Number(button.closest('.file-card').dataset.i),act=button.dataset.action;if(act==='remove'){URL.revokeObjectURL(files[i].url);files.splice(i,1);}else{const j=i+(act==='up'?-1:1);if(j<0||j>=files.length)return;[files[i],files[j]]=[files[j],files[i]];}clearResults();renderFiles();if(['scan','edit','enhance'].includes(active.id)&&files.length)showEditPreview().catch(e=>setMessage(errMsg(e),true));});
