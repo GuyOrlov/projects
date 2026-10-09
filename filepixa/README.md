@@ -2,7 +2,7 @@
 
 **FilePixa** is an independent, free, browser-first photo editor by Guy Orlov.
 
-> This is a **separate project** at \`/filepixa\`. It does not share files with, modify, or link into the existing \`image-to-pdf\` application.
+> This is a **separate project** at `/filepixa`. It does not share files with, modify, or link into the existing `image-to-pdf` application.
 
 ## Features
 
@@ -35,11 +35,11 @@
 
 ## Hosting
 
-This is a plain static website with \`index.html\`, \`styles.css\`, \`app.js\`, \`icon.svg\`, and \`manifest.webmanifest\`. It can be copied **as-is into its own GitHub Pages repository** or deployed from its existing directory.
+This is a plain static website with `index.html`, `styles.css`, `app.js`, `icon.svg`, and `manifest.webmanifest`. It can be copied **as-is into its own GitHub Pages repository** or deployed from its existing directory.
 
 - No build step required.
 - Serve over HTTPS for best mobile compatibility.
-- Ensure access to \`esm.sh\` and IMG.LY's default model CDN for AI background removal.
+- Ensure access to `esm.sh` and IMG.LY's default model CDN for AI background removal.
 - Dependencies are downloaded on demand; the rest uses standard browser APIs.
 
 ## Project location
