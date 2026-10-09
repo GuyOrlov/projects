@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6653de" />
+  <meta name="description" content="PricePals: a simple kid-friendly barcode scanner and price comparison demo." />
+  <title>PricePals — Scan it. Save money.</title>
+  <style>
+    :root{--ink:#18233d;--muted:#606a80;--violet:#6552dc;--violetdark:#4a39be;--sky:#e5f3ff;--green:#227c53;--mint:#e7faed;--paper:#f8f8fd;--line:#e8eaf3;--shadow:0 8px 28px rgba(35,38,78,.055);font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-size:15px;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible{outline:3px solid #9589ef;outline-offset:3px}a{color:var(--violet)}
+    .page{max-width:480px;margin:0 auto;min-height:100svh;background:var(--paper);padding-bottom:34px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 16px}
+    .brand{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:900;letter-spacing:-.8px}.brandmark{width:36px;height:36px;background:var(--violet);border-radius:12px;display:grid;place-items:center;color:white;transform:rotate(-5deg);box-shadow:0 4px 0 #d5cef9}.brandmark svg{transform:rotate(5deg)}
+    .helper-pill{background:#eef0fc;border:1px solid #e2e4f5;border-radius:99px;color:#5545bc;display:flex;align-items:center;gap:5px;padding:8px 10px;font-size:11px;font-weight:850;white-space:nowrap}
+    .intro{padding:10px 22px 21px}.intro h1{font-size:34px;line-height:1.085;letter-spacing:-1.55px;max-width:300px;margin:0;font-weight:950}.intro h1 span{color:var(--violet)}.intro p{font-size:14px;line-height:1.5;color:var(--muted);margin:11px 0 0;max-width:370px}
+    .scan-card{margin:0 18px;background:linear-gradient(135deg,#7668e9 0%,#5540c6 100%);color:white;border-radius:24px;padding:22px;position:relative;overflow:hidden;box-shadow:0 13px 24px rgba(84,65,194,.18)}
+    .scan-card:before{content:"";position:absolute;right:-70px;top:-100px;border-radius:50%;width:230px;height:230px;border:35px solid rgba(255,255,255,.08)}.scan-card:after{content:"";position:absolute;right:20px;bottom:-75px;border-radius:50%;width:125px;height:125px;border:21px solid rgba(255,255,255,.06)}
+    .scan-inner{position:relative;z-index:1}.scan-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.scan-top strong{font-size:19px;line-height:1.25;max-width:205px;letter-spacing:-.4px}.scan-art{width:76px;height:67px;border-radius:15px;background:rgba(255,255,255,.17);display:grid;place-items:center;transform:rotate(9deg);flex-shrink:0}.scan-art svg{filter:drop-shadow(0 2px 1px rgba(0,0,0,.1))}.scan-desc{color:#eeeaff;font-size:12px;margin:6px 0 18px;line-height:1.45}
+    .scan-button{width:100%;border:0;border-radius:14px;background:#fff;color:#4d3bc1;font-size:16px;line-height:1.2;font-weight:900;min-height:53px;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;z-index:1;box-shadow:0 4px 0 rgba(16,10,67,.13)}.scan-button:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(16,10,67,.13)}
+    .scan-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.tool-button{border:1px solid rgba(255,255,255,.36);background:rgba(255,255,255,.13);color:white;border-radius:12px;min-height:40px;padding:9px 6px;font-weight:750;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px}.tool-button:hover{background:rgba(255,255,255,.22)}
+    .manual-form{margin-top:12px;display:none;gap:8px}.manual-form.open{display:flex}.manual-form input{min-width:0;flex:1;background:white;border:2px solid #eee9ff;border-radius:12px;color:var(--ink);padding:12px;outline:none;font-size:16px;letter-spacing:.2px}.manual-form button{border:0;border-radius:12px;background:#d8ff99;color:#243e26;font-weight:900;padding:0 16px}
+    .message{margin:12px 19px 0;display:none;border-radius:13px;padding:12px 14px;font-size:12px;line-height:1.4}.message.show{display:block}.message.warn{background:#fff0e3;color:#844018}.message.ok{background:#e4f7e7;color:#266744}
+    .demo-note{margin:20px 20px 15px;padding:11px 12px;background:#fff8e4;border:1px solid #f5e6bb;border-radius:13px;display:flex;gap:9px;align-items:flex-start;color:#755820;font-size:11.5px;line-height:1.45}.demo-note .emoji{font-size:17px;line-height:1}.demo-note strong{font-weight:900}
+    .section{margin:20px 20px 0}.product-card{background:white;border:1px solid #ededf4;border-radius:20px;padding:15px;display:flex;gap:13px;align-items:center;box-shadow:var(--shadow)}.product-art{width:69px;height:76px;flex-shrink:0;display:grid;place-items:center;background:#fff2f4;border-radius:15px;font-size:35px;overflow:hidden}.product-art img{width:100%;height:100%;object-fit:contain;padding:4px}.product-info{min-width:0;flex:1}.eyebrow{font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#7868d7;margin-bottom:6px}.product-info h2{margin:0;font-size:17px;line-height:1.25;letter-spacing:-.4px;overflow-wrap:anywhere}.product-info p{font-size:11.5px;color:var(--muted);margin:6px 0 0;overflow-wrap:anywhere}
+    .savings{display:flex;gap:11px;align-items:center;margin:14px 0 0;background:#dff7e7;border:1px solid #c5ecd4;border-radius:18px;padding:15px 16px}.savings-icon{display:grid;place-items:center;width:47px;height:47px;border-radius:13px;background:#bdedce;font-size:23px;flex-shrink:0}.savings h3{color:#145a37;font-size:21px;letter-spacing:-.5px;margin:0 0 2px;font-weight:950}.savings p{margin:0;color:#2a7250;font-size:11.5px;line-height:1.45;font-weight:600}
+    .heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:25px 0 12px}.heading-row h2{margin:0;font-size:22px;letter-spacing:-.8px;font-weight:950}.heading-row p{margin:5px 0 0;font-size:12px;color:var(--muted)}.order-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;background:#e9e5ff;color:#5943bd;border:1px solid #ddd6ff;border-radius:100px;font-size:10px;font-weight:900;padding:9px 10px}
+    .offer-list{display:flex;flex-direction:column;gap:9px}.offer{border:1px solid #e8e9f2;display:flex;align-items:center;gap:10px;background:white;border-radius:17px;min-height:74px;padding:11px 12px;box-shadow:0 3px 12px rgba(28,32,75,.028)}.offer.winner{background:#f5fdf7;border-color:#79cea4;box-shadow:0 0 0 1px #bee8cf}.rank{color:#8590a3;font-size:13px;font-weight:950;width:17px;flex-shrink:0;text-align:center}.winner .rank{color:#328361}.shop-icon{width:41px;height:41px;display:grid;place-items:center;border-radius:13px;font-size:20px;flex-shrink:0}.shop-main{min-width:0;flex:1}.shop-name{font-size:14px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shop-sub{margin-top:4px;color:var(--muted);font-size:10.5px;line-height:1.25}.winner .shop-sub{font-weight:900;color:#25845e}.price{text-align:right;font-size:20px;line-height:1.1;letter-spacing:-.6px;font-weight:950;white-space:nowrap;font-variant-numeric:tabular-nums}.offer.winner .price{color:#19744d}.price-label{margin-top:5px;font-size:10px;color:var(--muted);font-weight:700;text-align:right;white-space:nowrap}.winner .price-label{color:#218453}
+    .teach-card{display:flex;gap:11px;align-items:flex-start;margin-top:18px;background:#eff1ff;border-radius:17px;padding:14px 15px;font-size:12px;line-height:1.5;color:#4d5481}.teach-card strong{color:#31366b}.teach-icon{flex-shrink:0;font-size:22px}.footer{margin-top:20px;color:#798095;font-size:11px;line-height:1.6;text-align:center;padding:0 16px}.bottom-rule{height:4px;width:88px;background:#dcdcef;border-radius:10px;margin:24px auto 0}
+    .overlay{position:fixed;inset:0;z-index:100;background:rgba(18,24,50,.79);padding:20px;display:none;align-items:center;justify-content:center}.overlay.visible{display:flex}.modal{max-width:450px;width:100%;background:white;border-radius:24px;padding:17px;box-shadow:0 25px 70px rgba(0,0,0,.26)}.modal-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.modal-top h2{font-size:20px;letter-spacing:-.5px;margin:5px}.close-btn{width:40px;height:40px;background:#f2f2f7;border:0;border-radius:12px;font-size:22px;color:#333}.reader{min-height:226px;overflow:hidden;border-radius:17px;background:#eff1f8;margin-top:13px;display:grid;place-items:center}.reader video{border-radius:14px}.scanner-status{font-size:12px;color:var(--muted);text-align:center;margin:12px 4px;line-height:1.5}.scanner-tip{border-radius:12px;background:#f1edff;color:#5948b5;font-size:12px;padding:12px;text-align:center}.reader-error{color:#a13737;font-size:12px;text-align:center}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(min-width:550px){body{background:#e9e9f5;padding:35px 0}.page{border-radius:28px;min-height:auto;overflow:hidden;box-shadow:0 18px 75px rgba(33,29,90,.12)}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+  <script defer src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand"><span class="brandmark" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M3 5v14M7 5v14M10 5v14M14 5v14M18 5v14M21 5v14" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M3 11h18" stroke="#c6ff8d" stroke-width="2.5"/></svg></span><span>PricePals<span style="color:#6d58df">.</span></span></div>
+      <div class="helper-pill">✨ Super easy!</div>
+    </header>
+    <section class="intro"><h1>Scan it.<br><span>Save money.</span> ✨</h1><p>Find the best price for your favourite things. The cheapest shop always comes first!</p></section>
+    <section class="scan-card" aria-label="Scan a barcode">
+      <div class="scan-inner">
+        <div class="scan-top"><strong>What are you shopping for?</strong><div class="scan-art" aria-hidden="true"><svg width="55" height="49" viewBox="0 0 55 49"><rect x="3" y="3" width="49" height="43" rx="8" fill="white"/><path d="M10 12v20M15 12v20M19 12v20M25 12v20M28 12v20M35 12v20M41 12v20M46 12v20" stroke="#5741cb" stroke-width="2"/><path d="M9 36h37" stroke="#b0ec89" stroke-width="4"/></svg></div></div>
+        <p class="scan-desc">Point your camera at the lines on a product.</p>
+        <button id="scanBtn" class="scan-button" type="button"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8a2 2 0 0 1 2-2h3l2-2h3l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="2"/></svg> Scan a barcode</button>
+        <div class="scan-tools"><button id="typeBtn" type="button" class="tool-button">⌨️ Type a code</button><button id="photoBtn" type="button" class="tool-button">🖼️ Use a photo</button></div>
+        <form id="manualForm" class="manual-form" autocomplete="off"><label class="sr-only" for="codeInput">Barcode digits</label><input id="codeInput" type="text" inputmode="numeric" maxlength="14" placeholder="Barcode numbers" aria-label="Enter barcode digits"/><button type="submit">Go →</button></form>
+        <input id="photoInput" type="file" accept="image/*" class="sr-only" aria-label="Upload barcode photo" />
+        <div id="photo-reader" class="sr-only" aria-hidden="true"></div>
+      </div>
+    </section>
+    <div id="status" role="status" aria-live="polite" class="message"></div>
+    <div id="demoBanner" class="demo-note"><span class="emoji" aria-hidden="true">🧪</span><span><strong>Demo prices:</strong> These are made-up shops and example prices so you can try the page. They are not real shop offers.</span></div>
+    <section class="section" aria-label="Selected product">
+      <div class="product-card"><div class="product-art" id="productArt" aria-hidden="true">🧃</div><div class="product-info"><div class="eyebrow" id="productEyebrow">⭐ Sample product</div><h2 id="productName">Berry Juice</h2><p id="productDetails">1 litre • Try scanning something!</p></div></div>
+      <div class="savings"><div class="savings-icon" aria-hidden="true">🎉</div><div><h3 id="saveTitle">Save up to £1.30!</h3><p id="saveText">That's the difference between the cheapest and most expensive example.</p></div></div>
+      <div class="heading-row"><div><h2>Compare 10 shops <span aria-hidden="true">🛒</span></h2><p id="listInfo">From the cheapest to the most expensive</p></div><div class="order-pill">↓ Cheapest first</div></div>
+      <div id="offerList" class="offer-list" aria-live="polite"></div>
+      <div class="teach-card"><span class="teach-icon" aria-hidden="true">💡</span><div><strong>Smart shopping tip:</strong> Check that the product size is the same at every shop. A bigger pack might cost more but give you more!</div></div>
+    </section>
+    <footer class="footer">Built for young price detectives 🕵️<br>Always check the real shop price before you buy.<div class="bottom-rule" aria-hidden="true"></div></footer>
+  </main>
+  <div id="scannerOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="scanTitle" aria-hidden="true">
+    <div class="modal"><div class="modal-top"><h2 id="scanTitle">📷 Find the barcode</h2><button id="closeScan" class="close-btn" type="button" aria-label="Close scanner">×</button></div><div id="reader" class="reader"></div><p class="scanner-status" id="scanStatus">Getting the camera ready…</p><div class="scanner-tip">Hold the barcode still inside the box. ✨</div></div>
+  </div>
+  <script>
+    'use strict';
+    // Optional: set this to an HTTPS endpoint that responds with {"offers":[{"shop":"Shop name","price":1.49,"url":"https://..."}]}.
+    // Do not place private retailer API keys here: connect them through a server instead.
+    const PRICE_API_URL = '';
+    const exampleOffers = [
+      {shop:'Penny Place',price:1.45,emoji:'🪙',color:'#fff0c7'},
+      {shop:'Happy Mart',price:1.55,emoji:'😊',color:'#fff0de'},
+      {shop:'Blue Basket',price:1.65,emoji:'🧺',color:'#dfeeff'},
+      {shop:'Sunny Shop',price:1.79,emoji:'☀️',color:'#fff4ce'},
+      {shop:'Rainbow Market',price:1.95,emoji:'🌈',color:'#f0e5ff'},
+      {shop:'Little Grocer',price:2.05,emoji:'🥕',color:'#e0f7dd'},
+      {shop:'Town Store',price:2.19,emoji:'🏡',color:'#ffe8f1'},
+      {shop:'Big Basket',price:2.29,emoji:'🛍️',color:'#e4ecff'},
+      {shop:'Corner Shop',price:2.45,emoji:'🍀',color:'#e2f5dc'},
+      {shop:'Star Market',price:2.75,emoji:'⭐',color:'#fff0d7'}
+    ];
+    const el=id=>document.getElementById(id);
+    const fmt = x=>new Intl.NumberFormat('en-GB',{style:'currency',currency:'GBP'}).format(x);
+    const escapeHtml = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    let activeOffers=exampleOffers.slice(), isDemo=true, scanner=null, scanLock=false;
+    function showStatus(message,type='ok'){
+      const node=el('status'); node.textContent=message; node.className='message show '+type;
+    }
+    function setMode(demo){
+      isDemo=demo;
+      el('demoBanner').style.display=demo?'flex':'none';
+      el('listInfo').textContent=demo?'Example prices • cheapest to most expensive':'Shop prices • cheapest to most expensive';
+    }
+    function renderOffers(){
+      const offers=[...activeOffers].filter(o=>Number.isFinite(Number(o.price))&&Number(o.price)>=0).sort((a,b)=>a.price-b.price).slice(0,10);
+      const list=el('offerList');
+      list.innerHTML=offers.map((o,i)=>{
+        const more=Number(o.price)-Number(offers[0].price);
+        const sub=i===0?'🏆 BEST PRICE':(more<0.005?'Same as best price':fmt(more)+' more than the cheapest');
+        const safeShop=escapeHtml(o.shop||'Shop');
+        const icon=escapeHtml(o.emoji || '🛍️');
+        const bg=/^#[0-9a-fA-F]{6}$/.test(o.color||'')?o.color:'#f0effb';
+        const link= !isDemo && /^https:\/\//.test(o.url||'') ? '<a style="font-size:11px;font-weight:800;display:inline-block;margin-top:6px" href="'+escapeHtml(o.url)+'" target="_blank" rel="noopener noreferrer">Visit shop ↗</a>':'';
+        return '<article class="offer'+(i===0?' winner':'')+'" aria-label="Shop '+(i+1)+': '+safeShop+', '+fmt(Number(o.price))+'"><div class="rank">'+(i+1)+'</div><div class="shop-icon" style="background:'+bg+'" aria-hidden="true">'+icon+'</div><div class="shop-main"><div class="shop-name">'+safeShop+'</div><div class="shop-sub">'+sub+'</div>'+link+'</div><div><div class="price">'+fmt(Number(o.price))+'</div><div class="price-label">'+(i===0?'Lowest price!':'Example price'.replace('Example',isDemo?'Example':'Shop'))+'</div></div></article>';
+      }).join('') || '<p>No prices available for this product yet.</p>';
+      el('listInfo').textContent=(isDemo?'Example prices':'Shop prices')+' • '+offers.length+' '+(offers.length===1?'shop':'shops')+' • lowest first';
+      const low=offers.length?Number(offers[0].price):0, high=offers.length?Number(offers[offers.length-1].price):0;
+      el('saveTitle').textContent=offers.length>1?'Save up to '+fmt(high-low)+'!':'Compare shop prices';
+      el('saveText').textContent= isDemo?"That's the difference between the cheapest and most expensive example.":'Difference between the lowest and highest available shop prices.';
+      document.querySelector('.heading-row h2').innerHTML='Compare '+offers.length+' shops <span aria-hidden="true">🛒</span>';
+    }
+    async function fetchOffers(code){
+      if(!PRICE_API_URL) return null;
+      try{
+        const response=await fetch(PRICE_API_URL+'?barcode='+encodeURIComponent(code),{headers:{Accept:'application/json'}});
+        if(!response.ok)throw Error('Price service unavailable');
+        const data=await response.json();
+        if(!Array.isArray(data.offers) || data.offers.length===0)return null;
+        return data.offers.filter(x=>x&&typeof x.shop==='string'&&Number.isFinite(Number(x.price))&&Number(x.price)>=0)
+          .map(x=>({shop:x.shop.slice(0,70),price:Number(x.price),url:x.url,emoji:'🛍️',color:'#f0effb'}));
+      }catch(error){ console.warn('Could not load shop prices',error);return null; }
+    }
+    async function lookupBarcode(input){
+      const code=String(input).replace(/\s/g,'');
+      if(!/^\d{8,14}$/.test(code)){showStatus('Oops! Please enter a barcode with 8 to 14 numbers. 😊','warn');return;}
+      el('productEyebrow').textContent='🔎 Looking up the barcode…';
+      showStatus('Barcode '+code+' scanned! Checking the product…');
+      el('manualForm').classList.remove('open');
+      let found=false;
+      try{
+        const request=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'?fields=product_name,product_name_en,brands,quantity,image_front_small_url',{headers:{Accept:'application/json'}});
+        if(!request.ok)throw Error('Product lookup not available');
+        const data=await request.json();
+        if(data.status===1 && data.product){
+          const p=data.product;
+          found=true;
+          el('productName').textContent=(p.product_name_en||p.product_name||p.brands||'Product found').slice(0,100);
+          el('productDetails').textContent=[p.quantity, 'Barcode '+code].filter(Boolean).join(' • ');
+          if(p.image_front_small_url&&/^https:\/\//.test(p.image_front_small_url)){
+            el('productArt').textContent='';
+            const img=document.createElement('img');img.alt='';img.src=p.image_front_small_url;img.referrerPolicy='no-referrer';img.onerror=()=>{el('productArt').textContent='📦'};el('productArt').appendChild(img);
+          }else{el('productArt').textContent='📦';}
+        }
+      }catch(err){console.warn('Product database lookup unavailable',err);}
+      if(!found){el('productName').textContent='Scanned product';el('productDetails').textContent='Barcode '+code;el('productArt').textContent='📦';}
+      el('productEyebrow').textContent=found?'✅ Product found':'✅ Barcode read';
+      const fetched=await fetchOffers(code);
+      if(fetched&&fetched.length){activeOffers=fetched;setMode(false);showStatus('Great! Here are the available shop prices, starting with the cheapest.');}
+      else{activeOffers=exampleOffers.slice();setMode(true);showStatus(found?'Product found! The 10 prices below are examples, not real prices.':'Barcode read! Product details were not found. The prices below are only examples.','warn');}
+      renderOffers();el('productName').scrollIntoView({behavior:'smooth',block:'center'});
+    }
+    function setOverlay(visible){el('scannerOverlay').classList.toggle('visible',visible);el('scannerOverlay').setAttribute('aria-hidden',visible?'false':'true');document.body.style.overflow=visible?'hidden':'';}
+    async function stopCamera(){if(scanner){const s=scanner;scanner=null;try{if(s.isScanning)await s.stop();s.clear();}catch(err){console.warn('Closing camera',err);}}}
+    async function closeScanner(){setOverlay(false);await stopCamera();el('scanBtn').focus();}
+    async function startScanner(){
+      scanLock=false;setOverlay(true);el('closeScan').focus();el('scanStatus').textContent='Getting the camera ready…';
+      if(!window.isSecureContext){el('scanStatus').textContent='Your camera needs a secure HTTPS website. You can still type a barcode!';return;}
+      if(typeof Html5Qrcode==='undefined'){el('scanStatus').textContent='The scanner could not load. Check your internet connection or type the barcode.';return;}
+      try{
+        const cfg={};
+        if(typeof Html5QrcodeSupportedFormats!=='undefined') cfg.formatsToSupport=[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.CODE_128];
+        scanner=new Html5Qrcode('reader',cfg);
+        await scanner.start({facingMode:'environment'},{fps:10,qrbox:(width,height)=>{const w=Math.min(280,width-22);return {width:w,height:Math.min(135,height-20)};}},async text=>{
+          if(scanLock)return;scanLock=true;
+          await stopCamera();setOverlay(false);
+          await lookupBarcode(text);
+        },()=>{});
+        el('scanStatus').textContent='Camera ready! Hold the barcode inside the box.';
+      }catch(err){el('scanStatus').textContent='We could not open the camera. Allow camera access, or use the barcode numbers instead.';console.warn('Camera error',err);await stopCamera();}
+    }
+    el('scanBtn').addEventListener('click',startScanner);
+    el('closeScan').addEventListener('click',closeScanner);
+    el('scannerOverlay').addEventListener('click',event=>{if(event.target===el('scannerOverlay'))closeScanner()});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&el('scannerOverlay').classList.contains('visible'))closeScanner()});
+    el('typeBtn').addEventListener('click',()=>{el('manualForm').classList.toggle('open');if(el('manualForm').classList.contains('open'))el('codeInput').focus()});
+    el('manualForm').addEventListener('submit',e=>{e.preventDefault();lookupBarcode(el('codeInput').value)});
+    el('photoBtn').addEventListener('click',()=>el('photoInput').click());
+    el('photoInput').addEventListener('change',async e=>{
+      const file=e.target.files&&e.target.files[0];if(!file)return;
+      showStatus('Reading the barcode from your picture…');
+      if(typeof Html5Qrcode==='undefined'){showStatus('The photo scanner did not load. Please type the barcode numbers.','warn');return;}
+      try{
+        const reader=new Html5Qrcode('photo-reader');
+        const text=await reader.scanFile(file,false);reader.clear();await lookupBarcode(text);
+      }catch(err){showStatus('I could not see a clear barcode. Try a brighter photo, or type the numbers.','warn');console.warn('Photo scan failed',err)}
+      finally{e.target.value='';}
+    });
+    setMode(true);renderOffers();
+  </script>
+</body>
+</html>
